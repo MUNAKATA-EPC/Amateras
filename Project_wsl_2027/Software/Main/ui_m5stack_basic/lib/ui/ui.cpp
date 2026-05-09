@@ -11,7 +11,7 @@ const uint32_t _red_color = 0xFF0000;
 const uint32_t _pink_color = 0xE74D4D;
 const uint32_t _blue_color = 0x4472C4;
 const uint32_t _light_blue_color = 0xADC1FF;
-const uint32_t _yellow_color = 0xFFD966;
+const uint32_t _yellow_color = 0xEBEB40;
 const uint32_t _green_color = 0x70AD47;
 
 // 画面状態
@@ -19,7 +19,7 @@ enum class ui_screen_t
 {
     HOMESCREEN,
     MONITORSCREEN,
-    LOGSCREEN
+    TESTSCREEN
 };
 static ui_screen_t _current_screen = ui_screen_t::HOMESCREEN;
 
@@ -33,7 +33,7 @@ namespace _homescreen
 
     const uint32_t goalBtnBgColors[] = {_yellow_color, _blue_color, _gray_color};
     const char *goalBtnTexts[] = {"YELLOW", "BLUE", "GYRO"};
-    const uint32_t goalBtnTextColors[] = {_white_color, _white_color, _white_color};
+    const uint32_t goalBtnTextColors[] = {_black_color, _black_color, _white_color};
     static uiCycleButton goalCycleBtn(5, 105, 60, 80, 3, goalBtnBgColors, goalBtnTexts, goalBtnTextColors);
 
     static uiToggle showToggle(255, 5, 60, 95, _gray_color, _black_color, _red_color, "SHOW", _white_color, _blue_color, "HIDE", _white_color, true, 5);
@@ -49,12 +49,13 @@ namespace _homescreen
     static uiCycleButton actionmodeBtn(70, 5, 180, 180, 3, actionmodeBtnBgColors, actionmodeBtnTexts, actionmodeBtnTextColors);
 
     static uiFlexibleImageButton monitorBtn(5, 195, 5, 195, 120, 40, _gray_color, 20, 0, "MONITOR", _white_color, 40, 40, "/ui_monitor_icon.png");
-    static uiButton logBtn(130, 195, 120, 40, _gray_color, "LOG", _white_color);
+    static uiFlexibleImageButton testBtn(130, 195, 130, 195, 120, 40, _gray_color, 20, 0, "TEST", _white_color, 40, 40, "/ui_test_icon.png");
     static uiButton nextBtn(255, 195, 60, 40, _gray_color, "NEXT", _white_color);
 
     void init()
     {
         monitorBtn.init();
+        testBtn.init();
     }
 
     void main()
@@ -70,7 +71,7 @@ namespace _homescreen
         posCycleBtn.update(_current_mouse);
         actionmodeBtn.update(_current_mouse);
         monitorBtn.update(_current_mouse);
-        logBtn.update(_current_mouse);
+        testBtn.update(_current_mouse);
         nextBtn.update(_current_mouse);
 
         // コントロールオブジェクト描画
@@ -80,7 +81,7 @@ namespace _homescreen
         posCycleBtn.draw(_canvas);
         actionmodeBtn.draw(_canvas);
         monitorBtn.draw(_canvas);
-        logBtn.draw(_canvas);
+        testBtn.draw(_canvas);
         nextBtn.draw(_canvas);
 
         // ボタンが押されたときの処理
@@ -88,9 +89,9 @@ namespace _homescreen
         {
             _current_screen = ui_screen_t::MONITORSCREEN;
         }
-        else if (logBtn.isReleasedMoment())
+        else if (testBtn.isReleasedMoment())
         {
-            _current_screen = ui_screen_t::LOGSCREEN;
+            _current_screen = ui_screen_t::TESTSCREEN;
         }
         else if (nextBtn.isReleasedMoment())
         {
@@ -101,16 +102,16 @@ namespace _homescreen
 // モニタースクリーン
 namespace _monitorscreen
 {
-    static uiImageButton appBtn(5, 5, 40, 40, 40, 40, "/ui_monitor_icon.png");
+    static uiImageButton iconBtn(5, 5, 40, 40, 40, 40, "/ui_monitor_icon.png");
     const uint32_t sensorBtnBgColors[] = {_gray_color, _yellow_color, _blue_color, _gray_color};
     const char *sensorBtnTexts[] = {"GYRO", "YELLOW_CAM", "BLUE_CAM", "LIDAR"};
-    const uint32_t sensorBtnTextColors[] = {_white_color, _white_color, _white_color, _white_color};
+    const uint32_t sensorBtnTextColors[] = {_white_color, _black_color, _black_color, _white_color};
     static uiCycleButton sensorBtn(50, 5, 220, 40, 4, sensorBtnBgColors, sensorBtnTexts, sensorBtnTextColors, uiCycleSplitMode::Horizontal);
     static uiButton closeBtn(275, 5, 40, 40, _red_color, "CLOSE", _white_color);
 
     void init()
     {
-        appBtn.init();
+        iconBtn.init();
     }
 
     void main()
@@ -119,18 +120,18 @@ namespace _monitorscreen
         _canvas.fillRect(0, 0, 320, 50, _black_color); // サイドバー
 
         // コントロールオブジェクト更新
-        appBtn.update(_current_mouse);
+        iconBtn.update(_current_mouse);
         sensorBtn.update(_current_mouse);
         closeBtn.update(_current_mouse);
 
         // コントロールオブジェクト描画
-        appBtn.draw(_canvas);
+        iconBtn.draw(_canvas);
         sensorBtn.draw(_canvas);
         closeBtn.draw(_canvas);
 
-        if (appBtn.isReleasedMoment())
+        if (iconBtn.isReleasedMoment())
         {
-            _current_screen = ui_screen_t::LOGSCREEN;
+            _current_screen = ui_screen_t::TESTSCREEN;
         }
 
         if (closeBtn.isReleasedMoment())
@@ -140,18 +141,19 @@ namespace _monitorscreen
     }
 }
 
-// ログスクリーン
-namespace _logscreen
+// テストスクリーン
+namespace _testscreen
 {
-    static uiButton appBtn(5, 5, 40, 40, _gray_color, "LOG", _white_color);
-    const uint32_t logBtnBgColors[] = {_gray_color, _gray_color, _gray_color, _gray_color};
-    const char *logBtnTexts[] = {"I", "HAVE", "NO", "IDEA"};
-    const uint32_t logBtnTextColors[] = {_white_color, _white_color, _white_color, _white_color};
-    static uiCycleButton logBtn(50, 5, 220, 40, 4, logBtnBgColors, logBtnTexts, logBtnTextColors);
+    static uiImageButton iconBtn(5, 5, 40, 40, 40, 40, "/ui_test_icon.png");
+    const uint32_t testBtnBgColors[] = {_gray_color, _gray_color, _gray_color, _gray_color};
+    const char *testBtnTexts[] = {"KICKER", "MOTOR", "DRIBBLER", "GYRO AND CAM"};
+    const uint32_t testBtnTextColors[] = {_white_color, _white_color, _white_color, _white_color};
+    static uiCycleButton testBtn(50, 5, 220, 40, 4, testBtnBgColors, testBtnTexts, testBtnTextColors, uiCycleSplitMode::Horizontal);
     static uiButton closeBtn(275, 5, 40, 40, _red_color, "CLOSE", _white_color);
 
     void init()
     {
+        iconBtn.init();
     }
 
     void main()
@@ -160,16 +162,16 @@ namespace _logscreen
         _canvas.fillRect(0, 0, 320, 50, _black_color); // サイドバー
 
         // コントロールオブジェクト更新
-        appBtn.update(_current_mouse);
-        logBtn.update(_current_mouse);
+        iconBtn.update(_current_mouse);
+        testBtn.update(_current_mouse);
         closeBtn.update(_current_mouse);
 
         // コントロールオブジェクト描画
-        appBtn.draw(_canvas);
-        logBtn.draw(_canvas);
+        iconBtn.draw(_canvas);
+        testBtn.draw(_canvas);
         closeBtn.draw(_canvas);
 
-        if (appBtn.isReleasedMoment())
+        if (iconBtn.isReleasedMoment())
         {
             _current_screen = ui_screen_t::MONITORSCREEN;
         }
@@ -201,7 +203,7 @@ bool uiInit()
 
     _homescreen::init();
     _monitorscreen::init();
-    _logscreen::init();
+    _testscreen::init();
 
     return true;
 }
@@ -220,8 +222,8 @@ void uiUpdate(mouse_t mouse)
     case ui_screen_t::MONITORSCREEN:
         _monitorscreen::main();
         break;
-    case ui_screen_t::LOGSCREEN:
-        _logscreen::main();
+    case ui_screen_t::TESTSCREEN:
+        _testscreen::main();
         break;
     }
 
