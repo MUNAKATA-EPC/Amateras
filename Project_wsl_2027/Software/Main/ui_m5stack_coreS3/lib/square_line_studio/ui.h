@@ -27,11 +27,14 @@ extern "C" {
 
 ///////////////////// SCREENS ////////////////////
 
-#include "ui_Screen1.h"
+#include "ui_HomeScreen.h"
+#include "ui_ActionSelectAppScreen.h"
+#include "ui_TestAppScreen.h"
+#include "ui_SensorCheckAppScreen.h"
+#include "ui_LINEScreen.h"
 
 ///////////////////// VARIABLES ////////////////////
 
-extern lv_anim_t * SmoothRight_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
