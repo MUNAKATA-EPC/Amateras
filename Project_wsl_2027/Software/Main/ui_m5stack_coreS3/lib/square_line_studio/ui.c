@@ -37,7 +37,7 @@ void ui_init(void)
     ui_ActionSelectAppScreen_screen_init();
     ui_TestAppScreen_screen_init();
     ui_SensorCheckAppScreen_screen_init();
-    ui_LINEScreen_screen_init();
+    ui_MessageAppScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_HomeScreen);
 }
@@ -48,5 +48,5 @@ void ui_destroy(void)
     ui_ActionSelectAppScreen_screen_destroy();
     ui_TestAppScreen_screen_destroy();
     ui_SensorCheckAppScreen_screen_destroy();
-    ui_LINEScreen_screen_destroy();
+    ui_MessageAppScreen_screen_destroy();
 }

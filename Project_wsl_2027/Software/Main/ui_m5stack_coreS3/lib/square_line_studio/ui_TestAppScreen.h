@@ -14,6 +14,7 @@ extern "C" {
 extern void ui_TestAppScreen_screen_init(void);
 extern void ui_TestAppScreen_screen_destroy(void);
 extern lv_obj_t * ui_TestAppScreen;
+extern void ui_event_DropDown1(lv_event_t * e);
 extern lv_obj_t * ui_DropDown1;
 extern void ui_event_BackButton1(lv_event_t * e);
 extern lv_obj_t * ui_BackButton1;

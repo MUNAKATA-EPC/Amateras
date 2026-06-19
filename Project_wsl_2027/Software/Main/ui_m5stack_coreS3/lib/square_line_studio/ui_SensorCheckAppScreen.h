@@ -14,6 +14,7 @@ extern "C" {
 extern void ui_SensorCheckAppScreen_screen_init(void);
 extern void ui_SensorCheckAppScreen_screen_destroy(void);
 extern lv_obj_t * ui_SensorCheckAppScreen;
+extern void ui_event_DropDown2(lv_event_t * e);
 extern lv_obj_t * ui_DropDown2;
 extern void ui_event_AppBackButton2(lv_event_t * e);
 extern lv_obj_t * ui_AppBackButton2;

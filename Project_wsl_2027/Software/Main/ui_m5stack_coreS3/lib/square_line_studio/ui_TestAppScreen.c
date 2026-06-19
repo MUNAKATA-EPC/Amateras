@@ -14,6 +14,15 @@ lv_obj_t * ui_DropDown1 = NULL;
 lv_obj_t * ui_BackButton1 = NULL;
 lv_obj_t * ui_Label5 = NULL;
 // event funtions
+void ui_event_DropDown1(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        TestAppDropDownFunc(e);
+    }
+}
+
 void ui_event_BackButton1(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -55,6 +64,7 @@ void ui_TestAppScreen_screen_init(void)
     lv_obj_set_align(ui_Label5, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label5, "BACK");
 
+    lv_obj_add_event_cb(ui_DropDown1, ui_event_DropDown1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_BackButton1, ui_event_BackButton1, LV_EVENT_ALL, NULL);
     uic_TestAppScreen = ui_TestAppScreen;
     uic_DropDown1 = ui_DropDown1;

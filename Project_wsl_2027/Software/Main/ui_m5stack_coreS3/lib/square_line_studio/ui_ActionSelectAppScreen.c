@@ -9,6 +9,7 @@ lv_obj_t * uic_Label8;
 lv_obj_t * uic_IdleButton;
 lv_obj_t * uic_Label7;
 lv_obj_t * uic_RunButton;
+lv_obj_t * uic_Run;
 lv_obj_t * uic_AngleIndicator;
 lv_obj_t * uic_ModeSelectButtonLabel0;
 lv_obj_t * uic_ModeSelectButton0;
@@ -44,6 +45,15 @@ lv_obj_t * ui_IdleButton = NULL;
 lv_obj_t * ui_Label8 = NULL;
 lv_obj_t * ui_Panel1 = NULL;
 // event funtions
+void ui_event_DropDown0(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ActionSelectAppDropDownFunc(e);
+    }
+}
+
 void ui_event_BackButton0(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -257,7 +267,7 @@ void ui_ActionSelectAppScreen_screen_init(void)
     lv_obj_clear_flag(ui_Run, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_Run, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Run, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Run, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Run, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Run, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RunButton = lv_btn_create(ui_Run);
@@ -317,6 +327,7 @@ void ui_ActionSelectAppScreen_screen_init(void)
     lv_obj_set_y(ui_Panel1, 180);
     lv_obj_clear_flag(ui_Panel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
+    lv_obj_add_event_cb(ui_DropDown0, ui_event_DropDown0, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_BackButton0, ui_event_BackButton0, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ModeSelectButton2, ui_event_ModeSelectButton2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ModeSelectButton1, ui_event_ModeSelectButton1, LV_EVENT_ALL, NULL);
@@ -337,6 +348,7 @@ void ui_ActionSelectAppScreen_screen_init(void)
     uic_ModeSelectButton0 = ui_ModeSelectButton0;
     uic_ModeSelectButtonLabel0 = ui_ModeSelectButtonLabel0;
     uic_AngleIndicator = ui_AngleIndicator;
+    uic_Run = ui_Run;
     uic_RunButton = ui_RunButton;
     uic_Label7 = ui_Label7;
     uic_IdleButton = ui_IdleButton;
@@ -377,6 +389,7 @@ void ui_ActionSelectAppScreen_screen_destroy(void)
     ui_ModeSelectButtonLabel0 = NULL;
     uic_AngleIndicator = NULL;
     ui_AngleIndicator = NULL;
+    uic_Run = NULL;
     ui_Run = NULL;
     uic_RunButton = NULL;
     ui_RunButton = NULL;

@@ -31,7 +31,7 @@ extern "C" {
 #include "ui_ActionSelectAppScreen.h"
 #include "ui_TestAppScreen.h"
 #include "ui_SensorCheckAppScreen.h"
-#include "ui_LINEScreen.h"
+#include "ui_MessageAppScreen.h"
 
 ///////////////////// VARIABLES ////////////////////
 

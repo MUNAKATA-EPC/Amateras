@@ -56,7 +56,7 @@ void ui_event_Button4(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_LINEScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_LINEScreen_screen_init);
+        _ui_screen_change(&ui_MessageAppScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_MessageAppScreen_screen_init);
     }
 }
 
@@ -157,7 +157,7 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_set_width(ui_Label12, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label12, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label12, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label12, "LINEApp");
+    lv_label_set_text(ui_Label12, "MessageApp");
 
     lv_obj_add_event_cb(ui_Button1, ui_event_Button1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Button2, ui_event_Button2, LV_EVENT_ALL, NULL);

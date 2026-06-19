@@ -14,6 +14,7 @@ extern "C" {
 extern void ui_ActionSelectAppScreen_screen_init(void);
 extern void ui_ActionSelectAppScreen_screen_destroy(void);
 extern lv_obj_t * ui_ActionSelectAppScreen;
+extern void ui_event_DropDown0(lv_event_t * e);
 extern lv_obj_t * ui_DropDown0;
 extern void ui_event_BackButton0(lv_event_t * e);
 extern lv_obj_t * ui_BackButton0;
@@ -54,6 +55,7 @@ extern lv_obj_t * uic_ModeSelectButtonLabel1;
 extern lv_obj_t * uic_ModeSelectButton0;
 extern lv_obj_t * uic_ModeSelectButtonLabel0;
 extern lv_obj_t * uic_AngleIndicator;
+extern lv_obj_t * uic_Run;
 extern lv_obj_t * uic_RunButton;
 extern lv_obj_t * uic_Label7;
 extern lv_obj_t * uic_IdleButton;

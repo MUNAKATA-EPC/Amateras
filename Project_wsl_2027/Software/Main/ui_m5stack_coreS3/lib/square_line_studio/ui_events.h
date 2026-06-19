@@ -10,6 +10,11 @@
 extern "C" {
 #endif
 
+void ActionSelectAppDropDownFunc(lv_event_t * e);
+void TestAppDropDownFunc(lv_event_t * e);
+void SensorCheckAppDropDownFunc(lv_event_t * e);
+void MessageAppDropDownFunc(lv_event_t * e);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
