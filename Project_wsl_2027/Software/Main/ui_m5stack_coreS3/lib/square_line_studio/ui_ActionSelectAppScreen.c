@@ -5,19 +5,25 @@
 
 #include "ui.h"
 
+lv_obj_t * uic_FreePanel;
 lv_obj_t * uic_Label8;
 lv_obj_t * uic_IdleButton;
 lv_obj_t * uic_Label7;
 lv_obj_t * uic_RunButton;
 lv_obj_t * uic_Run;
 lv_obj_t * uic_AngleIndicator;
-lv_obj_t * uic_ModeSelectButtonLabel0;
-lv_obj_t * uic_ModeSelectButton0;
-lv_obj_t * uic_ModeSelectButtonLabel1;
-lv_obj_t * uic_ModeSelectButton1;
-lv_obj_t * uic_ModeSelectButtonLabel2;
-lv_obj_t * uic_ModeSelectButton2;
-lv_obj_t * uic_ModeSelect;
+lv_obj_t * uic_DirectionSelectButtonLabel4;
+lv_obj_t * uic_DirectionSelectButton4;
+lv_obj_t * uic_DirectionSelectButtonLabel3;
+lv_obj_t * uic_DirectionSelectButton3;
+lv_obj_t * uic_DirectionSelect1;
+lv_obj_t * uic_DirectionSelectButtonLabel0;
+lv_obj_t * uic_DirectionSelectButton0;
+lv_obj_t * uic_DirectionSelectButtonLabel1;
+lv_obj_t * uic_DirectionSelectButton1;
+lv_obj_t * uic_DirectionSelectButtonLabel2;
+lv_obj_t * uic_DirectionSelectButton2;
+lv_obj_t * uic_DirectionSelect0;
 lv_obj_t * uic_InterPositonCheckbox;
 lv_obj_t * uic_MacaoShootCheckbox;
 lv_obj_t * uic_Label4;
@@ -30,27 +36,33 @@ lv_obj_t * ui_BackButton0 = NULL;
 lv_obj_t * ui_Label4 = NULL;
 lv_obj_t * ui_MacaoShootCheckbox = NULL;
 lv_obj_t * ui_InterPositonCheckbox = NULL;
-lv_obj_t * ui_ModeSelect = NULL;
-lv_obj_t * ui_ModeSelectButton2 = NULL;
-lv_obj_t * ui_ModeSelectButtonLabel2 = NULL;
-lv_obj_t * ui_ModeSelectButton1 = NULL;
-lv_obj_t * ui_ModeSelectButtonLabel1 = NULL;
-lv_obj_t * ui_ModeSelectButton0 = NULL;
-lv_obj_t * ui_ModeSelectButtonLabel0 = NULL;
+lv_obj_t * ui_DirectionSelect0 = NULL;
+lv_obj_t * ui_DirectionSelectButton2 = NULL;
+lv_obj_t * ui_DirectionSelectButtonLabel2 = NULL;
+lv_obj_t * ui_DirectionSelectButton1 = NULL;
+lv_obj_t * ui_DirectionSelectButtonLabel1 = NULL;
+lv_obj_t * ui_DirectionSelectButton0 = NULL;
+lv_obj_t * ui_DirectionSelectButtonLabel0 = NULL;
+lv_obj_t * ui_DirectionSelect1 = NULL;
+lv_obj_t * ui_DirectionSelectButton3 = NULL;
+lv_obj_t * ui_DirectionSelectButtonLabel3 = NULL;
+lv_obj_t * ui_DirectionSelectButton4 = NULL;
+lv_obj_t * ui_DirectionSelectButtonLabel4 = NULL;
 lv_obj_t * ui_AngleIndicator = NULL;
 lv_obj_t * ui_Run = NULL;
 lv_obj_t * ui_RunButton = NULL;
 lv_obj_t * ui_Label7 = NULL;
 lv_obj_t * ui_IdleButton = NULL;
 lv_obj_t * ui_Label8 = NULL;
-lv_obj_t * ui_Panel1 = NULL;
+lv_obj_t * ui_FreePanel = NULL;
 // event funtions
 void ui_event_DropDown0(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ActionSelectAppDropDownFunc(e);
+        ui_action_select_app_dropdown_func(e);
+        ui_app_clear_settings_func(e);
     }
 }
 
@@ -60,36 +72,57 @@ void ui_event_BackButton0(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_HomeScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_HomeScreen_screen_init);
+        ui_app_clear_settings_func(e);
     }
 }
 
-void ui_event_ModeSelectButton2(lv_event_t * e)
+void ui_event_DirectionSelectButton2(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_ModeSelectButton0, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        _ui_flag_modify(ui_ModeSelectButton2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_DirectionSelectButton0, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_DirectionSelectButton2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
 
-void ui_event_ModeSelectButton1(lv_event_t * e)
+void ui_event_DirectionSelectButton1(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_ModeSelectButton2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        _ui_flag_modify(ui_ModeSelectButton1, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_DirectionSelectButton2, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_DirectionSelectButton1, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
 
-void ui_event_ModeSelectButton0(lv_event_t * e)
+void ui_event_DirectionSelectButton0(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_ModeSelectButton1, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        _ui_flag_modify(ui_ModeSelectButton0, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_DirectionSelectButton1, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_DirectionSelectButton0, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+}
+
+void ui_event_DirectionSelectButton3(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_DirectionSelectButton4, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_DirectionSelectButton3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+}
+
+void ui_event_DirectionSelectButton4(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_DirectionSelectButton3, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_DirectionSelectButton4, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
 
@@ -163,88 +196,148 @@ void ui_ActionSelectAppScreen_screen_init(void)
     lv_obj_add_state(ui_InterPositonCheckbox, LV_STATE_CHECKED);       /// States
     lv_obj_add_flag(ui_InterPositonCheckbox, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
 
-    ui_ModeSelect = lv_obj_create(ui_ActionSelectAppScreen);
-    lv_obj_set_width(ui_ModeSelect, 116);
-    lv_obj_set_height(ui_ModeSelect, 116);
-    lv_obj_set_x(ui_ModeSelect, 194);
-    lv_obj_set_y(ui_ModeSelect, 52);
-    lv_obj_clear_flag(ui_ModeSelect, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_ModeSelect, 58, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_ModeSelect, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ModeSelect, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_ModeSelect, lv_color_hex(0xD5D2D5), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_ModeSelect, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_ModeSelect, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_DirectionSelect0 = lv_obj_create(ui_ActionSelectAppScreen);
+    lv_obj_set_width(ui_DirectionSelect0, 116);
+    lv_obj_set_height(ui_DirectionSelect0, 116);
+    lv_obj_set_x(ui_DirectionSelect0, 194);
+    lv_obj_set_y(ui_DirectionSelect0, 52);
+    lv_obj_add_flag(ui_DirectionSelect0, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_DirectionSelect0, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_DirectionSelect0, 58, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_DirectionSelect0, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DirectionSelect0, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_DirectionSelect0, lv_color_hex(0xD5D2D5), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_DirectionSelect0, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_DirectionSelect0, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ModeSelectButton2 = lv_btn_create(ui_ModeSelect);
-    lv_obj_set_width(ui_ModeSelectButton2, 74);
-    lv_obj_set_height(ui_ModeSelectButton2, 74);
-    lv_obj_set_align(ui_ModeSelectButton2, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_ModeSelectButton2, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_ModeSelectButton2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_ModeSelectButton2, lv_color_hex(0xD5D2D5), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui_ModeSelectButton2, 0, LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton2, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton2, 255, LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_radius(ui_ModeSelectButton2, 0, LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton2, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton2, 255, LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_radius(ui_ModeSelectButton2, 0, LV_PART_MAIN | LV_STATE_USER_3);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton2, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton2, 255, LV_PART_MAIN | LV_STATE_USER_3);
+    ui_DirectionSelectButton2 = lv_btn_create(ui_DirectionSelect0);
+    lv_obj_set_width(ui_DirectionSelectButton2, 74);
+    lv_obj_set_height(ui_DirectionSelectButton2, 74);
+    lv_obj_set_align(ui_DirectionSelectButton2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DirectionSelectButton2, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_DirectionSelectButton2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton2, lv_color_hex(0xD5D2D5), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_DirectionSelectButton2, 0, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton2, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton2, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_radius(ui_DirectionSelectButton2, 0, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton2, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton2, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_radius(ui_DirectionSelectButton2, 0, LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton2, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton2, 255, LV_PART_MAIN | LV_STATE_USER_3);
 
-    ui_ModeSelectButtonLabel2 = lv_label_create(ui_ModeSelectButton2);
-    lv_obj_set_width(ui_ModeSelectButtonLabel2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_ModeSelectButtonLabel2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_ModeSelectButtonLabel2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_ModeSelectButtonLabel2, "GYRO");
+    ui_DirectionSelectButtonLabel2 = lv_label_create(ui_DirectionSelectButton2);
+    lv_obj_set_width(ui_DirectionSelectButtonLabel2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DirectionSelectButtonLabel2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DirectionSelectButtonLabel2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DirectionSelectButtonLabel2, "GYRO");
 
-    ui_ModeSelectButton1 = lv_btn_create(ui_ModeSelect);
-    lv_obj_set_width(ui_ModeSelectButton1, 74);
-    lv_obj_set_height(ui_ModeSelectButton1, 74);
-    lv_obj_set_align(ui_ModeSelectButton1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_ModeSelectButton1, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_ModeSelectButton1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_ModeSelectButton1, lv_color_hex(0xE7DF29), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui_ModeSelectButton1, 0, LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton1, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton1, 255, LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_radius(ui_ModeSelectButton1, 0, LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton1, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton1, 255, LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_radius(ui_ModeSelectButton1, 0, LV_PART_MAIN | LV_STATE_USER_3);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton1, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton1, 255, LV_PART_MAIN | LV_STATE_USER_3);
+    ui_DirectionSelectButton1 = lv_btn_create(ui_DirectionSelect0);
+    lv_obj_set_width(ui_DirectionSelectButton1, 74);
+    lv_obj_set_height(ui_DirectionSelectButton1, 74);
+    lv_obj_set_align(ui_DirectionSelectButton1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DirectionSelectButton1, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_DirectionSelectButton1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton1, lv_color_hex(0xE7DF29), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_DirectionSelectButton1, 0, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton1, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton1, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_radius(ui_DirectionSelectButton1, 0, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton1, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton1, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_radius(ui_DirectionSelectButton1, 0, LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton1, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton1, 255, LV_PART_MAIN | LV_STATE_USER_3);
 
-    ui_ModeSelectButtonLabel1 = lv_label_create(ui_ModeSelectButton1);
-    lv_obj_set_width(ui_ModeSelectButtonLabel1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_ModeSelectButtonLabel1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_ModeSelectButtonLabel1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_ModeSelectButtonLabel1, "YELLOW\nGOAL");
+    ui_DirectionSelectButtonLabel1 = lv_label_create(ui_DirectionSelectButton1);
+    lv_obj_set_width(ui_DirectionSelectButtonLabel1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DirectionSelectButtonLabel1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DirectionSelectButtonLabel1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DirectionSelectButtonLabel1, "YELLOW\nGOAL");
 
-    ui_ModeSelectButton0 = lv_btn_create(ui_ModeSelect);
-    lv_obj_set_width(ui_ModeSelectButton0, 74);
-    lv_obj_set_height(ui_ModeSelectButton0, 74);
-    lv_obj_set_align(ui_ModeSelectButton0, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_ModeSelectButton0, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_ModeSelectButton0, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_ModeSelectButton0, 0, LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton0, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton0, 255, LV_PART_MAIN | LV_STATE_USER_1);
-    lv_obj_set_style_radius(ui_ModeSelectButton0, 0, LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton0, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton0, 255, LV_PART_MAIN | LV_STATE_USER_2);
-    lv_obj_set_style_radius(ui_ModeSelectButton0, 0, LV_PART_MAIN | LV_STATE_USER_3);
-    lv_obj_set_style_bg_color(ui_ModeSelectButton0, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
-    lv_obj_set_style_bg_opa(ui_ModeSelectButton0, 255, LV_PART_MAIN | LV_STATE_USER_3);
+    ui_DirectionSelectButton0 = lv_btn_create(ui_DirectionSelect0);
+    lv_obj_set_width(ui_DirectionSelectButton0, 74);
+    lv_obj_set_height(ui_DirectionSelectButton0, 74);
+    lv_obj_set_align(ui_DirectionSelectButton0, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DirectionSelectButton0, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_DirectionSelectButton0, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_DirectionSelectButton0, 0, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton0, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton0, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_radius(ui_DirectionSelectButton0, 0, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton0, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton0, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_radius(ui_DirectionSelectButton0, 0, LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton0, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton0, 255, LV_PART_MAIN | LV_STATE_USER_3);
 
-    ui_ModeSelectButtonLabel0 = lv_label_create(ui_ModeSelectButton0);
-    lv_obj_set_width(ui_ModeSelectButtonLabel0, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_ModeSelectButtonLabel0, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_ModeSelectButtonLabel0, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_ModeSelectButtonLabel0, "BLUE\nGOAL");
+    ui_DirectionSelectButtonLabel0 = lv_label_create(ui_DirectionSelectButton0);
+    lv_obj_set_width(ui_DirectionSelectButtonLabel0, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DirectionSelectButtonLabel0, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DirectionSelectButtonLabel0, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DirectionSelectButtonLabel0, "BLUE\nGOAL");
+
+    ui_DirectionSelect1 = lv_obj_create(ui_ActionSelectAppScreen);
+    lv_obj_set_width(ui_DirectionSelect1, 116);
+    lv_obj_set_height(ui_DirectionSelect1, 116);
+    lv_obj_set_x(ui_DirectionSelect1, 194);
+    lv_obj_set_y(ui_DirectionSelect1, 52);
+    lv_obj_clear_flag(ui_DirectionSelect1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_DirectionSelect1, 58, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_DirectionSelect1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DirectionSelect1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_DirectionSelect1, lv_color_hex(0xD5D2D5), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_DirectionSelect1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_DirectionSelect1, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_DirectionSelectButton3 = lv_btn_create(ui_DirectionSelect1);
+    lv_obj_set_width(ui_DirectionSelectButton3, 74);
+    lv_obj_set_height(ui_DirectionSelectButton3, 74);
+    lv_obj_set_align(ui_DirectionSelectButton3, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DirectionSelectButton3, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_DirectionSelectButton3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton3, lv_color_hex(0xE7DF29), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton3, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui_DirectionSelectButton3, 0, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton3, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton3, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_radius(ui_DirectionSelectButton3, 0, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton3, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton3, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_radius(ui_DirectionSelectButton3, 0, LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton3, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton3, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_DirectionSelectButtonLabel3 = lv_label_create(ui_DirectionSelectButton3);
+    lv_obj_set_width(ui_DirectionSelectButtonLabel3, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DirectionSelectButtonLabel3, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DirectionSelectButtonLabel3, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DirectionSelectButtonLabel3, "YELLOW\nGOAL");
+
+    ui_DirectionSelectButton4 = lv_btn_create(ui_DirectionSelect1);
+    lv_obj_set_width(ui_DirectionSelectButton4, 74);
+    lv_obj_set_height(ui_DirectionSelectButton4, 74);
+    lv_obj_set_align(ui_DirectionSelectButton4, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DirectionSelectButton4, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_DirectionSelectButton4, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_DirectionSelectButton4, 0, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton4, lv_color_hex(0xD3D904), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton4, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_radius(ui_DirectionSelectButton4, 0, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton4, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton4, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_radius(ui_DirectionSelectButton4, 0, LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_color(ui_DirectionSelectButton4, lv_color_hex(0x545454), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_DirectionSelectButton4, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_DirectionSelectButtonLabel4 = lv_label_create(ui_DirectionSelectButton4);
+    lv_obj_set_width(ui_DirectionSelectButtonLabel4, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_DirectionSelectButtonLabel4, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_DirectionSelectButtonLabel4, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_DirectionSelectButtonLabel4, "BLUE\nGOAL");
 
     ui_AngleIndicator = lv_obj_create(ui_ActionSelectAppScreen);
     lv_obj_set_width(ui_AngleIndicator, 16);
@@ -320,18 +413,20 @@ void ui_ActionSelectAppScreen_screen_init(void)
     lv_obj_set_align(ui_Label8, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label8, "IDLE");
 
-    ui_Panel1 = lv_obj_create(ui_ActionSelectAppScreen);
-    lv_obj_set_width(ui_Panel1, 170);
-    lv_obj_set_height(ui_Panel1, 50);
-    lv_obj_set_x(ui_Panel1, 140);
-    lv_obj_set_y(ui_Panel1, 180);
-    lv_obj_clear_flag(ui_Panel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_FreePanel = lv_obj_create(ui_ActionSelectAppScreen);
+    lv_obj_set_width(ui_FreePanel, 170);
+    lv_obj_set_height(ui_FreePanel, 50);
+    lv_obj_set_x(ui_FreePanel, 140);
+    lv_obj_set_y(ui_FreePanel, 180);
+    lv_obj_clear_flag(ui_FreePanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     lv_obj_add_event_cb(ui_DropDown0, ui_event_DropDown0, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_BackButton0, ui_event_BackButton0, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_ModeSelectButton2, ui_event_ModeSelectButton2, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_ModeSelectButton1, ui_event_ModeSelectButton1, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_ModeSelectButton0, ui_event_ModeSelectButton0, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_DirectionSelectButton2, ui_event_DirectionSelectButton2, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_DirectionSelectButton1, ui_event_DirectionSelectButton1, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_DirectionSelectButton0, ui_event_DirectionSelectButton0, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_DirectionSelectButton3, ui_event_DirectionSelectButton3, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_DirectionSelectButton4, ui_event_DirectionSelectButton4, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_RunButton, ui_event_RunButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_IdleButton, ui_event_IdleButton, LV_EVENT_ALL, NULL);
     uic_ActionSelectAppScreen = ui_ActionSelectAppScreen;
@@ -340,19 +435,25 @@ void ui_ActionSelectAppScreen_screen_init(void)
     uic_Label4 = ui_Label4;
     uic_MacaoShootCheckbox = ui_MacaoShootCheckbox;
     uic_InterPositonCheckbox = ui_InterPositonCheckbox;
-    uic_ModeSelect = ui_ModeSelect;
-    uic_ModeSelectButton2 = ui_ModeSelectButton2;
-    uic_ModeSelectButtonLabel2 = ui_ModeSelectButtonLabel2;
-    uic_ModeSelectButton1 = ui_ModeSelectButton1;
-    uic_ModeSelectButtonLabel1 = ui_ModeSelectButtonLabel1;
-    uic_ModeSelectButton0 = ui_ModeSelectButton0;
-    uic_ModeSelectButtonLabel0 = ui_ModeSelectButtonLabel0;
+    uic_DirectionSelect0 = ui_DirectionSelect0;
+    uic_DirectionSelectButton2 = ui_DirectionSelectButton2;
+    uic_DirectionSelectButtonLabel2 = ui_DirectionSelectButtonLabel2;
+    uic_DirectionSelectButton1 = ui_DirectionSelectButton1;
+    uic_DirectionSelectButtonLabel1 = ui_DirectionSelectButtonLabel1;
+    uic_DirectionSelectButton0 = ui_DirectionSelectButton0;
+    uic_DirectionSelectButtonLabel0 = ui_DirectionSelectButtonLabel0;
+    uic_DirectionSelect1 = ui_DirectionSelect1;
+    uic_DirectionSelectButton3 = ui_DirectionSelectButton3;
+    uic_DirectionSelectButtonLabel3 = ui_DirectionSelectButtonLabel3;
+    uic_DirectionSelectButton4 = ui_DirectionSelectButton4;
+    uic_DirectionSelectButtonLabel4 = ui_DirectionSelectButtonLabel4;
     uic_AngleIndicator = ui_AngleIndicator;
     uic_Run = ui_Run;
     uic_RunButton = ui_RunButton;
     uic_Label7 = ui_Label7;
     uic_IdleButton = ui_IdleButton;
     uic_Label8 = ui_Label8;
+    uic_FreePanel = ui_FreePanel;
 
 }
 
@@ -373,20 +474,30 @@ void ui_ActionSelectAppScreen_screen_destroy(void)
     ui_MacaoShootCheckbox = NULL;
     uic_InterPositonCheckbox = NULL;
     ui_InterPositonCheckbox = NULL;
-    uic_ModeSelect = NULL;
-    ui_ModeSelect = NULL;
-    uic_ModeSelectButton2 = NULL;
-    ui_ModeSelectButton2 = NULL;
-    uic_ModeSelectButtonLabel2 = NULL;
-    ui_ModeSelectButtonLabel2 = NULL;
-    uic_ModeSelectButton1 = NULL;
-    ui_ModeSelectButton1 = NULL;
-    uic_ModeSelectButtonLabel1 = NULL;
-    ui_ModeSelectButtonLabel1 = NULL;
-    uic_ModeSelectButton0 = NULL;
-    ui_ModeSelectButton0 = NULL;
-    uic_ModeSelectButtonLabel0 = NULL;
-    ui_ModeSelectButtonLabel0 = NULL;
+    uic_DirectionSelect0 = NULL;
+    ui_DirectionSelect0 = NULL;
+    uic_DirectionSelectButton2 = NULL;
+    ui_DirectionSelectButton2 = NULL;
+    uic_DirectionSelectButtonLabel2 = NULL;
+    ui_DirectionSelectButtonLabel2 = NULL;
+    uic_DirectionSelectButton1 = NULL;
+    ui_DirectionSelectButton1 = NULL;
+    uic_DirectionSelectButtonLabel1 = NULL;
+    ui_DirectionSelectButtonLabel1 = NULL;
+    uic_DirectionSelectButton0 = NULL;
+    ui_DirectionSelectButton0 = NULL;
+    uic_DirectionSelectButtonLabel0 = NULL;
+    ui_DirectionSelectButtonLabel0 = NULL;
+    uic_DirectionSelect1 = NULL;
+    ui_DirectionSelect1 = NULL;
+    uic_DirectionSelectButton3 = NULL;
+    ui_DirectionSelectButton3 = NULL;
+    uic_DirectionSelectButtonLabel3 = NULL;
+    ui_DirectionSelectButtonLabel3 = NULL;
+    uic_DirectionSelectButton4 = NULL;
+    ui_DirectionSelectButton4 = NULL;
+    uic_DirectionSelectButtonLabel4 = NULL;
+    ui_DirectionSelectButtonLabel4 = NULL;
     uic_AngleIndicator = NULL;
     ui_AngleIndicator = NULL;
     uic_Run = NULL;
@@ -399,6 +510,7 @@ void ui_ActionSelectAppScreen_screen_destroy(void)
     ui_IdleButton = NULL;
     uic_Label8 = NULL;
     ui_Label8 = NULL;
-    ui_Panel1 = NULL;
+    uic_FreePanel = NULL;
+    ui_FreePanel = NULL;
 
 }

@@ -10,10 +10,12 @@
 extern "C" {
 #endif
 
-void ActionSelectAppDropDownFunc(lv_event_t * e);
-void TestAppDropDownFunc(lv_event_t * e);
-void SensorCheckAppDropDownFunc(lv_event_t * e);
-void MessageAppDropDownFunc(lv_event_t * e);
+void ui_action_select_app_dropdown_func(lv_event_t * e);
+void ui_app_clear_settings_func(lv_event_t * e);
+void ui_test_app_dropdown_func(lv_event_t * e);
+void ui_sensor_check_app_dropdown_func(lv_event_t * e);
+void ui_message_app_dropdown_func(lv_event_t * e);
+void ui_message_app_send_button_func(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

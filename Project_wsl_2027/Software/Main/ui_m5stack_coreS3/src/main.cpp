@@ -68,8 +68,33 @@ void loop()
     uint32_t elapsed = cur_ms - last_ms;
     lv_tick_inc(elapsed);
     last_ms = cur_ms;
+
     M5.update();
     lv_timer_handler();
+
+    static uint32_t last_loop_ms = 0;
+    if (cur_ms - last_loop_ms >= 100)
+    {
+        last_loop_ms = cur_ms;
+
+        lv_obj_t * current_scr = lv_scr_act();
+
+        if (current_scr == ui_HomeScreen)
+        {
+        }
+        else if (current_scr == ui_ActionSelectAppScreen)
+        {
+        }
+        else if (current_scr == ui_TestAppScreen)
+        {
+        }
+        else if (current_scr == ui_SensorCheckAppScreen)
+        {
+        }
+        else if (current_scr == ui_MessageAppScreen)
+        {
+        }
+    }
 
     yield(); 
 }

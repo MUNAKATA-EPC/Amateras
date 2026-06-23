@@ -3,65 +3,238 @@
 // LVGL version: 8.3.11
 // Project name: test
 
+#include <stdio.h>
+#include <string.h>
 #include "ui.h"
 
-void MessageAppDropDownFunc(lv_event_t *e)
+// 設定をリセットする関数
+
+void ui_app_clear_settings_func(lv_event_t *e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    if (code == LV_EVENT_VALUE_CHANGED)
-    {
-        lv_obj_t *obj = lv_event_get_target(e);
+	// ActionSelectAppScreen
+	// 表示されているオブジェクト
+	lv_obj_clear_flag(uic_DirectionSelect1, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_clear_flag(uic_IdleButton, LV_OBJ_FLAG_HIDDEN);
+	// 非表示(隠されている)オブジェクト
+	lv_obj_add_flag(uic_DirectionSelect0, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(uic_RunButton, LV_OBJ_FLAG_HIDDEN);
 
-        char buf[32]; 
-        lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
-
-        if(strcmp(buf, "Send") == 0)
-        {
-            // Sendを表示、Receiveを隠す
-            lv_obj_clear_flag(uic_Send, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_add_flag(uic_Receive, LV_OBJ_FLAG_HIDDEN);
-        }
-        else // if(strcmp(buf, "Receive") == 0)
-        {
-            // Sendを隠し、Receiveを表示
-            lv_obj_add_flag(uic_Send, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_clear_flag(uic_Receive, LV_OBJ_FLAG_HIDDEN);
-        }
-    }
+	// TestAppScreen
+	// 表示されているオブジェクト
+	lv_obj_clear_flag(uic_FrontButton, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_clear_flag(uic_IdleButton3, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_clear_flag(uic_IdleButton2, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_clear_flag(uic_IdleButton4, LV_OBJ_FLAG_HIDDEN);
+	// 非表示(隠されている)オブジェクト
+	lv_obj_add_flag(uic_BackButton, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(uic_RunButton3, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(uic_RunButton2, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(uic_RunButton4, LV_OBJ_FLAG_HIDDEN);
 }
 
-void ActionSelectAppDropDownFunc(lv_event_t * e)
+// 各アプリの関数
+
+void ui_test_app_dropdown_func(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-    if (code == LV_EVENT_VALUE_CHANGED)
-    {
-        lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		lv_obj_t *obj = lv_event_get_target(e);
 
-        char buf[32]; 
-        lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
-    }
+		char buf[32];
+		lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
+
+		if (strcmp(buf, "Kicker") == 0)
+		{
+			lv_obj_clear_flag(uic_Kicker, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_PIDMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_BallMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_LineMove, LV_OBJ_FLAG_HIDDEN);
+		}
+		else if (strcmp(buf, "PIDMove") == 0)
+		{
+			lv_obj_clear_flag(uic_PIDMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Kicker, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_BallMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_LineMove, LV_OBJ_FLAG_HIDDEN);
+		}
+		else if (strcmp(buf, "BallMove") == 0)
+		{
+			lv_obj_clear_flag(uic_BallMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Kicker, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_PIDMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_LineMove, LV_OBJ_FLAG_HIDDEN);
+		}
+		else // if (strcmp(buf, "LineMove") == 0)
+		{
+			lv_obj_clear_flag(uic_LineMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Kicker, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_PIDMove, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_BallMove, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
 }
 
-void TestAppDropDownFunc(lv_event_t * e)
+void ui_sensor_check_app_dropdown_func(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-    if (code == LV_EVENT_VALUE_CHANGED)
-    {
-        lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		lv_obj_t *obj = lv_event_get_target(e);
 
-        char buf[32]; 
-        lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
-    }
+		char buf[32];
+		lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
+
+		if (strcmp(buf, "Ball") == 0)
+		{
+			lv_obj_clear_flag(uic_Ball, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Line, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Gyro, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Goal, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Lidar, LV_OBJ_FLAG_HIDDEN);
+		}
+		else if (strcmp(buf, "Line") == 0)
+		{
+			lv_obj_clear_flag(uic_Line, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Ball, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Gyro, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Goal, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Lidar, LV_OBJ_FLAG_HIDDEN);
+		}
+		else if (strcmp(buf, "Gyro") == 0)
+		{
+			lv_obj_clear_flag(uic_Gyro, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Ball, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Line, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Goal, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Lidar, LV_OBJ_FLAG_HIDDEN);
+		}
+		else if (strcmp(buf, "Lidar") == 0)
+		{
+			lv_obj_clear_flag(uic_Lidar, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Ball, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Line, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Gyro, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Goal, LV_OBJ_FLAG_HIDDEN);
+		}
+		else if (strcmp(buf, "Goal") == 0)
+		{
+			lv_obj_clear_flag(uic_Goal, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Ball, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Line, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Gyro, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Lidar, LV_OBJ_FLAG_HIDDEN);
+		}
+		else // if(strcmp(buf, "Lidar") == 0)
+		{
+			lv_obj_clear_flag(uic_Lidar, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Ball, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Line, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Gyro, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Goal, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
 }
 
-void SensorCheckAppDropDownFunc(lv_event_t * e)
+void ui_message_app_dropdown_func(lv_event_t *e)
 {
 	lv_event_code_t code = lv_event_get_code(e);
-    if (code == LV_EVENT_VALUE_CHANGED)
-    {
-        lv_obj_t *obj = lv_event_get_target(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		lv_obj_t *obj = lv_event_get_target(e);
 
-        char buf[32]; 
-        lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
-    }
+		char buf[32];
+		lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
+
+		if (strcmp(buf, "Send") == 0)
+		{
+			lv_obj_clear_flag(uic_Send, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Receive, LV_OBJ_FLAG_HIDDEN);
+		}
+		else // if(strcmp(buf, "Receive") == 0)
+		{
+			lv_obj_clear_flag(uic_Receive, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_Send, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
+}
+
+void ui_action_select_app_dropdown_func(lv_event_t *e)
+{
+	lv_event_code_t code = lv_event_get_code(e);
+	if (code == LV_EVENT_VALUE_CHANGED)
+	{
+		lv_obj_t *obj = lv_event_get_target(e);
+
+		char buf[32];
+		lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
+
+		if (strcmp(buf, "Attacker") == 0 || strcmp(buf, "Radicon") == 0)
+		{
+			lv_obj_clear_flag(uic_DirectionSelect0, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_DirectionSelect1, LV_OBJ_FLAG_HIDDEN);
+		}
+		else // if(strcmp(buf, "Defender") == 0)
+		{
+			lv_obj_clear_flag(uic_DirectionSelect1, LV_OBJ_FLAG_HIDDEN);
+			lv_obj_add_flag(uic_DirectionSelect0, LV_OBJ_FLAG_HIDDEN);
+		}
+	}
+}
+
+void ui_message_app_send_button_func(lv_event_t *e)
+{
+	lv_event_code_t event_code = lv_event_get_code(e);
+	if (event_code == LV_EVENT_CLICKED)
+	{
+		// テキストエリアから入力された文字列を取得
+		const char *input_text = lv_textarea_get_text(uic_TextArea1);
+
+		// 入力が空（文字数が0）なら何もしない
+		if (input_text == NULL || strlen(input_text) == 0)
+		{
+			return;
+		}
+
+		// 現在の履歴ラベルのテキストを取得
+		const char *current_history = lv_label_get_text(uic_ReceiveMessageLabel);
+
+		size_t new_len = 0;
+		if (strlen(current_history) > 0)
+		{
+			// 現在の文字数 + 改行("\n") + "You : " + 入力文字数 + ヌル文字('\0')
+			// つまり、current_history + 1 + 6 + input_text + 1
+			new_len = strlen(current_history) + 1 + 6 + strlen(input_text) + 1;
+		}
+		else
+		{
+			// "You : " + 入力文字数 + ヌル文字('\0')
+			// つまり、6 + input_text + 1
+			new_len = 6 + strlen(input_text) + 1;
+		}
+
+		char *buf = (char *)lv_mem_alloc(new_len);
+
+		if (buf != NULL)
+		{
+			// 文字列を結合する
+			if (strlen(current_history) > 0)
+			{
+				snprintf(buf, new_len, "%s\nYou : %s", current_history, input_text);
+			}
+			else
+			{
+				snprintf(buf, new_len, "You : %s", input_text);
+			}
+
+			// 履歴ラベルに新しい文字列をセット
+			lv_label_set_text(uic_ReceiveMessageLabel, buf);
+
+			// 確保したメモリを解放
+			lv_mem_free(buf);
+		}
+
+		// テキストエリアの内容をクリア
+		lv_textarea_set_text(uic_TextArea1, "");
+	}
 }

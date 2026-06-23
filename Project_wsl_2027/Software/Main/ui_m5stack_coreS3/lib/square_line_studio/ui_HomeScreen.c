@@ -5,14 +5,14 @@
 
 #include "ui.h"
 
-lv_obj_t * uic_Label12;
-lv_obj_t * uic_Button4;
-lv_obj_t * uic_Label3;
-lv_obj_t * uic_Button3;
-lv_obj_t * uic_Label2;
-lv_obj_t * uic_Button2;
-lv_obj_t * uic_Label1;
-lv_obj_t * uic_Button1;
+lv_obj_t * uic_label12;
+lv_obj_t * uic_button4;
+lv_obj_t * uic_label3;
+lv_obj_t * uic_button3;
+lv_obj_t * uic_label2;
+lv_obj_t * uic_button2;
+lv_obj_t * uic_label1;
+lv_obj_t * uic_button1;
 lv_obj_t * uic_HomeScreen;
 lv_obj_t * ui_HomeScreen = NULL;
 lv_obj_t * ui_Button1 = NULL;
@@ -164,14 +164,14 @@ void ui_HomeScreen_screen_init(void)
     lv_obj_add_event_cb(ui_Button3, ui_event_Button3, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Button4, ui_event_Button4, LV_EVENT_ALL, NULL);
     uic_HomeScreen = ui_HomeScreen;
-    uic_Button1 = ui_Button1;
-    uic_Label1 = ui_Label1;
-    uic_Button2 = ui_Button2;
-    uic_Label2 = ui_Label2;
-    uic_Button3 = ui_Button3;
-    uic_Label3 = ui_Label3;
-    uic_Button4 = ui_Button4;
-    uic_Label12 = ui_Label12;
+    uic_button1 = ui_Button1;
+    uic_label1 = ui_Label1;
+    uic_button2 = ui_Button2;
+    uic_label2 = ui_Label2;
+    uic_button3 = ui_Button3;
+    uic_label3 = ui_Label3;
+    uic_button4 = ui_Button4;
+    uic_label12 = ui_Label12;
 
 }
 
@@ -182,21 +182,21 @@ void ui_HomeScreen_screen_destroy(void)
     // NULL screen variables
     uic_HomeScreen = NULL;
     ui_HomeScreen = NULL;
-    uic_Button1 = NULL;
+    uic_button1 = NULL;
     ui_Button1 = NULL;
-    uic_Label1 = NULL;
+    uic_label1 = NULL;
     ui_Label1 = NULL;
-    uic_Button2 = NULL;
+    uic_button2 = NULL;
     ui_Button2 = NULL;
-    uic_Label2 = NULL;
+    uic_label2 = NULL;
     ui_Label2 = NULL;
-    uic_Button3 = NULL;
+    uic_button3 = NULL;
     ui_Button3 = NULL;
-    uic_Label3 = NULL;
+    uic_label3 = NULL;
     ui_Label3 = NULL;
-    uic_Button4 = NULL;
+    uic_button4 = NULL;
     ui_Button4 = NULL;
-    uic_Label12 = NULL;
+    uic_label12 = NULL;
     ui_Label12 = NULL;
 
 }

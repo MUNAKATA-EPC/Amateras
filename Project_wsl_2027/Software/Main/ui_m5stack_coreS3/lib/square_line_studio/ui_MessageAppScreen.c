@@ -7,8 +7,12 @@
 
 lv_obj_t * uic_ReceiveMessageLabel;
 lv_obj_t * uic_Receive;
+lv_obj_t * uic_Keyboard1;
+lv_obj_t * uic_TextArea1;
+lv_obj_t * uic_Label11;
 lv_obj_t * uic_SendButton;
 lv_obj_t * uic_Send;
+lv_obj_t * uic_Label9;
 lv_obj_t * uic_AppBackButton3;
 lv_obj_t * uic_DropDown3;
 lv_obj_t * uic_MessageAppScreen;
@@ -29,7 +33,8 @@ void ui_event_DropDown3(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        MessageAppDropDownFunc(e);
+        ui_message_app_dropdown_func(e);
+        ui_app_clear_settings_func(e);
     }
 }
 
@@ -39,6 +44,16 @@ void ui_event_AppBackButton3(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_HomeScreen, LV_SCR_LOAD_ANIM_FADE_ON, 10, 0, &ui_HomeScreen_screen_init);
+        ui_app_clear_settings_func(e);
+    }
+}
+
+void ui_event_SendButton(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_message_app_send_button_func(e);
     }
 }
 
@@ -124,24 +139,26 @@ void ui_MessageAppScreen_screen_init(void)
     lv_obj_set_x(ui_Receive, 3);
     lv_obj_set_y(ui_Receive, 46);
     lv_obj_add_flag(ui_Receive, LV_OBJ_FLAG_HIDDEN);     /// Flags
-    lv_obj_clear_flag(ui_Receive, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_ReceiveMessageLabel = lv_label_create(ui_Receive);
-    lv_obj_set_width(ui_ReceiveMessageLabel, LV_SIZE_CONTENT);   /// 10
+    lv_obj_set_width(ui_ReceiveMessageLabel, lv_pct(100));
     lv_obj_set_height(ui_ReceiveMessageLabel, LV_SIZE_CONTENT);    /// 10
-    lv_obj_set_x(ui_ReceiveMessageLabel, -10);
-    lv_obj_set_y(ui_ReceiveMessageLabel, -10);
-    lv_label_set_text(ui_ReceiveMessageLabel,
-                      "You  : Hello\nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello \n\n \nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello\nHim : Hello\nYou  : Hello \n\n ");
+    lv_label_set_text(ui_ReceiveMessageLabel, "");
+    lv_obj_clear_flag(ui_ReceiveMessageLabel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     lv_obj_add_event_cb(ui_DropDown3, ui_event_DropDown3, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_AppBackButton3, ui_event_AppBackButton3, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SendButton, ui_event_SendButton, LV_EVENT_ALL, NULL);
     lv_keyboard_set_textarea(ui_Keyboard1, ui_TextArea1);
     uic_MessageAppScreen = ui_MessageAppScreen;
     uic_DropDown3 = ui_DropDown3;
     uic_AppBackButton3 = ui_AppBackButton3;
+    uic_Label9 = ui_Label9;
     uic_Send = ui_Send;
     uic_SendButton = ui_SendButton;
+    uic_Label11 = ui_Label11;
+    uic_TextArea1 = ui_TextArea1;
+    uic_Keyboard1 = ui_Keyboard1;
     uic_Receive = ui_Receive;
     uic_ReceiveMessageLabel = ui_ReceiveMessageLabel;
 
@@ -158,13 +175,17 @@ void ui_MessageAppScreen_screen_destroy(void)
     ui_DropDown3 = NULL;
     uic_AppBackButton3 = NULL;
     ui_AppBackButton3 = NULL;
+    uic_Label9 = NULL;
     ui_Label9 = NULL;
     uic_Send = NULL;
     ui_Send = NULL;
     uic_SendButton = NULL;
     ui_SendButton = NULL;
+    uic_Label11 = NULL;
     ui_Label11 = NULL;
+    uic_TextArea1 = NULL;
     ui_TextArea1 = NULL;
+    uic_Keyboard1 = NULL;
     ui_Keyboard1 = NULL;
     uic_Receive = NULL;
     ui_Receive = NULL;

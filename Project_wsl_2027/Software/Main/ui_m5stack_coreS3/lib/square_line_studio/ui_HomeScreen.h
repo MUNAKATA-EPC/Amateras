@@ -28,14 +28,14 @@ extern lv_obj_t * ui_Button4;
 extern lv_obj_t * ui_Label12;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_HomeScreen;
-extern lv_obj_t * uic_Button1;
-extern lv_obj_t * uic_Label1;
-extern lv_obj_t * uic_Button2;
-extern lv_obj_t * uic_Label2;
-extern lv_obj_t * uic_Button3;
-extern lv_obj_t * uic_Label3;
-extern lv_obj_t * uic_Button4;
-extern lv_obj_t * uic_Label12;
+extern lv_obj_t * uic_button1;
+extern lv_obj_t * uic_label1;
+extern lv_obj_t * uic_button2;
+extern lv_obj_t * uic_label2;
+extern lv_obj_t * uic_button3;
+extern lv_obj_t * uic_label3;
+extern lv_obj_t * uic_button4;
+extern lv_obj_t * uic_label12;
 
 #ifdef __cplusplus
 } /*extern "C"*/
