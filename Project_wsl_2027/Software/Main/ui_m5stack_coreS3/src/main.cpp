@@ -2,11 +2,11 @@
 #include <M5Unified.h>
 #include "ui.h"
 
-static const uint32_t screenWidth  = 320;
+static const uint32_t screenWidth = 320;
 static const uint32_t screenHeight = 240;
 
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * 60]; 
+static lv_color_t buf[screenWidth * 60];
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
@@ -71,30 +71,6 @@ void loop()
 
     M5.update();
     lv_timer_handler();
-
-    static uint32_t last_loop_ms = 0;
-    if (cur_ms - last_loop_ms >= 100)
-    {
-        last_loop_ms = cur_ms;
-
-        lv_obj_t * current_scr = lv_scr_act();
-
-        if (current_scr == ui_HomeScreen)
-        {
-        }
-        else if (current_scr == ui_ActionSelectAppScreen)
-        {
-        }
-        else if (current_scr == ui_TestAppScreen)
-        {
-        }
-        else if (current_scr == ui_SensorCheckAppScreen)
-        {
-        }
-        else if (current_scr == ui_MessageAppScreen)
-        {
-        }
-    }
-
-    yield(); 
+    
+    yield();
 }
