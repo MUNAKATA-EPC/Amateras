@@ -13,6 +13,7 @@ extern "C" {
 // SCREEN: ui_Communication
 extern void ui_Communication_screen_init(void);
 extern void ui_Communication_screen_destroy(void);
+extern void ui_event_Communication(lv_event_t * e);
 extern lv_obj_t * ui_Communication;
 extern lv_obj_t * ui_CommunicationTopContainer;
 extern lv_obj_t * ui_CommunicationDropdown;

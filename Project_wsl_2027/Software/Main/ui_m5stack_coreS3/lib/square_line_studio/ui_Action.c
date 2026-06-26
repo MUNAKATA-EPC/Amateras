@@ -28,6 +28,15 @@ lv_obj_t * ui_ActionConfigCheckbox4 = NULL;
 lv_obj_t * ui_ActionDebugPanel = NULL;
 lv_obj_t * ui_ActionDebugLabel = NULL;
 // event funtions
+void ui_event_Action(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        action_loaded_event(e);
+    }
+}
+
 void ui_event_ActionDropdown(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -298,6 +307,7 @@ void ui_Action_screen_init(void)
     lv_obj_add_event_cb(ui_ActionLeverRunButton, ui_event_ActionLeverRunButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ActionLeverIdleButton, ui_event_ActionLeverIdleButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ActionMeterButton, ui_event_ActionMeterButton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Action, ui_event_Action, LV_EVENT_ALL, NULL);
 
 }
 

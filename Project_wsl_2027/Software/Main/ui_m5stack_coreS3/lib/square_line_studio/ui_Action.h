@@ -13,6 +13,7 @@ extern "C" {
 // SCREEN: ui_Action
 extern void ui_Action_screen_init(void);
 extern void ui_Action_screen_destroy(void);
+extern void ui_event_Action(lv_event_t * e);
 extern lv_obj_t * ui_Action;
 extern lv_obj_t * ui_ActionTopContainer;
 extern void ui_event_ActionDropdown(lv_event_t * e);

@@ -12,6 +12,15 @@ lv_obj_t * ui_CommunicationBackButton = NULL;
 lv_obj_t * ui_CommunicationBackLabel = NULL;
 lv_obj_t * ui_CommunicationMidContainer = NULL;
 // event funtions
+void ui_event_Communication(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        communication_loaded_event(e);
+    }
+}
+
 void ui_event_CommunicationBackButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -78,6 +87,7 @@ void ui_Communication_screen_init(void)
     lv_obj_clear_flag(ui_CommunicationMidContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     lv_obj_add_event_cb(ui_CommunicationBackButton, ui_event_CommunicationBackButton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Communication, ui_event_Communication, LV_EVENT_ALL, NULL);
 
 }
 

@@ -11,7 +11,72 @@ lv_obj_t * ui_SensorMonitorDropdown = NULL;
 lv_obj_t * ui_SensorMonitorBackButton = NULL;
 lv_obj_t * ui_SensorMonitorBackLabel2 = NULL;
 lv_obj_t * ui_SensorMonitorMidContainer = NULL;
+lv_obj_t * ui_SensorMonitorBallContainer = NULL;
+lv_obj_t * ui_SensorMonitorBallDebugPanel = NULL;
+lv_obj_t * ui_SensorMonitorBallDebugLabel = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterContainer1 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterButton1 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterPointorPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterContainer2 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterButton2 = NULL;
+lv_obj_t * ui_SensorMonitorBallMeterPointorPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorLineContainer = NULL;
+lv_obj_t * ui_SensorMonitorLineDebugPanel = NULL;
+lv_obj_t * ui_SensorMonitorLineDebugLabel = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterContainer1 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterButton1 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterPointorPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterContainer2 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterButton2 = NULL;
+lv_obj_t * ui_SensorMonitorLineMeterPointorPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorGyroContainer = NULL;
+lv_obj_t * ui_SensorMonitorGyroDebugPanel = NULL;
+lv_obj_t * ui_SensorMonitorBallDebugLabel2 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterContainer1 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterButton1 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterPointorPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterContainer2 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterButton2 = NULL;
+lv_obj_t * ui_SensorMonitorGyroMeterPointorPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorGoalContainer = NULL;
+lv_obj_t * ui_SensorMonitorGoalDebugPanel = NULL;
+lv_obj_t * ui_SensorMonitorGoalDebugLabel = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterContainer1 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterButton1 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterPointorPanel1 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterContainer2 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterButton2 = NULL;
+lv_obj_t * ui_SensorMonitorGoalMeterPointorPanel2 = NULL;
+lv_obj_t * ui_SensorMonitorLidarContainer = NULL;
+lv_obj_t * ui_SensorMonitorLidarDebugPanel = NULL;
+lv_obj_t * ui_SensorMonitorLidarDebugLabel = NULL;
 // event funtions
+void ui_event_SensorMonitor(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        sensormonitor_loaded_event(e);
+    }
+}
+
+void ui_event_SensorMonitorDropdown(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        sensormonitor_dropdown_value_changed_event(e);
+    }
+}
+
 void ui_event_SensorMonitorBackButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -77,7 +142,538 @@ void ui_SensorMonitor_screen_init(void)
     lv_obj_set_y(ui_SensorMonitorMidContainer, 40);
     lv_obj_clear_flag(ui_SensorMonitorMidContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
+    ui_SensorMonitorBallContainer = lv_obj_create(ui_SensorMonitorMidContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorBallContainer);
+    lv_obj_set_width(ui_SensorMonitorBallContainer, 320);
+    lv_obj_set_height(ui_SensorMonitorBallContainer, 200);
+    lv_obj_clear_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorBallDebugPanel = lv_obj_create(ui_SensorMonitorBallContainer);
+    lv_obj_set_width(ui_SensorMonitorBallDebugPanel, 215);
+    lv_obj_set_height(ui_SensorMonitorBallDebugPanel, 197);
+    lv_obj_set_x(ui_SensorMonitorBallDebugPanel, 1);
+    lv_obj_set_y(ui_SensorMonitorBallDebugPanel, 2);
+
+    ui_SensorMonitorBallDebugLabel = lv_label_create(ui_SensorMonitorBallDebugPanel);
+    lv_obj_set_width(ui_SensorMonitorBallDebugLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SensorMonitorBallDebugLabel, LV_SIZE_CONTENT);    /// 1
+    lv_label_set_text(ui_SensorMonitorBallDebugLabel, "Deg : 200");
+
+    ui_SensorMonitorBallMeterContainer1 = lv_obj_create(ui_SensorMonitorBallContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorBallMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorBallMeterContainer1, 100);
+    lv_obj_set_height(ui_SensorMonitorBallMeterContainer1, 100);
+    lv_obj_set_x(ui_SensorMonitorBallMeterContainer1, -2);
+    lv_obj_set_y(ui_SensorMonitorBallMeterContainer1, 2);
+    lv_obj_set_align(ui_SensorMonitorBallMeterContainer1, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterContainer1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorBallMeterPanel1 = lv_obj_create(ui_SensorMonitorBallMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorBallMeterPanel1, 93);
+    lv_obj_set_height(ui_SensorMonitorBallMeterPanel1, 93);
+    lv_obj_set_align(ui_SensorMonitorBallMeterPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorBallMeterPanel1, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterPanel1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorBallMeterPanel1, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorBallMeterPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorBallMeterPanel1, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorBallMeterButton1 = lv_btn_create(ui_SensorMonitorBallMeterPanel1);
+    lv_obj_set_width(ui_SensorMonitorBallMeterButton1, 70);
+    lv_obj_set_height(ui_SensorMonitorBallMeterButton1, 70);
+    lv_obj_set_align(ui_SensorMonitorBallMeterButton1, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorBallMeterButton1, LV_STATE_USER_3);       /// States
+    lv_obj_add_flag(ui_SensorMonitorBallMeterButton1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterButton1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorBallMeterButton1, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorBallMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorBallMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorBallMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorBallMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterButton1, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterButton1, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterButton1, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorBallMeterPointorPanel1 = lv_obj_create(ui_SensorMonitorBallMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorBallMeterPointorPanel1, 12);
+    lv_obj_set_height(ui_SensorMonitorBallMeterPointorPanel1, 12);
+    lv_obj_set_x(ui_SensorMonitorBallMeterPointorPanel1, 0);
+    lv_obj_set_y(ui_SensorMonitorBallMeterPointorPanel1, -43);
+    lv_obj_set_align(ui_SensorMonitorBallMeterPointorPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterPointorPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorBallMeterPointorPanel1, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterPointorPanel1, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterPointorPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorBallMeterPointorPanel1, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorBallMeterPointorPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorBallMeterContainer2 = lv_obj_create(ui_SensorMonitorBallContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorBallMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorBallMeterContainer2, 100);
+    lv_obj_set_height(ui_SensorMonitorBallMeterContainer2, 100);
+    lv_obj_set_x(ui_SensorMonitorBallMeterContainer2, -2);
+    lv_obj_set_y(ui_SensorMonitorBallMeterContainer2, 1);
+    lv_obj_set_align(ui_SensorMonitorBallMeterContainer2, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterContainer2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorBallMeterPanel2 = lv_obj_create(ui_SensorMonitorBallMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorBallMeterPanel2, 93);
+    lv_obj_set_height(ui_SensorMonitorBallMeterPanel2, 93);
+    lv_obj_set_align(ui_SensorMonitorBallMeterPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorBallMeterPanel2, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterPanel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorBallMeterPanel2, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorBallMeterPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorBallMeterPanel2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorBallMeterButton2 = lv_btn_create(ui_SensorMonitorBallMeterPanel2);
+    lv_obj_set_width(ui_SensorMonitorBallMeterButton2, 70);
+    lv_obj_set_height(ui_SensorMonitorBallMeterButton2, 70);
+    lv_obj_set_align(ui_SensorMonitorBallMeterButton2, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorBallMeterButton2, LV_STATE_USER_3);       /// States
+    lv_obj_add_flag(ui_SensorMonitorBallMeterButton2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterButton2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorBallMeterButton2, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorBallMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorBallMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorBallMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorBallMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterButton2, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterButton2, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterButton2, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorBallMeterPointorPanel2 = lv_obj_create(ui_SensorMonitorBallMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorBallMeterPointorPanel2, 12);
+    lv_obj_set_height(ui_SensorMonitorBallMeterPointorPanel2, 12);
+    lv_obj_set_x(ui_SensorMonitorBallMeterPointorPanel2, 0);
+    lv_obj_set_y(ui_SensorMonitorBallMeterPointorPanel2, -43);
+    lv_obj_set_align(ui_SensorMonitorBallMeterPointorPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorBallMeterPointorPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorBallMeterPointorPanel2, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorBallMeterPointorPanel2, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorBallMeterPointorPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorBallMeterPointorPanel2, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorBallMeterPointorPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorLineContainer = lv_obj_create(ui_SensorMonitorMidContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorLineContainer);
+    lv_obj_set_width(ui_SensorMonitorLineContainer, 320);
+    lv_obj_set_height(ui_SensorMonitorLineContainer, 200);
+    lv_obj_add_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorLineDebugPanel = lv_obj_create(ui_SensorMonitorLineContainer);
+    lv_obj_set_width(ui_SensorMonitorLineDebugPanel, 215);
+    lv_obj_set_height(ui_SensorMonitorLineDebugPanel, 197);
+    lv_obj_set_x(ui_SensorMonitorLineDebugPanel, 1);
+    lv_obj_set_y(ui_SensorMonitorLineDebugPanel, 2);
+
+    ui_SensorMonitorLineDebugLabel = lv_label_create(ui_SensorMonitorLineDebugPanel);
+    lv_obj_set_width(ui_SensorMonitorLineDebugLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SensorMonitorLineDebugLabel, LV_SIZE_CONTENT);    /// 1
+    lv_label_set_text(ui_SensorMonitorLineDebugLabel, "Deg : 200");
+
+    ui_SensorMonitorLineMeterContainer1 = lv_obj_create(ui_SensorMonitorLineContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorLineMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorLineMeterContainer1, 100);
+    lv_obj_set_height(ui_SensorMonitorLineMeterContainer1, 100);
+    lv_obj_set_x(ui_SensorMonitorLineMeterContainer1, -2);
+    lv_obj_set_y(ui_SensorMonitorLineMeterContainer1, 2);
+    lv_obj_set_align(ui_SensorMonitorLineMeterContainer1, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterContainer1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorLineMeterPanel1 = lv_obj_create(ui_SensorMonitorLineMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorLineMeterPanel1, 93);
+    lv_obj_set_height(ui_SensorMonitorLineMeterPanel1, 93);
+    lv_obj_set_align(ui_SensorMonitorLineMeterPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorLineMeterPanel1, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterPanel1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorLineMeterPanel1, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorLineMeterPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorLineMeterPanel1, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorLineMeterButton1 = lv_btn_create(ui_SensorMonitorLineMeterPanel1);
+    lv_obj_set_width(ui_SensorMonitorLineMeterButton1, 70);
+    lv_obj_set_height(ui_SensorMonitorLineMeterButton1, 70);
+    lv_obj_set_align(ui_SensorMonitorLineMeterButton1, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorLineMeterButton1, LV_STATE_USER_3);       /// States
+    lv_obj_add_flag(ui_SensorMonitorLineMeterButton1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterButton1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorLineMeterButton1, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorLineMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorLineMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorLineMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorLineMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterButton1, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterButton1, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterButton1, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorLineMeterPointorPanel1 = lv_obj_create(ui_SensorMonitorLineMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorLineMeterPointorPanel1, 12);
+    lv_obj_set_height(ui_SensorMonitorLineMeterPointorPanel1, 12);
+    lv_obj_set_x(ui_SensorMonitorLineMeterPointorPanel1, 0);
+    lv_obj_set_y(ui_SensorMonitorLineMeterPointorPanel1, -43);
+    lv_obj_set_align(ui_SensorMonitorLineMeterPointorPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterPointorPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorLineMeterPointorPanel1, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterPointorPanel1, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterPointorPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorLineMeterPointorPanel1, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorLineMeterPointorPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorLineMeterContainer2 = lv_obj_create(ui_SensorMonitorLineContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorLineMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorLineMeterContainer2, 100);
+    lv_obj_set_height(ui_SensorMonitorLineMeterContainer2, 100);
+    lv_obj_set_x(ui_SensorMonitorLineMeterContainer2, -2);
+    lv_obj_set_y(ui_SensorMonitorLineMeterContainer2, 1);
+    lv_obj_set_align(ui_SensorMonitorLineMeterContainer2, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterContainer2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorLineMeterPanel2 = lv_obj_create(ui_SensorMonitorLineMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorLineMeterPanel2, 93);
+    lv_obj_set_height(ui_SensorMonitorLineMeterPanel2, 93);
+    lv_obj_set_align(ui_SensorMonitorLineMeterPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorLineMeterPanel2, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterPanel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorLineMeterPanel2, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorLineMeterPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorLineMeterPanel2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorLineMeterButton2 = lv_btn_create(ui_SensorMonitorLineMeterPanel2);
+    lv_obj_set_width(ui_SensorMonitorLineMeterButton2, 70);
+    lv_obj_set_height(ui_SensorMonitorLineMeterButton2, 70);
+    lv_obj_set_align(ui_SensorMonitorLineMeterButton2, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorLineMeterButton2, LV_STATE_USER_3);       /// States
+    lv_obj_add_flag(ui_SensorMonitorLineMeterButton2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterButton2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorLineMeterButton2, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorLineMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorLineMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorLineMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorLineMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterButton2, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterButton2, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterButton2, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorLineMeterPointorPanel2 = lv_obj_create(ui_SensorMonitorLineMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorLineMeterPointorPanel2, 12);
+    lv_obj_set_height(ui_SensorMonitorLineMeterPointorPanel2, 12);
+    lv_obj_set_x(ui_SensorMonitorLineMeterPointorPanel2, 0);
+    lv_obj_set_y(ui_SensorMonitorLineMeterPointorPanel2, -43);
+    lv_obj_set_align(ui_SensorMonitorLineMeterPointorPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorLineMeterPointorPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorLineMeterPointorPanel2, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorLineMeterPointorPanel2, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorLineMeterPointorPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorLineMeterPointorPanel2, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorLineMeterPointorPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGyroContainer = lv_obj_create(ui_SensorMonitorMidContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorGyroContainer);
+    lv_obj_set_width(ui_SensorMonitorGyroContainer, 320);
+    lv_obj_set_height(ui_SensorMonitorGyroContainer, 200);
+    lv_obj_add_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorGyroDebugPanel = lv_obj_create(ui_SensorMonitorGyroContainer);
+    lv_obj_set_width(ui_SensorMonitorGyroDebugPanel, 215);
+    lv_obj_set_height(ui_SensorMonitorGyroDebugPanel, 197);
+    lv_obj_set_x(ui_SensorMonitorGyroDebugPanel, 1);
+    lv_obj_set_y(ui_SensorMonitorGyroDebugPanel, 2);
+
+    ui_SensorMonitorBallDebugLabel2 = lv_label_create(ui_SensorMonitorGyroDebugPanel);
+    lv_obj_set_width(ui_SensorMonitorBallDebugLabel2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SensorMonitorBallDebugLabel2, LV_SIZE_CONTENT);    /// 1
+    lv_label_set_text(ui_SensorMonitorBallDebugLabel2, "Deg : 200");
+
+    ui_SensorMonitorGyroMeterContainer1 = lv_obj_create(ui_SensorMonitorGyroContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorGyroMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterContainer1, 100);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterContainer1, 100);
+    lv_obj_set_x(ui_SensorMonitorGyroMeterContainer1, -2);
+    lv_obj_set_y(ui_SensorMonitorGyroMeterContainer1, 2);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterContainer1, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterContainer1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorGyroMeterPanel1 = lv_obj_create(ui_SensorMonitorGyroMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterPanel1, 93);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterPanel1, 93);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGyroMeterPanel1, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterPanel1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGyroMeterPanel1, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGyroMeterPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorGyroMeterPanel1, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGyroMeterButton1 = lv_btn_create(ui_SensorMonitorGyroMeterPanel1);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterButton1, 70);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterButton1, 70);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterButton1, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorGyroMeterButton1, LV_STATE_USER_3);       /// States
+    lv_obj_add_flag(ui_SensorMonitorGyroMeterButton1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterButton1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGyroMeterButton1, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorGyroMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorGyroMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorGyroMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorGyroMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterButton1, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterButton1, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterButton1, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorGyroMeterPointorPanel1 = lv_obj_create(ui_SensorMonitorGyroMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterPointorPanel1, 12);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterPointorPanel1, 12);
+    lv_obj_set_x(ui_SensorMonitorGyroMeterPointorPanel1, 0);
+    lv_obj_set_y(ui_SensorMonitorGyroMeterPointorPanel1, -43);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterPointorPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterPointorPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGyroMeterPointorPanel1, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterPointorPanel1, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterPointorPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGyroMeterPointorPanel1, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGyroMeterPointorPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGyroMeterContainer2 = lv_obj_create(ui_SensorMonitorGyroContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorGyroMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterContainer2, 100);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterContainer2, 100);
+    lv_obj_set_x(ui_SensorMonitorGyroMeterContainer2, -2);
+    lv_obj_set_y(ui_SensorMonitorGyroMeterContainer2, 1);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterContainer2, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterContainer2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorGyroMeterPanel2 = lv_obj_create(ui_SensorMonitorGyroMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterPanel2, 93);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterPanel2, 93);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGyroMeterPanel2, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterPanel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGyroMeterPanel2, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGyroMeterPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorGyroMeterPanel2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGyroMeterButton2 = lv_btn_create(ui_SensorMonitorGyroMeterPanel2);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterButton2, 70);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterButton2, 70);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterButton2, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorGyroMeterButton2, LV_STATE_USER_3);       /// States
+    lv_obj_add_flag(ui_SensorMonitorGyroMeterButton2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterButton2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGyroMeterButton2, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorGyroMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorGyroMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorGyroMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorGyroMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterButton2, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterButton2, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterButton2, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorGyroMeterPointorPanel2 = lv_obj_create(ui_SensorMonitorGyroMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorGyroMeterPointorPanel2, 12);
+    lv_obj_set_height(ui_SensorMonitorGyroMeterPointorPanel2, 12);
+    lv_obj_set_x(ui_SensorMonitorGyroMeterPointorPanel2, 0);
+    lv_obj_set_y(ui_SensorMonitorGyroMeterPointorPanel2, -43);
+    lv_obj_set_align(ui_SensorMonitorGyroMeterPointorPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGyroMeterPointorPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGyroMeterPointorPanel2, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGyroMeterPointorPanel2, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGyroMeterPointorPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGyroMeterPointorPanel2, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGyroMeterPointorPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGoalContainer = lv_obj_create(ui_SensorMonitorMidContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorGoalContainer);
+    lv_obj_set_width(ui_SensorMonitorGoalContainer, 320);
+    lv_obj_set_height(ui_SensorMonitorGoalContainer, 200);
+    lv_obj_add_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorGoalDebugPanel = lv_obj_create(ui_SensorMonitorGoalContainer);
+    lv_obj_set_width(ui_SensorMonitorGoalDebugPanel, 215);
+    lv_obj_set_height(ui_SensorMonitorGoalDebugPanel, 197);
+    lv_obj_set_x(ui_SensorMonitorGoalDebugPanel, 1);
+    lv_obj_set_y(ui_SensorMonitorGoalDebugPanel, 2);
+
+    ui_SensorMonitorGoalDebugLabel = lv_label_create(ui_SensorMonitorGoalDebugPanel);
+    lv_obj_set_width(ui_SensorMonitorGoalDebugLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SensorMonitorGoalDebugLabel, LV_SIZE_CONTENT);    /// 1
+    lv_label_set_text(ui_SensorMonitorGoalDebugLabel, "Deg : 200");
+
+    ui_SensorMonitorGoalMeterContainer1 = lv_obj_create(ui_SensorMonitorGoalContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorGoalMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterContainer1, 100);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterContainer1, 100);
+    lv_obj_set_x(ui_SensorMonitorGoalMeterContainer1, -2);
+    lv_obj_set_y(ui_SensorMonitorGoalMeterContainer1, 2);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterContainer1, LV_ALIGN_TOP_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterContainer1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorGoalMeterPanel1 = lv_obj_create(ui_SensorMonitorGoalMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterPanel1, 93);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterPanel1, 93);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGoalMeterPanel1, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterPanel1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGoalMeterPanel1, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGoalMeterPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorGoalMeterPanel1, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGoalMeterButton1 = lv_btn_create(ui_SensorMonitorGoalMeterPanel1);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterButton1, 70);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterButton1, 70);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterButton1, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorGoalMeterButton1, LV_STATE_USER_1);       /// States
+    lv_obj_add_flag(ui_SensorMonitorGoalMeterButton1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterButton1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGoalMeterButton1, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorGoalMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorGoalMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorGoalMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorGoalMeterButton1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterButton1, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterButton1, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterButton1, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterButton1, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorGoalMeterPointorPanel1 = lv_obj_create(ui_SensorMonitorGoalMeterContainer1);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterPointorPanel1, 12);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterPointorPanel1, 12);
+    lv_obj_set_x(ui_SensorMonitorGoalMeterPointorPanel1, 0);
+    lv_obj_set_y(ui_SensorMonitorGoalMeterPointorPanel1, -43);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterPointorPanel1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterPointorPanel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGoalMeterPointorPanel1, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterPointorPanel1, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterPointorPanel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGoalMeterPointorPanel1, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGoalMeterPointorPanel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGoalMeterContainer2 = lv_obj_create(ui_SensorMonitorGoalContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorGoalMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterContainer2, 100);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterContainer2, 100);
+    lv_obj_set_x(ui_SensorMonitorGoalMeterContainer2, -2);
+    lv_obj_set_y(ui_SensorMonitorGoalMeterContainer2, 1);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterContainer2, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterContainer2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorGoalMeterPanel2 = lv_obj_create(ui_SensorMonitorGoalMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterPanel2, 93);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterPanel2, 93);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGoalMeterPanel2, 47, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterPanel2, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGoalMeterPanel2, lv_color_hex(0x565656), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGoalMeterPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_SensorMonitorGoalMeterPanel2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorGoalMeterButton2 = lv_btn_create(ui_SensorMonitorGoalMeterPanel2);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterButton2, 70);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterButton2, 70);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterButton2, LV_ALIGN_CENTER);
+    lv_obj_add_state(ui_SensorMonitorGoalMeterButton2, LV_STATE_USER_2);       /// States
+    lv_obj_add_flag(ui_SensorMonitorGoalMeterButton2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterButton2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGoalMeterButton2, 35, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui_SensorMonitorGoalMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_spread(ui_SensorMonitorGoalMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_x(ui_SensorMonitorGoalMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_ofs_y(ui_SensorMonitorGoalMeterButton2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterButton2, lv_color_hex(0xE8E839), LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_1);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterButton2, lv_color_hex(0x2095F6), LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_2);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterButton2, lv_color_hex(0x525552), LV_PART_MAIN | LV_STATE_USER_3);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterButton2, 255, LV_PART_MAIN | LV_STATE_USER_3);
+
+    ui_SensorMonitorGoalMeterPointorPanel2 = lv_obj_create(ui_SensorMonitorGoalMeterContainer2);
+    lv_obj_set_width(ui_SensorMonitorGoalMeterPointorPanel2, 12);
+    lv_obj_set_height(ui_SensorMonitorGoalMeterPointorPanel2, 12);
+    lv_obj_set_x(ui_SensorMonitorGoalMeterPointorPanel2, 0);
+    lv_obj_set_y(ui_SensorMonitorGoalMeterPointorPanel2, -43);
+    lv_obj_set_align(ui_SensorMonitorGoalMeterPointorPanel2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_SensorMonitorGoalMeterPointorPanel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_SensorMonitorGoalMeterPointorPanel2, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_SensorMonitorGoalMeterPointorPanel2, lv_color_hex(0x2095F6),
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_SensorMonitorGoalMeterPointorPanel2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_SensorMonitorGoalMeterPointorPanel2, lv_color_hex(0x565656),
+                                  LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_SensorMonitorGoalMeterPointorPanel2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_SensorMonitorLidarContainer = lv_obj_create(ui_SensorMonitorMidContainer);
+    lv_obj_remove_style_all(ui_SensorMonitorLidarContainer);
+    lv_obj_set_width(ui_SensorMonitorLidarContainer, 320);
+    lv_obj_set_height(ui_SensorMonitorLidarContainer, 200);
+    lv_obj_add_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_SensorMonitorLidarDebugPanel = lv_obj_create(ui_SensorMonitorLidarContainer);
+    lv_obj_set_width(ui_SensorMonitorLidarDebugPanel, 318);
+    lv_obj_set_height(ui_SensorMonitorLidarDebugPanel, 197);
+    lv_obj_set_x(ui_SensorMonitorLidarDebugPanel, 1);
+    lv_obj_set_y(ui_SensorMonitorLidarDebugPanel, 2);
+
+    ui_SensorMonitorLidarDebugLabel = lv_label_create(ui_SensorMonitorLidarDebugPanel);
+    lv_obj_set_width(ui_SensorMonitorLidarDebugLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SensorMonitorLidarDebugLabel, LV_SIZE_CONTENT);    /// 1
+    lv_label_set_text(ui_SensorMonitorLidarDebugLabel, "");
+
+    lv_obj_add_event_cb(ui_SensorMonitorDropdown, ui_event_SensorMonitorDropdown, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_SensorMonitorBackButton, ui_event_SensorMonitorBackButton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_SensorMonitor, ui_event_SensorMonitor, LV_EVENT_ALL, NULL);
 
 }
 
@@ -92,5 +688,52 @@ void ui_SensorMonitor_screen_destroy(void)
     ui_SensorMonitorBackButton = NULL;
     ui_SensorMonitorBackLabel2 = NULL;
     ui_SensorMonitorMidContainer = NULL;
+    ui_SensorMonitorBallContainer = NULL;
+    ui_SensorMonitorBallDebugPanel = NULL;
+    ui_SensorMonitorBallDebugLabel = NULL;
+    ui_SensorMonitorBallMeterContainer1 = NULL;
+    ui_SensorMonitorBallMeterPanel1 = NULL;
+    ui_SensorMonitorBallMeterButton1 = NULL;
+    ui_SensorMonitorBallMeterPointorPanel1 = NULL;
+    ui_SensorMonitorBallMeterContainer2 = NULL;
+    ui_SensorMonitorBallMeterPanel2 = NULL;
+    ui_SensorMonitorBallMeterButton2 = NULL;
+    ui_SensorMonitorBallMeterPointorPanel2 = NULL;
+    ui_SensorMonitorLineContainer = NULL;
+    ui_SensorMonitorLineDebugPanel = NULL;
+    ui_SensorMonitorLineDebugLabel = NULL;
+    ui_SensorMonitorLineMeterContainer1 = NULL;
+    ui_SensorMonitorLineMeterPanel1 = NULL;
+    ui_SensorMonitorLineMeterButton1 = NULL;
+    ui_SensorMonitorLineMeterPointorPanel1 = NULL;
+    ui_SensorMonitorLineMeterContainer2 = NULL;
+    ui_SensorMonitorLineMeterPanel2 = NULL;
+    ui_SensorMonitorLineMeterButton2 = NULL;
+    ui_SensorMonitorLineMeterPointorPanel2 = NULL;
+    ui_SensorMonitorGyroContainer = NULL;
+    ui_SensorMonitorGyroDebugPanel = NULL;
+    ui_SensorMonitorBallDebugLabel2 = NULL;
+    ui_SensorMonitorGyroMeterContainer1 = NULL;
+    ui_SensorMonitorGyroMeterPanel1 = NULL;
+    ui_SensorMonitorGyroMeterButton1 = NULL;
+    ui_SensorMonitorGyroMeterPointorPanel1 = NULL;
+    ui_SensorMonitorGyroMeterContainer2 = NULL;
+    ui_SensorMonitorGyroMeterPanel2 = NULL;
+    ui_SensorMonitorGyroMeterButton2 = NULL;
+    ui_SensorMonitorGyroMeterPointorPanel2 = NULL;
+    ui_SensorMonitorGoalContainer = NULL;
+    ui_SensorMonitorGoalDebugPanel = NULL;
+    ui_SensorMonitorGoalDebugLabel = NULL;
+    ui_SensorMonitorGoalMeterContainer1 = NULL;
+    ui_SensorMonitorGoalMeterPanel1 = NULL;
+    ui_SensorMonitorGoalMeterButton1 = NULL;
+    ui_SensorMonitorGoalMeterPointorPanel1 = NULL;
+    ui_SensorMonitorGoalMeterContainer2 = NULL;
+    ui_SensorMonitorGoalMeterPanel2 = NULL;
+    ui_SensorMonitorGoalMeterButton2 = NULL;
+    ui_SensorMonitorGoalMeterPointorPanel2 = NULL;
+    ui_SensorMonitorLidarContainer = NULL;
+    ui_SensorMonitorLidarDebugPanel = NULL;
+    ui_SensorMonitorLidarDebugLabel = NULL;
 
 }

@@ -5,12 +5,46 @@
 
 #include "ui.h"
 
+enum UI_STATE ui_state = HOME; // Current UI state
+
 // Action
+
+void action_loaded_event(lv_event_t *e)
+{
+	uint16_t selected_index = lv_dropdown_get_selected(ui_ActionDropdown);
+	switch (selected_index)
+	{
+	case 0: // Offense
+		ui_state = ACTION_OFFENSE;
+		break;
+	case 1: // Defense
+		ui_state = ACTION_DEFENSE;
+		break;
+	case 2: // RadioControl
+		ui_state = ACTION_RADIOCONTROL;
+		break;
+	}
+}
 
 int action_meter_type = 0;
 
 void action_dropdown_value_changed_event(lv_event_t *e)
 {
+	uint16_t selected_index = lv_dropdown_get_selected(ui_ActionDropdown);
+
+	switch (selected_index)
+	{
+	case 0: // Offense
+		ui_state = ACTION_OFFENSE;
+		break;
+	case 1: // Defense
+		ui_state = ACTION_DEFENSE;
+		break;
+	case 2: // RadioControl
+		ui_state = ACTION_RADIOCONTROL;
+		break;
+	}
+
 	action_meter_type = 0;
 	lv_obj_add_state(ui_ActionMeterButton, LV_STATE_USER_1);
 	lv_obj_clear_state(ui_ActionMeterButton, LV_STATE_USER_2);
@@ -59,6 +93,23 @@ void action_meter_switch_event(lv_event_t *e)
 
 // Test
 
+void test_loaded_event(lv_event_t *e)
+{
+	uint16_t selected_index = lv_dropdown_get_selected(ui_TestDropdown);
+	switch (selected_index)
+	{
+	case 0: // Kicker
+		ui_state = TEST_KICKER;
+		break;
+	case 1: // Dribbler
+		ui_state = TEST_DRIBBLER;
+		break;
+	case 2: // Motor
+		ui_state = TEST_MOTOR;
+		break;
+	}
+}
+
 void test_dropdown_value_changed_event(lv_event_t *e)
 {
 	uint16_t selected_index = lv_dropdown_get_selected(ui_TestDropdown);
@@ -66,11 +117,13 @@ void test_dropdown_value_changed_event(lv_event_t *e)
 	switch (selected_index)
 	{
 	case 0: // Kicker
+		ui_state = TEST_KICKER;
 		lv_obj_clear_flag(ui_TestKickerContainer, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(ui_TestDribblerContainer, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(ui_TestMotorContainer, LV_OBJ_FLAG_HIDDEN);
 		break;
 	case 1: // Dribbler
+		ui_state = TEST_DRIBBLER;
 		lv_obj_clear_flag(ui_TestDribblerContainer, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(ui_TestKickerContainer, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(ui_TestMotorContainer, LV_OBJ_FLAG_HIDDEN);
@@ -79,6 +132,7 @@ void test_dropdown_value_changed_event(lv_event_t *e)
 		lv_obj_clear_flag(ui_TestDribblerLeverIdleButton, LV_OBJ_FLAG_HIDDEN);
 		break;
 	case 2: // Motor
+		ui_state = TEST_MOTOR;
 		lv_obj_clear_flag(ui_TestMotorContainer, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(ui_TestKickerContainer, LV_OBJ_FLAG_HIDDEN);
 		lv_obj_add_flag(ui_TestDribblerContainer, LV_OBJ_FLAG_HIDDEN);
@@ -115,10 +169,104 @@ void testmotor_meter_switch_event(lv_event_t *e)
 	}
 }
 
+// SensorMonitor
+
+void sensormonitor_loaded_event(lv_event_t *e)
+{
+	uint16_t selected_index = lv_dropdown_get_selected(ui_SensorMonitorDropdown);
+
+	switch (selected_index)
+	{
+	case 0: // Ball
+		ui_state = SENSORMONITOR_BALL;
+		break;
+	case 1: // Line
+		ui_state = SENSORMONITOR_LINE;
+		break;
+	case 2: // Gyro
+		ui_state = SENSORMONITOR_GYRO;
+		break;
+	case 3: // Goal
+		ui_state = SENSORMONITOR_GOAL;
+		break;
+	case 4: // Lidar
+		ui_state = SENSORMONITOR_LIDAR;
+		break;
+	}
+}
+
+void sensormonitor_dropdown_value_changed_event(lv_event_t *e)
+{
+	uint16_t selected_index = lv_dropdown_get_selected(ui_SensorMonitorDropdown);
+
+	switch (selected_index)
+	{
+	case 0: // Ball
+		ui_state = SENSORMONITOR_BALL;
+		lv_obj_clear_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);
+		break;
+	case 1: // Line
+		ui_state = SENSORMONITOR_LINE;
+		lv_obj_clear_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);
+		break;
+	case 2: // Gyro
+		ui_state = SENSORMONITOR_GYRO;
+		lv_obj_clear_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);
+		break;
+	case 3: // Goal
+		ui_state = SENSORMONITOR_GOAL;
+		lv_obj_clear_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);
+		break;
+	case 4: // Lidar
+		ui_state = SENSORMONITOR_LIDAR;
+		lv_obj_clear_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);
+		break;
+	}
+}
+
+// Communication
+
+void communication_loaded_event(lv_event_t *e)
+{
+	uint16_t selected_index = lv_dropdown_get_selected(ui_CommunicationDropdown);
+
+	switch (selected_index)
+	{
+	case 0: // Transmit
+		ui_state = COMMUNICATION_TRANSMIT;
+		break;
+	case 1: // Receive
+		ui_state = COMMUNICATION_RECEIVE;
+		break;
+	}
+}
+
 // Home
 
-void home_screen_loaded_event(lv_event_t *e)
+void home_loaded_event(lv_event_t *e)
 {
+	ui_state = HOME;
+
 	// Action
 	lv_dropdown_set_selected(ui_ActionDropdown, 0);
 
@@ -147,4 +295,13 @@ void home_screen_loaded_event(lv_event_t *e)
 	lv_obj_add_state(ui_TestMotorMeterButton, LV_STATE_USER_1);
 	lv_obj_clear_state(ui_TestMotorMeterButton, LV_STATE_USER_2);
 	lv_obj_clear_state(ui_TestMotorMeterButton, LV_STATE_USER_3);
+
+	// SensorMonitor
+	lv_dropdown_set_selected(ui_SensorMonitorDropdown, 0);
+
+	lv_obj_clear_flag(ui_SensorMonitorBallContainer, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(ui_SensorMonitorLineContainer, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(ui_SensorMonitorGyroContainer, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(ui_SensorMonitorGoalContainer, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(ui_SensorMonitorLidarContainer, LV_OBJ_FLAG_HIDDEN);
 }

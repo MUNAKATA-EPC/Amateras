@@ -52,6 +52,15 @@ lv_obj_t * ui_TestMotorConfigCheckbox4 = NULL;
 lv_obj_t * ui_TestMotorDebugPanel = NULL;
 lv_obj_t * ui_TestMotorDebugLabel = NULL;
 // event funtions
+void ui_event_Test(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        test_loaded_event(e);
+    }
+}
+
 void ui_event_TestDropdown(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -641,6 +650,7 @@ void ui_Test_screen_init(void)
     lv_obj_add_event_cb(ui_TestMotorLeverRunButton, ui_event_TestMotorLeverRunButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_TestMotorLeverIdleButton, ui_event_TestMotorLeverIdleButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_TestMotorMeterButton, ui_event_TestMotorMeterButton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Test, ui_event_Test, LV_EVENT_ALL, NULL);
 
 }
 

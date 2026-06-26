@@ -20,7 +20,7 @@ void ui_event_HomeScreen(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        home_screen_loaded_event(e);
+        home_loaded_event(e);
     }
 }
 

@@ -10,11 +10,35 @@
 extern "C" {
 #endif
 
-void home_screen_loaded_event(lv_event_t * e);
+enum UI_STATE
+{
+    HOME,
+    ACTION_OFFENSE,
+    ACTION_DEFENSE,
+    ACTION_RADIOCONTROL,
+    TEST_KICKER,
+    TEST_DRIBBLER,
+    TEST_MOTOR,
+    SENSORMONITOR_BALL,
+    SENSORMONITOR_LINE,
+    SENSORMONITOR_GYRO,
+    SENSORMONITOR_GOAL,
+    SENSORMONITOR_LIDAR,
+    COMMUNICATION_TRANSMIT,
+    COMMUNICATION_RECEIVE
+};
+extern enum UI_STATE ui_state;
+
+void home_loaded_event(lv_event_t * e);
+void action_loaded_event(lv_event_t * e);
 void action_dropdown_value_changed_event(lv_event_t * e);
 void action_meter_switch_event(lv_event_t * e);
+void test_loaded_event(lv_event_t * e);
 void test_dropdown_value_changed_event(lv_event_t * e);
 void testmotor_meter_switch_event(lv_event_t * e);
+void sensormonitor_loaded_event(lv_event_t * e);
+void sensormonitor_dropdown_value_changed_event(lv_event_t * e);
+void communication_loaded_event(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
