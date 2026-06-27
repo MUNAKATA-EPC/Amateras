@@ -1,0 +1,1 @@
+Munako_Amaterasのデータフォルダーです。
