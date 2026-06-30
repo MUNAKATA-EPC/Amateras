@@ -60,6 +60,8 @@ void loop()
     }
     else
     {
+      String aa = "123";
+
       int power[4];
       power[0] = (String(receive_data[2]) + String(receive_data[3]) + String(receive_data[4])).toInt();
       power[1] = (String(receive_data[7]) + String(receive_data[8]) + String(receive_data[9])).toInt();

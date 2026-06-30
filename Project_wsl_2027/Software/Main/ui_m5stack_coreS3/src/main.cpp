@@ -1,8 +1,9 @@
 #include <lvgl.h>
 #include <M5Unified.h>
-#include "timer.hpp"
 #include "ui.h"
 #include "my_lv_func.h"
+#include "common/timer.hpp"
+#include "sensor/serial_packet.hpp"
 
 static const uint32_t screenWidth = 320;
 static const uint32_t screenHeight = 240;
@@ -35,9 +36,22 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
     }
 }
 
+struct t_data
+{
+};
+struct r_data
+{
+    int16_t bno_deg = 0;
+    int16_t ball_deg = 0;
+};
+serial_packet<t_data, r_data> packet(20);
+
 void setup()
 {
     Serial.begin(115200);
+    
+    Serial0.begin(115200);
+    packet.begin(Serial0);
 
     auto cfg = M5.config();
     M5.begin(cfg);
@@ -73,14 +87,9 @@ void loop()
 
     M5.update();
 
-    static int deg = 0;
-    static Timer timer;
-    if (!timer.everReset() || timer.msTime() > 10)
-    {
-        timer.reset();
-        deg += 1;
-        deg = deg % 360;
-    }
+    packet.update();
+
+    int16_t deg = packet.rx.bno_deg;
 
     switch (ui_state)
     {
