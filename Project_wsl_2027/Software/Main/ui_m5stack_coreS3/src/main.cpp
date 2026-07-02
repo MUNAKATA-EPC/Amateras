@@ -5,11 +5,11 @@
 #include "common/timer.hpp"
 #include "sensor/serial_packet.hpp"
 
-static const uint32_t screenWidth = 320;
-static const uint32_t screenHeight = 240;
+static const uint32_t screen_width = 320;
+static const uint32_t screen_height = 240;
 
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * 60];
+static lv_color_t buf[screen_width * 60];
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
@@ -38,6 +38,7 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
 
 struct t_data
 {
+    UI_STATE ui_state = HOME;
 };
 struct r_data
 {
@@ -58,12 +59,12 @@ void setup()
 
     lv_init();
 
-    lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * 60);
+    lv_disp_draw_buf_init(&draw_buf, buf, NULL, screen_width * 60);
 
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res = screenWidth;
-    disp_drv.ver_res = screenHeight;
+    disp_drv.hor_res = screen_width;
+    disp_drv.ver_res = screen_height;
     disp_drv.flush_cb = my_disp_flush;
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register(&disp_drv);
@@ -87,8 +88,8 @@ void loop()
 
     M5.update();
 
+    packet.tx.ui_state = ui_state;
     packet.update();
-
     int16_t deg = packet.rx.bno_deg;
 
     switch (ui_state)

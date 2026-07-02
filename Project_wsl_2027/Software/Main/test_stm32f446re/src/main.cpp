@@ -56,6 +56,25 @@ HardwareSerial mySerial6(PC7, PC6);  // 動作確認済み
 TwoWire Wire1(PB9, PB8);
 TwoWire Wire3(PC9, PA8);
 
+enum UI_STATE
+{
+    HOME,
+    ACTION_OFFENSE,
+    ACTION_DEFENSE,
+    ACTION_RADIOCONTROL,
+    TEST_KICKER,
+    TEST_DRIBBLER,
+    TEST_MOTOR,
+    SENSORMONITOR_BALL,
+    SENSORMONITOR_LINE,
+    SENSORMONITOR_GYRO,
+    SENSORMONITOR_GOAL,
+    SENSORMONITOR_LIDAR,
+    COMMUNICATION_TRANSMIT,
+    COMMUNICATION_RECEIVE
+};
+enum UI_STATE ui_state = HOME;
+
 struct t_data
 {
   int16_t gyro_deg = 0;
@@ -63,6 +82,7 @@ struct t_data
 };
 struct r_data
 {
+  UI_STATE ui_state = HOME;
 };
 serial_packet<t_data, r_data> packet(20);
 
@@ -75,7 +95,7 @@ void setup()
   mySerial4.begin(115200);
   packet.begin(mySerial4);
 
-  mySerial1.begin(115200);
+  mySerial2.begin(115200);
 }
 
 void loop()
@@ -86,5 +106,7 @@ void loop()
 
   packet.update();
 
-  mySerial1.println("aa");
+  ui_state = packet.rx.ui_state;
+
+  mySerial2.println(String(gyro.deg()) + " " + String(ui_state));
 }

@@ -7,7 +7,7 @@ private:
   HardwareSerial* _serial = nullptr;
   uint32_t _last_tx_time = 0;
   uint32_t _tx_interval_ms;
-  const uint8_t START_BYTE = 0xAA;
+  const uint8_t _start_byte = 0xAA;
 
 public:
   tx_t tx; 
@@ -38,7 +38,7 @@ private:
     size_t size = sizeof(tx_t);
     uint8_t checksum = 0;
 
-    _serial->write(START_BYTE);
+    _serial->write(_start_byte);
     _serial->write(size);
 
     for (size_t i = 0; i < size; i++) {
@@ -59,7 +59,7 @@ private:
       uint8_t b = _serial->read();
       switch (state) {
         case 0:
-          if (b == START_BYTE) state = 1;
+          if (b == _start_byte) state = 1;
           break;
         case 1:
           if (b == sizeof(rx_t)) {
