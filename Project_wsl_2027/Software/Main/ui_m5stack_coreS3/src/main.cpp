@@ -92,7 +92,7 @@ void loop()
     packet.update();
     int16_t deg = packet.rx.bno_deg;
 
-    switch (ui_state)
+    switch (packet.tx.ui_state)
     {
     case HOME:
         break;
