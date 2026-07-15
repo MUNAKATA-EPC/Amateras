@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "line_stm32f446re"
+		},
+		{
+			"path": "main_stm32f446re_test"
+		},
+		{
+			"path": "ui_m5stack_coreS3"
+		}
+	]
+}

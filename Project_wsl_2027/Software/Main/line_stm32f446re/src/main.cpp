@@ -46,67 +46,87 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
-HardwareSerial mySerial1(PA10, PA9); // ピンは外には出ていない
+HardwareSerial mySerial1(PA10, PA9); // ピンは外には出ていない // パソコンとの通信用
 HardwareSerial mySerial3(PC5, PB10); // 動作確認済み
 HardwareSerial mySerial5(PD2, PC12); // 動作確認済み
 HardwareSerial mySerial4(PA1, PA0);  // 動作確認済み
-HardwareSerial mySerial2(PA3, PA2);  // 動作確認済み
+HardwareSerial mySerial2(PA3, PA2);  // 動作確認済み // メインとの通信用
 HardwareSerial mySerial6(PC7, PC6);  // 動作確認済み
 
 TwoWire Wire1(PB9, PB8);
 TwoWire Wire3(PC9, PA8);
 
-enum UI_STATE
-{
-    HOME,
-    ACTION_OFFENSE,
-    ACTION_DEFENSE,
-    ACTION_RADIOCONTROL,
-    TEST_KICKER,
-    TEST_DRIBBLER,
-    TEST_MOTOR,
-    SENSORMONITOR_BALL,
-    SENSORMONITOR_LINE,
-    SENSORMONITOR_GYRO,
-    SENSORMONITOR_GOAL,
-    SENSORMONITOR_LIDAR,
-    COMMUNICATION_TRANSMIT,
-    COMMUNICATION_RECEIVE
-};
-enum UI_STATE ui_state = HOME;
+const uint8_t led_pin = PA5;
+const uint8_t vref_pin = PA4;
+
+const uint8_t left_side_pin = PA6;
+const uint8_t right_side_pin = PA7;
+
+const uint8_t angel_pins[] = {
+    PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7,
+    PB8, PB9, PB10,
+    PB12, PB13, PB14, PB15,
+    PC0, PC1, PC2, PC3, PC4, PC5, PC6, PC7,
+    PC8, PC9, PC10, PC11, PC12, PC13, PC14, PC15,
+    PA0};
 
 struct t_data
 {
-  int16_t gyro_deg = 0;
-  int16_t ball_deg = 0;
+  uint32_t angel = 0UL;
+  int16_t right_side_val = 0;
+  int16_t left_side_val = 0;
 };
 struct r_data
 {
-  UI_STATE ui_state = HOME;
 };
 serial_packet<t_data, r_data> packet(20);
 
-bno gyro(20);
-
 void setup()
 {
-  gyro.begin(&Wire1, 0x29);
-
-  mySerial4.begin(115200);
-  packet.begin(mySerial4);
+  mySerial1.begin(115200);
 
   mySerial2.begin(115200);
+  packet.begin(mySerial2);
+
+  pinMode(led_pin, OUTPUT);
+  digitalWrite(led_pin, HIGH);
+
+  analogWriteResolution(12);
+  analogWrite(vref_pin, 2048);
+
+  pinMode(left_side_pin, INPUT);
+  pinMode(right_side_pin, INPUT);
+  for (int i = 0; i < 32; i++)
+    pinMode(angel_pins[i], INPUT);
 }
 
 void loop()
 {
-  gyro.update(false);
-  packet.tx.gyro_deg = static_cast<int16_t>(gyro.deg());
-  packet.tx.ball_deg = 10;
+  uint32_t reg_a = GPIOA->IDR;
+  uint32_t reg_b = GPIOB->IDR;
+  uint32_t reg_c = GPIOC->IDR;
+
+  uint32_t angel_bit = 0;
+  angel_bit |= (reg_b & 0x07FF);         // bit 0 ~ 10 はそのまま (配列の 0~10 番目)
+  angel_bit |= ((reg_b & 0xF000) >> 1);  // bit 12 ~ 15 は 1 ビット右シフトして詰める (配列の 11~14 番目へ)
+  angel_bit |= ((reg_c & 0xFFFF) << 15); // bit 0 ~ 15 を 15 ビット左シフトして持ち上げる (配列の 15~30 番目へ)
+  angel_bit |= ((reg_a & 0x0001) << 31); // bit 0 を 31 ビット左シフトして最上位へ (配列の 31 番目へ)
+
+  packet.tx.angel = angel_bit;
+  packet.tx.left_side_val = analogRead(left_side_pin);
+  packet.tx.right_side_val = analogRead(right_side_pin);
 
   packet.update();
 
-  ui_state = packet.rx.ui_state;
-
-  mySerial2.println(String(gyro.deg()) + " " + String(ui_state));
+  static uint32_t _last_tx_time = millis();
+  if (millis() - _last_tx_time >= 20)
+  {
+    _last_tx_time = millis();
+    mySerial1.print("angel: ");
+    mySerial1.print(packet.tx.angel, BIN);
+    mySerial1.print(", left_side_val: ");
+    mySerial1.print(packet.tx.left_side_val);
+    mySerial1.print(", right_side_val: ");
+    mySerial1.println(packet.tx.right_side_val);
+  }
 }
