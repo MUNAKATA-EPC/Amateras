@@ -5,7 +5,7 @@
 
 #include "ui.h"
 
-enum UI_STATE ui_state = HOME; // Current UI state
+UI_STATE ui_state = HOME; // Current UI state
 
 // Action
 

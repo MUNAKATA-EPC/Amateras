@@ -10,7 +10,9 @@
 extern "C" {
 #endif
 
-enum UI_STATE
+typedef uint8_t UI_STATE;
+
+enum
 {
     HOME,
     ACTION_OFFENSE,
@@ -27,7 +29,8 @@ enum UI_STATE
     COMMUNICATION_TRANSMIT,
     COMMUNICATION_RECEIVE
 };
-extern enum UI_STATE ui_state;
+
+extern UI_STATE ui_state;
 
 void home_loaded_event(lv_event_t * e);
 void action_loaded_event(lv_event_t * e);

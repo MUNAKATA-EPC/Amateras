@@ -500,7 +500,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "D:/CNC/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "stm32f446re_breakout_substrate.step",
