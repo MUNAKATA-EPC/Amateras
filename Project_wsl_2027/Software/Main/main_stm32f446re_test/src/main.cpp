@@ -91,13 +91,13 @@ serial_packet<t_data, r_data> packet(20);
 struct action_run_t_data
 {
   bool action_run = false;
-  int my_posi_x = 0;
-  int my_posi_y = 0;
+  int16_t my_posi_x = 0;
+  int16_t my_posi_y = 0;
 };
 struct action_run_r_data
 {
-  int peer_posi_x = 0;
-  int peer_posi_y = 0;
+  int16_t peer_posi_x = 0;
+  int16_t peer_posi_y = 0;
 };
 serial_packet<action_run_t_data, action_run_r_data> action_run_packet(20);
 bool action_run = false;
@@ -144,8 +144,8 @@ void loop()
   {
     if (prev_action_run)
     {
-      while (mySerial3.available())
-        mySerial3.read();
+      packet.reset();
+      action_run_packet.reset();
     }
     prev_action_run = false;
 
@@ -167,13 +167,14 @@ void loop()
   {
     if (!prev_action_run)
     {
-      while (mySerial3.available())
-        mySerial3.read();
+      packet.reset();
+      action_run_packet.reset();
     }
     prev_action_run = true;
 
     digitalWrite(green_led_pin, HIGH);
 
+    action_run_packet.tx.action_run = action_run;
     action_run_packet.update();
 
     action_run = action_toggle;
@@ -190,36 +191,43 @@ void loop()
   case HOME:
     break;
   case ACTION_OFFENSE:
-    if (action_run)
-      digitalWrite(red_led_pin, HIGH);
+    digitalWrite(yellow_led_pin, HIGH);
     break;
   case ACTION_DEFENSE:
-    if (action_run)
-      digitalWrite(red_led_pin, HIGH);
+    digitalWrite(yellow_led_pin, HIGH);
     break;
   case ACTION_RADIOCONTROL:
-    if (action_run)
-      digitalWrite(red_led_pin, HIGH);
+    digitalWrite(yellow_led_pin, HIGH);
     break;
   case TEST_KICKER:
-    if (test_kicker_btn)
-      digitalWrite(yellow_led_pin, HIGH);
+    digitalWrite(red_led_pin, HIGH);
     break;
   case TEST_DRIBBLER:
-    if (test_dribbler_toggle)
-      digitalWrite(yellow_led_pin, HIGH);
+    digitalWrite(red_led_pin, HIGH);
     break;
   case TEST_MOTOR:
-    if (test_motor_toggle)
-      digitalWrite(yellow_led_pin, HIGH);
+    digitalWrite(red_led_pin, HIGH);
     break;
   case SENSORMONITOR_BALL:
+    digitalWrite(red_led_pin, HIGH);
+    break;
   case SENSORMONITOR_LINE:
+    digitalWrite(red_led_pin, HIGH);
+    break;
   case SENSORMONITOR_GYRO:
+    digitalWrite(red_led_pin, HIGH);
+    break;
   case SENSORMONITOR_GOAL:
+    digitalWrite(red_led_pin, HIGH);
+    break;
   case SENSORMONITOR_LIDAR:
+    digitalWrite(red_led_pin, HIGH);
+    break;
   case COMMUNICATION_TRANSMIT:
+    digitalWrite(red_led_pin, HIGH);
+    break;
   case COMMUNICATION_RECEIVE:
+    digitalWrite(red_led_pin, HIGH);
     break;
   }
 

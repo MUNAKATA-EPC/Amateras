@@ -10,6 +10,12 @@ private:
   uint32_t _tx_interval_ms;
   const uint8_t _start_byte = 0xAA;
 
+  int _rx_state = 0;
+  size_t _rx_index = 0;
+  uint8_t _expected_size = 0;
+  uint8_t _calc_checksum = 0;
+  uint8_t _rx_buffer[sizeof(rx_t) > 0 ? sizeof(rx_t) : 1] = {};
+
 public:
   tx_t tx;
   rx_t rx;
@@ -24,6 +30,17 @@ public:
   void begin(HardwareSerial &serial_obj)
   {
     _serial = &serial_obj;
+  }
+
+  void reset()
+  {
+    _rx_state = 0;
+    _rx_index = 0;
+    _expected_size = 0;
+    _calc_checksum = 0;
+    if (_serial)
+      while (_serial->available())
+        _serial->read();
   }
 
   bool update()
@@ -58,48 +75,40 @@ private:
 
   bool readPacket()
   {
-    static int state = 0;
-    static size_t rx_index = 0;
-    static uint8_t expected_size = 0;
-    static uint8_t calc_checksum = 0;
-    static uint8_t rx_buffer[sizeof(rx_t) > 0 ? sizeof(rx_t) : 1];
     bool packet_received = false;
-
     while (_serial->available() > 0)
     {
       uint8_t b = _serial->read();
-      switch (state)
+      switch (_rx_state)
       {
       case 0:
         if (b == _start_byte)
-          state = 1;
+          _rx_state = 1;
         break;
       case 1:
         if (b == sizeof(rx_t))
         {
-          expected_size = b;
-          rx_index = 0;
-          calc_checksum = 0;
-          state = 2;
+          _expected_size = b;
+          _rx_index = 0;
+          _calc_checksum = 0;
+          _rx_state = 2;
         }
         else
-        {
-          state = 0;
-        }
+          _rx_state = 0;
         break;
       case 2:
-        rx_buffer[rx_index++] = b;
-        calc_checksum ^= b;
-        if (rx_index >= expected_size)
-          state = 3;
+        _rx_buffer[_rx_index++] = b;
+        _calc_checksum ^= b;
+        if (_rx_index >= _expected_size)
+          _rx_state = 3;
         break;
       case 3:
-        if (b == calc_checksum)
+        if (b == _calc_checksum)
         {
-          memcpy(&rx, rx_buffer, sizeof(rx_t));
+          memcpy(&rx, _rx_buffer, sizeof(rx_t));
           packet_received = true;
         }
-        state = 0;
+        _rx_state = 0;
         break;
       }
     }

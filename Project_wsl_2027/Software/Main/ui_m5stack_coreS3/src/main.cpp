@@ -50,14 +50,14 @@ struct r_data
 serial_packet<t_data, r_data> packet(20);
 struct action_run_t_data
 {
-    int peer_posi_x = 0;
-    int peer_posi_y = 0;
+    int16_t peer_posi_x = 0;
+    int16_t peer_posi_y = 0;
 };
 struct action_run_r_data
 {
     bool action_run = false;
-    int my_posi_x = 0;
-    int my_posi_y = 0;
+    int16_t my_posi_x = 0;
+    int16_t my_posi_y = 0;
 };
 serial_packet<action_run_t_data, action_run_r_data> action_run_packet(20);
 bool action_run = false;
@@ -110,7 +110,8 @@ void loop()
     {
         if (prev_action_run)
         {
-            while (Serial0.available()) Serial0.read();
+            packet.reset();
+            action_run_packet.reset();
             lv_obj_invalidate(lv_scr_act());
         }
         prev_action_run = false;
@@ -124,6 +125,9 @@ void loop()
         M5.update();
 
         packet.tx.ui_state = ui_state;
+        packet.tx.test_kicker_btn = test_kicker_btn;
+        packet.tx.test_dribbler_toggle = test_dribbler_toggle;
+        packet.tx.test_motor_toggle = test_motor_toggle;
         packet.update();
 
         action_run = (isActionState(ui_state) && packet.rx.action_run);
@@ -179,25 +183,30 @@ void loop()
     {
         if (!prev_action_run)
         {
-            while (Serial0.available()) Serial0.read();
+            packet.reset();
+            action_run_packet.reset();
+            action_run_packet.rx.action_run = action_run;
+            action_run_packet.rx.my_posi_x = 0;
+            action_run_packet.rx.my_posi_y = 0;
+
             M5.Display.clear(TFT_BLACK);
             M5.Display.setTextSize(2);
             M5.Display.setTextColor(TFT_RED, TFT_BLACK);
             M5.Display.drawCentreString("ACTION IS RUNNING", screen_width / 2, screen_height / 2 - 8);
+            M5.update();
         }
         prev_action_run = true;
-
-        action_run_packet.update();
-
-        action_run = action_run_packet.rx.action_run;
         test_kicker_btn = false;
         test_dribbler_toggle = false;
         test_motor_toggle = false;
+
+        action_run_packet.update();
+        action_run = action_run_packet.rx.action_run;
     }
 
     static uint32_t _last_tx_time = millis();
     if (millis() - _last_tx_time >= 20)
     {
-        // Serial.println(sizeof(ui_state));
+        _last_tx_time = millis();
     }
 }
