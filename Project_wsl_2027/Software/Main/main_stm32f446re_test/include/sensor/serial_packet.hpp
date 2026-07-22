@@ -6,8 +6,6 @@ class serial_packet
 {
 private:
   HardwareSerial *_serial = nullptr;
-  uint32_t _last_tx_time = 0;
-  uint32_t _tx_interval_ms;
   const uint8_t _start_byte = 0xAA;
 
   int _rx_state = 0;
@@ -20,9 +18,8 @@ public:
   tx_t tx;
   rx_t rx;
 
-  serial_packet(uint32_t interval_ms = 20)
+  serial_packet()
   {
-    _tx_interval_ms = interval_ms;
     tx = tx_t();
     rx = rx_t();
   }
@@ -47,11 +44,7 @@ public:
   {
     if (!_serial)
       return false;
-    if (millis() - _last_tx_time >= _tx_interval_ms)
-    {
-      _last_tx_time = millis();
-      sendPacket();
-    }
+    sendPacket();
     return readPacket();
   }
 

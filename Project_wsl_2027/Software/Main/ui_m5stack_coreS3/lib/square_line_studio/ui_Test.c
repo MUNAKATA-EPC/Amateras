@@ -335,6 +335,7 @@ void ui_Test_screen_init(void)
     lv_obj_remove_style_all(ui_TestDribblerContainer);
     lv_obj_set_width(ui_TestDribblerContainer, 320);
     lv_obj_set_height(ui_TestDribblerContainer, 200);
+    lv_obj_add_flag(ui_TestDribblerContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_TestDribblerContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_TestDribblerLeverContainer1 = lv_obj_create(ui_TestDribblerContainer);
@@ -474,7 +475,6 @@ void ui_Test_screen_init(void)
     lv_obj_remove_style_all(ui_TestMotorContainer);
     lv_obj_set_width(ui_TestMotorContainer, 320);
     lv_obj_set_height(ui_TestMotorContainer, 200);
-    lv_obj_add_flag(ui_TestMotorContainer, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_clear_flag(ui_TestMotorContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_TestMotorLeverContainer = lv_obj_create(ui_TestMotorContainer);
@@ -541,8 +541,8 @@ void ui_Test_screen_init(void)
     lv_obj_remove_style_all(ui_TestMotorMeterContainer);
     lv_obj_set_width(ui_TestMotorMeterContainer, 100);
     lv_obj_set_height(ui_TestMotorMeterContainer, 100);
-    lv_obj_set_x(ui_TestMotorMeterContainer, 0);
-    lv_obj_set_y(ui_TestMotorMeterContainer, 1);
+    lv_obj_set_x(ui_TestMotorMeterContainer, -2);
+    lv_obj_set_y(ui_TestMotorMeterContainer, 2);
     lv_obj_set_align(ui_TestMotorMeterContainer, LV_ALIGN_TOP_RIGHT);
     lv_obj_clear_flag(ui_TestMotorMeterContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 

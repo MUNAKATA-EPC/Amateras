@@ -7,6 +7,31 @@
 #include <stdint.h>
 
 /*====================
+   UI VALUES
+ *====================*/
+typedef uint8_t UI_STATE;
+
+enum
+{
+    HOME,
+    ACTION_OFFENSE,
+    ACTION_DEFENSE,
+    ACTION_RADIOCONTROL,
+    TEST_KICKER,
+    TEST_DRIBBLER,
+    TEST_MOTOR,
+    SENSORMONITOR_BALL,
+    SENSORMONITOR_LINE,
+    SENSORMONITOR_GYRO,
+    SENSORMONITOR_GOAL,
+    SENSORMONITOR_LIDAR,
+    COMMUNICATION_TRANSMIT,
+    COMMUNICATION_RECEIVE
+};
+
+extern UI_STATE ui_state;
+
+/*====================
    COLOR SETTINGS
  *====================*/
 

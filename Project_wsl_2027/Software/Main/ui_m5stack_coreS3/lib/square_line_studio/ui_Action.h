@@ -22,18 +22,6 @@ extern void ui_event_ActionBackButton(lv_event_t * e);
 extern lv_obj_t * ui_ActionBackButton;
 extern lv_obj_t * ui_ActionBackLabel;
 extern lv_obj_t * ui_ActionMidContainer;
-extern lv_obj_t * ui_ActionLeverContainer;
-extern void ui_event_ActionLeverRunButton(lv_event_t * e);
-extern lv_obj_t * ui_ActionLeverRunButton;
-extern lv_obj_t * ui_ActionLeverRunLabel;
-extern void ui_event_ActionLeverIdleButton(lv_event_t * e);
-extern lv_obj_t * ui_ActionLeverIdleButton;
-extern lv_obj_t * ui_ActionLeverIdleLabel;
-extern lv_obj_t * ui_ActionMeterContainer;
-extern lv_obj_t * ui_ActionMeterPanel;
-extern void ui_event_ActionMeterButton(lv_event_t * e);
-extern lv_obj_t * ui_ActionMeterButton;
-extern lv_obj_t * ui_ActionMeterPointorPanel;
 extern lv_obj_t * ui_ActionConfigContainer;
 extern lv_obj_t * ui_ActionConfigCheckbox1;
 extern lv_obj_t * ui_ActionConfigCheckbox2;
@@ -41,6 +29,11 @@ extern lv_obj_t * ui_ActionConfigCheckbox3;
 extern lv_obj_t * ui_ActionConfigCheckbox4;
 extern lv_obj_t * ui_ActionDebugPanel;
 extern lv_obj_t * ui_ActionDebugLabel;
+extern lv_obj_t * ui_ActionMeterContainer;
+extern lv_obj_t * ui_ActionMeterPanel;
+extern void ui_event_ActionMeterButton(lv_event_t * e);
+extern lv_obj_t * ui_ActionMeterButton;
+extern lv_obj_t * ui_ActionMeterPointorPanel;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus

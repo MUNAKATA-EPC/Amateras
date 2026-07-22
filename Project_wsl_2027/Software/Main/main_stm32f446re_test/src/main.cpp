@@ -79,31 +79,45 @@ enum UI_STATE ui_state = HOME;
 struct t_data
 {
   bool action_run = false;
-};
+} __attribute__((packed));
+
 struct r_data
 {
+  bool action_run = false;
+  int action_meter_type = 0;
   UI_STATE ui_state = HOME;
-  bool test_kicker_btn = false;
-  bool test_dribbler_toggle = false;
-  bool test_motor_toggle = false;
-};
-serial_packet<t_data, r_data> packet(20);
+  bool testkicker_btn = false;
+  bool testkicker_front = false;
+  bool testdribbler_toggle = false;
+  bool testdribbler_front = false;
+  bool testmotor_toggle = false;
+  int testmotor_meter_type = 0;
+} __attribute__((packed));
+
 struct action_run_t_data
 {
   bool action_run = false;
   int16_t my_posi_x = 0;
   int16_t my_posi_y = 0;
-};
+} __attribute__((packed));
+
 struct action_run_r_data
 {
-  int16_t peer_posi_x = 0;
-  int16_t peer_posi_y = 0;
-};
-serial_packet<action_run_t_data, action_run_r_data> action_run_packet(20);
+  bool action_run = false;
+  int16_t my_posi_x = 0;
+  int16_t my_posi_y = 0;
+} __attribute__((packed));
+
+serial_packet<t_data, r_data> packet;
+serial_packet<action_run_t_data, action_run_r_data> action_run_packet;
+
 bool action_run = false;
-bool test_kicker_btn = false;
-bool test_dribbler_toggle = false;
-bool test_motor_toggle = false;
+bool testkicker_btn = false;
+bool testkicker_front = false;
+bool testdribbler_toggle = false;
+bool testdribbler_front = false;
+bool testmotor_toggle = false;
+int testmotor_meter_type = 0;
 
 bool isActionState(UI_STATE state)
 {
@@ -117,6 +131,32 @@ uint8_t red_led_pin = PB5;
 uint8_t yellow_led_pin = PA11;
 uint8_t green_led_pin = PC8;
 uint8_t toggle_pin = PB14;
+
+int toggle_stable_judge(bool cur_toggle)
+{
+  static bool last_state = false;
+  static uint8_t consecutive_count = 0;
+
+  if (cur_toggle == last_state)
+  {
+    if (consecutive_count < 5)
+    {
+      consecutive_count++;
+    }
+  }
+  else
+  {
+    last_state = cur_toggle;
+    consecutive_count = 1;
+  }
+
+  if (consecutive_count >= 5)
+  {
+    return cur_toggle ? 1 : 0;
+  }
+
+  return -1;
+}
 
 void setup()
 {
@@ -137,106 +177,116 @@ void setup()
 
 void loop()
 {
-  static bool prev_action_run = false;
-  bool action_toggle = (digitalRead(toggle_pin) == HIGH);
-
-  if (!action_run)
-  {
-    if (prev_action_run)
-    {
-      packet.reset();
-      action_run_packet.reset();
-    }
-    prev_action_run = false;
-
-    digitalWrite(green_led_pin, LOW);
-
-    packet.tx.action_run = action_run;
-    packet.update();
-    ui_state = packet.rx.ui_state;
-
-    if (isActionState(ui_state) && action_toggle)
-    {
-      action_run = true;
-    }
-    test_kicker_btn = packet.rx.test_kicker_btn;
-    test_dribbler_toggle = packet.rx.test_dribbler_toggle;
-    test_motor_toggle = packet.rx.test_motor_toggle;
-  }
-  else
-  {
-    if (!prev_action_run)
-    {
-      packet.reset();
-      action_run_packet.reset();
-    }
-    prev_action_run = true;
-
-    digitalWrite(green_led_pin, HIGH);
-
-    action_run_packet.tx.action_run = action_run;
-    action_run_packet.update();
-
-    action_run = action_toggle;
-    test_kicker_btn = false;
-    test_dribbler_toggle = false;
-    test_motor_toggle = false;
-  }
-
-  digitalWrite(red_led_pin, LOW);
-  digitalWrite(yellow_led_pin, LOW);
-
-  switch (ui_state)
-  {
-  case HOME:
-    break;
-  case ACTION_OFFENSE:
-    digitalWrite(yellow_led_pin, HIGH);
-    break;
-  case ACTION_DEFENSE:
-    digitalWrite(yellow_led_pin, HIGH);
-    break;
-  case ACTION_RADIOCONTROL:
-    digitalWrite(yellow_led_pin, HIGH);
-    break;
-  case TEST_KICKER:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case TEST_DRIBBLER:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case TEST_MOTOR:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case SENSORMONITOR_BALL:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case SENSORMONITOR_LINE:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case SENSORMONITOR_GYRO:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case SENSORMONITOR_GOAL:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case SENSORMONITOR_LIDAR:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case COMMUNICATION_TRANSMIT:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  case COMMUNICATION_RECEIVE:
-    digitalWrite(red_led_pin, HIGH);
-    break;
-  }
-
+  // ボタン更新
   left_btn.update();
   right_btn.update();
 
-  static uint32_t _last_tx_time = millis();
-  if (millis() - _last_tx_time >= 20)
+  // トグルスイッチ
+  static bool prev_action_run = false;
+  int action_toggle = toggle_stable_judge(digitalRead(toggle_pin) == HIGH);
+
+  digitalWrite(red_led_pin, (action_toggle == 1) ? HIGH : LOW);
+
+  // アップデート
+  static uint32_t last_time = 0;
+  if (millis() - last_time > 20)
   {
-    _last_tx_time = millis();
+    bool prev_action_run = action_run;
+
+    // M5のデータを受送信
+    if (action_run)
+    {
+      action_run_packet.update();
+
+      testkicker_btn = false;
+      testkicker_front = false;
+      testdribbler_toggle = false;
+      testdribbler_front = false;
+      testmotor_toggle = false;
+      testmotor_meter_type = 0;
+
+      // アクションを走らせるか
+      action_run_packet.tx.action_run = (action_toggle == 1);
+      action_run = action_run_packet.rx.action_run;
+    }
+    else
+    {
+      packet.update();
+      ui_state = packet.rx.ui_state;
+      testkicker_btn = packet.rx.testkicker_btn;
+      testkicker_front = packet.rx.testkicker_front;
+      testdribbler_toggle = packet.rx.testdribbler_toggle;
+      testdribbler_front = packet.rx.testdribbler_front;
+      testmotor_toggle = packet.rx.testmotor_toggle;
+      testmotor_meter_type = packet.rx.testmotor_meter_type;
+
+      // アクションを走らせるか
+      packet.tx.action_run = (isActionState(ui_state) && (action_toggle == 1));
+      action_run = packet.rx.action_run;
+    }
+
+    // 切替時にシリアルバッファをリセット
+    if (action_run && !prev_action_run)
+    {
+      action_run_packet.reset();
+    }
+    else if (!action_run && prev_action_run)
+    {
+      packet.reset();
+    }
+
+    last_time = millis();
+  }
+
+  digitalWrite(yellow_led_pin, LOW);
+  digitalWrite(green_led_pin, LOW);
+
+  if (action_run)
+  {
+    digitalWrite(yellow_led_pin, HIGH);
+
+    switch (ui_state)
+    {
+    case ACTION_OFFENSE:
+      break;
+    case ACTION_DEFENSE:
+      break;
+    case ACTION_RADIOCONTROL:
+      break;
+    }
+
+    if (left_btn.isPushing() || right_btn.isPushing())
+    {
+      digitalWrite(green_led_pin, HIGH);
+    }
+  }
+  else if (ui_state == HOME)
+  {
+  }
+  else
+  {
+    digitalWrite(yellow_led_pin, HIGH);
+
+    switch (ui_state)
+    {
+    case TEST_KICKER:
+      if (testkicker_btn)
+      {
+        digitalWrite(green_led_pin, HIGH);
+      }
+      break;
+    case TEST_DRIBBLER:
+      if (testdribbler_toggle)
+      {
+        digitalWrite(green_led_pin, HIGH);
+      }
+      break;
+    case TEST_MOTOR:
+      if (testmotor_toggle)
+      {
+        digitalWrite(green_led_pin, HIGH);
+      }
+      break;
+    }
   }
 }

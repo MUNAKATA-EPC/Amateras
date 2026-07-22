@@ -49,9 +49,6 @@ void action_dropdown_value_changed_event(lv_event_t *e)
 	lv_obj_add_state(ui_ActionMeterButton, LV_STATE_USER_1);
 	lv_obj_clear_state(ui_ActionMeterButton, LV_STATE_USER_2);
 	lv_obj_clear_state(ui_ActionMeterButton, LV_STATE_USER_3);
-
-	lv_obj_add_flag(ui_ActionLeverRunButton, LV_OBJ_FLAG_HIDDEN);
-	lv_obj_clear_flag(ui_ActionLeverIdleButton, LV_OBJ_FLAG_HIDDEN);
 }
 
 void action_meter_switch_event(lv_event_t *e)
@@ -274,9 +271,6 @@ void home_loaded_event(lv_event_t *e)
 	lv_obj_add_state(ui_ActionMeterButton, LV_STATE_USER_1);
 	lv_obj_clear_state(ui_ActionMeterButton, LV_STATE_USER_2);
 	lv_obj_clear_state(ui_ActionMeterButton, LV_STATE_USER_3);
-
-	lv_obj_add_flag(ui_ActionLeverRunButton, LV_OBJ_FLAG_HIDDEN);
-	lv_obj_clear_flag(ui_ActionLeverIdleButton, LV_OBJ_FLAG_HIDDEN);
 
 	// Test
 	lv_dropdown_set_selected(ui_TestDropdown, 0);
