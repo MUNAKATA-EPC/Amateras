@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Arduino.h>
-#include "common/serial_packet.hpp"
-#include "common/my_interface.hpp"
 
 class button
 {
@@ -52,34 +50,34 @@ public:
 
     void update()
     {
-        bool current_raw = false;
+        bool cur_raw = false;
         if (_pinmode == INPUT_PULLDOWN)
         {
-            current_raw = (digitalRead(_pin) == HIGH);
+            cur_raw = (digitalRead(_pin) == HIGH);
         }
         else if (_pinmode == INPUT_PULLUP)
         {
-            current_raw = (digitalRead(_pin) == LOW);
+            cur_raw = (digitalRead(_pin) == LOW);
         }
         else
         {
-            current_raw = (digitalRead(_pin) == HIGH);
+            cur_raw = (digitalRead(_pin) == HIGH);
         }
 
-        if (current_raw != _last_raw_state)
+        if (cur_raw != _last_raw_state)
         {
             _last_debounce_time = millis();
         }
 
         if ((millis() - _last_debounce_time) > _debounce_delay)
         {
-            if (current_raw != _pressed)
+            if (cur_raw != _pressed)
             {
-                _pressed = current_raw;
+                _pressed = cur_raw;
             }
         }
 
-        _last_raw_state = current_raw;
+        _last_raw_state = cur_raw;
         if (_pressed)
         {
             if (!_oldpressed)
@@ -96,6 +94,7 @@ public:
         _oldpressed = _pressed;
     }
 
+    bool isPressed() const { return _pressed && !_oldpressed; }
     bool isPushing() const { return _pressed; }
     bool isReleased() const { return _released; }
 
@@ -108,5 +107,5 @@ public:
     }
 };
 
-button left_btn;
-button right_btn;
+inline button left_btn;
+inline button right_btn;

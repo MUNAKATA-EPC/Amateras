@@ -8,7 +8,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endifs
+#endif
 
 void home_loaded_event(lv_event_t * e);
 void action_loaded_event(lv_event_t * e);

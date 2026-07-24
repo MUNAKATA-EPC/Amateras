@@ -1,10 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
-#include "state/goalstate.hpp"
-#include "sensor/serial_packet.hpp"
-#include "sensor/bno.hpp"
-#include "sensor/button.hpp"
+#include "common/serial_packet.hpp"
+#include "device/bno.hpp"
+#include "device/button.hpp"
 
 void offence()
 {

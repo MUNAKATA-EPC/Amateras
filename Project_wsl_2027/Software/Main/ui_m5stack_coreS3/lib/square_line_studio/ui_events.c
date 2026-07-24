@@ -15,10 +15,10 @@ void action_loaded_event(lv_event_t *e)
 	switch (selected_index)
 	{
 	case 0: // Offense
-		ui_state = ACTION_OFFENSE;
+		ui_state = ACTION_OFFENCE;
 		break;
 	case 1: // Defense
-		ui_state = ACTION_DEFENSE;
+		ui_state = ACTION_DEFENCE;
 		break;
 	case 2: // RadioControl
 		ui_state = ACTION_RADIOCONTROL;
@@ -35,10 +35,10 @@ void action_dropdown_value_changed_event(lv_event_t *e)
 	switch (selected_index)
 	{
 	case 0: // Offense
-		ui_state = ACTION_OFFENSE;
+		ui_state = ACTION_OFFENCE;
 		break;
 	case 1: // Defense
-		ui_state = ACTION_DEFENSE;
+		ui_state = ACTION_DEFENCE;
 		break;
 	case 2: // RadioControl
 		ui_state = ACTION_RADIOCONTROL;

@@ -1,11 +1,17 @@
 #include <Arduino.h>
+// action
 #include "action/offence.hpp"
 #include "action/defence.hpp"
-
-#include "sensor/serial_packet.hpp"
-#include "sensor/bno.hpp"
-#include "sensor/button.hpp"
-#include "sensor/m5_module.hpp"
+// common
+#include "common/serial_packet.hpp"
+#include "common/bus_instance.hpp"
+// device
+#include "device/bno.hpp"
+#include "device/button.hpp"
+#include "device/led.hpp"
+#include "device/toggle.hpp"
+// module
+#include "module/ui.hpp"
 
 extern "C" void SystemClock_Config(void)
 {
@@ -51,81 +57,102 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
-uint8_t red_led_pin = PB5;
-uint8_t yellow_led_pin = PA11;
-uint8_t green_led_pin = PC8;
-
 void setup()
 {
-  uiInit();
+  // m5
+  mySerial3.begin(115200);
+  ui::attach(mySerial3);
 
+  // pc
+  mySerial2.begin(115200);
+
+  // btn
   left_btn.begin(PC11, INPUT_PULLDOWN);
   right_btn.begin(PB15, INPUT_PULLDOWN);
 
-  pinMode(red_led_pin, OUTPUT);
-  pinMode(yellow_led_pin, OUTPUT);
-  pinMode(green_led_pin, OUTPUT);
-  pinMode(toggle_pin, INPUT_PULLDOWN);
-
-  mySerial2.begin(115200);
+  // toggle
+  action_toggle.begin(PB14, INPUT_PULLDOWN);
+  // led
+  red_led.begin(PB5);
+  yellow_led.begin(PA11);
+  green_led.begin(PC8);
 }
 
 void loop()
 {
-  // ボタン更新
+  // btn更新
   left_btn.update();
   right_btn.update();
+  // toggle更新
+  action_toggle.update();
 
-  // 動作
-  digitalWrite(yellow_led_pin, LOW);
-  digitalWrite(green_led_pin, LOW);
+  // ui更新
+  ui::process(action_toggle.isTurnedOn());
 
-  if (action_run)
+  // led初期化
+  if (ui::cur_state == ui::STATE::HOME)
+    red_led.lightdown();
+  else
+    red_led.lightup();
+  yellow_led.lightdown();
+  green_led.lightdown();
+
+  if (ui::ACTION::run)
   {
-    digitalWrite(yellow_led_pin, HIGH);
+    green_led.lightup();
 
-    switch (ui_state)
+    switch (ui::cur_state)
     {
-    case ACTION_OFFENCE:
+    case ui::STATE::ACTION_OFFENCE:
+      offence();
       break;
-    case ACTION_DEFENCE:
+    case ui::STATE::ACTION_DEFENCE:
+      defence();
       break;
-    case ACTION_RADIOCONTROL:
+    case ui::STATE::ACTION_RADIOCONTROL:
       break;
     }
-
-    if (left_btn.isPushing() || right_btn.isPushing())
-    {
-      digitalWrite(green_led_pin, HIGH);
-    }
-  }
-  else if (ui_state == HOME)
-  {
   }
   else
   {
-    digitalWrite(yellow_led_pin, HIGH);
-
-    switch (ui_state)
+    switch (ui::cur_state)
     {
-    case TEST_KICKER:
-      if (testkicker_btn)
-      {
-        digitalWrite(green_led_pin, HIGH);
-      }
+    case ui::STATE::HOME:
       break;
-    case TEST_DRIBBLER:
-      if (testdribbler_toggle)
-      {
-        digitalWrite(green_led_pin, HIGH);
-      }
+    case ui::STATE::TEST_KICKER:
+      if (ui::TEST_KICKER::btn)
+        green_led.lightup();
+      if (ui::TEST_KICKER::front)
+        yellow_led.lightup();
       break;
-    case TEST_MOTOR:
-      if (testmotor_toggle)
-      {
-        digitalWrite(green_led_pin, HIGH);
-      }
+    case ui::STATE::TEST_DRIBBLER:
+      if (ui::TEST_DRIBBLER::toggle)
+        green_led.lightup();
+      if (ui::TEST_DRIBBLER::front)
+        yellow_led.lightup();
+      break;
+    case ui::STATE::TEST_MOTOR:
+      if (ui::TEST_MOTOR::toggle)
+        green_led.lightup();
+      if (left_btn.isPushing() || right_btn.isPushing())
+        yellow_led.lightup();
+      break;
+    case ui::STATE::SENSORMONITOR_BALL:
+      break;
+    case ui::STATE::SENSORMONITOR_LINE:
+      break;
+    case ui::STATE::SENSORMONITOR_GYRO:
+      break;
+    case ui::STATE::SENSORMONITOR_GOAL:
+      break;
+    case ui::STATE::SENSORMONITOR_LIDAR:
+      break;
+    case ui::STATE::COMMUNICATION_TRANSMIT:
+      break;
+    case ui::STATE::COMMUNICATION_RECEIVE:
       break;
     }
   }
+
+  delay(50);
 }
