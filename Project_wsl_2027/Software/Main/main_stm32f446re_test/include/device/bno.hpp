@@ -5,6 +5,8 @@
 #include <Adafruit_Sensor.h>
 #include <utility/imumaths.h>
 #include <SPI.h>
+#include "common/serial_packet.hpp"
+#include "common/my_interface.hpp"
 
 class bno
 {

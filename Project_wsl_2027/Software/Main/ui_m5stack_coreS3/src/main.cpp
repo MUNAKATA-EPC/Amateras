@@ -39,20 +39,30 @@ void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
 struct t_data
 {
     bool action_run = false;
-    int action_meter_type = 0;
+    int8_t action_meter_type = 0;
     UI_STATE ui_state = HOME;
     bool testkicker_btn = false;
     bool testkicker_front = false;
     bool testdribbler_toggle = false;
     bool testdribbler_front = false;
     bool testmotor_toggle = false;
-    int testmotor_meter_type = 0;
+    int8_t testmotor_meter_type = 0;
 
 } __attribute__((packed));
 
 struct r_data
 {
     bool action_run = false;
+    uint32_t line_angel = 0UL;
+    int16_t line_right_side_val = 0;
+    int16_t line_left_side_val = 0;
+    int16_t ball_deg = 0;
+    int16_t ball_dis = 0;
+    int16_t gyro_deg = 0;
+    int16_t yellow_goal_deg = 0;
+    int16_t yellow_goal_dis = 0;
+    int16_t blue_goal_deg = 0;
+    int16_t blue_goal_dis = 0;
 } __attribute__((packed));
 
 struct action_run_t_data
@@ -79,7 +89,7 @@ bool just_action_run_stopped = false;
 
 bool isActionState(UI_STATE state)
 {
-    return (state == ACTION_OFFENSE || state == ACTION_DEFENSE || state == ACTION_RADIOCONTROL);
+    return (state == ACTION_OFFENCE || state == ACTION_DEFENCE || state == ACTION_RADIOCONTROL);
 }
 
 void setup()
@@ -205,11 +215,11 @@ void loop()
 
             M5.Display.setTextSize(2);
             M5.Display.setTextColor(TFT_RED, TFT_BLACK);
-            if (ui_state == ACTION_OFFENSE)
+            if (ui_state == ACTION_OFFENCE)
             {
                 M5.Display.drawCentreString("OFFENSE IS RUNNING", screen_width / 2, screen_height / 2 - 16);
             }
-            else if (ui_state == ACTION_DEFENSE)
+            else if (ui_state == ACTION_DEFENCE)
             {
                 M5.Display.drawCentreString("DEFENCE IS RUNNING", screen_width / 2, screen_height / 2 - 16);
             }
@@ -225,17 +235,17 @@ void loop()
             M5.Display.setTextSize(2);
             if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_1))
             {
-                M5.Display.setTextColor(TFT_YELLOW, TFT_BLACK);
+                M5.Display.setTextColor(my_lv_color_rgb888_to_rgb565(0xE8E839), TFT_BLACK);
                 M5.Display.drawCentreString("YELLOW GOAL", screen_width / 2, screen_height / 2 + 8);
             }
             else if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_2))
             {
-                M5.Display.setTextColor(TFT_SKYBLUE, TFT_BLACK);
+                M5.Display.setTextColor(my_lv_color_rgb888_to_rgb565(0x2095F6), TFT_BLACK);
                 M5.Display.drawCentreString("BLUE GOAL", screen_width / 2, screen_height / 2 + 8);
             }
             else // LV_STATE_USER_3
             {
-                M5.Display.setTextColor(TFT_LIGHTGRAY, TFT_BLACK);
+                M5.Display.setTextColor(my_lv_color_rgb888_to_rgb565(0x525552), TFT_BLACK);
                 M5.Display.drawCentreString("GYRO", screen_width / 2, screen_height / 2 + 8);
             }
         }
@@ -259,33 +269,73 @@ void loop()
         {
         case HOME:
             break;
-        case ACTION_OFFENSE:
-        case ACTION_DEFENSE:
+        case ACTION_OFFENCE:
         case ACTION_RADIOCONTROL:
-            my_lv_set_object_rotation(ui_ActionMeterPointorPanel, 0, 43);
+        case ACTION_DEFENCE:
+            lv_label_set_text_fmt(ui_ActionDebugLabel,
+                                  "ball_deg: %d\nball_dis: %d\ngyro_deg: %d\nyellow_goal_deg: %d\nyellow_goal_dis: %d\nblue_goal_deg: %d\nblue_goal_dis: %d",
+                                  packet.rx.ball_deg, packet.rx.ball_dis, packet.rx.gyro_deg, packet.rx.yellow_goal_deg, packet.rx.yellow_goal_dis, packet.rx.blue_goal_deg, packet.rx.blue_goal_dis);
+            if (packet.tx.action_meter_type == 0)
+            {
+                my_lv_set_object_rotation(ui_ActionMeterPointorPanel, packet.rx.yellow_goal_deg, 43);
+            }
+            else if (packet.tx.action_meter_type == 1)
+            {
+                my_lv_set_object_rotation(ui_ActionMeterPointorPanel, packet.rx.blue_goal_deg, 43);
+            }
+            else // if (packet.tx.action_meter_type == 2)
+            {
+                my_lv_set_object_rotation(ui_ActionMeterPointorPanel, packet.rx.gyro_deg, 43);
+            }
             break;
         case TEST_KICKER:
             break;
         case TEST_DRIBBLER:
             break;
         case TEST_MOTOR:
-            my_lv_set_object_rotation(ui_TestMotorMeterPointorPanel, 0, 43);
+            lv_label_set_text_fmt(ui_TestMotorDebugLabel,
+                                  "ball_deg: %d\nball_dis: %d\ngyro_deg: %d\nyellow_goal_deg: %d\nyellow_goal_dis: %d\nblue_goal_deg: %d\nblue_goal_dis: %d",
+                                  packet.rx.ball_deg, packet.rx.ball_dis, packet.rx.gyro_deg, packet.rx.yellow_goal_deg, packet.rx.yellow_goal_dis, packet.rx.blue_goal_deg, packet.rx.blue_goal_dis);
+            if (packet.tx.testmotor_meter_type == 0)
+            {
+                my_lv_set_object_rotation(ui_TestMotorMeterPointorPanel, packet.rx.yellow_goal_deg, 43);
+            }
+            else if (packet.tx.testmotor_meter_type == 1)
+            {
+                my_lv_set_object_rotation(ui_TestMotorMeterPointorPanel, packet.rx.blue_goal_deg, 43);
+            }
+            else // if (packet.tx.testmotor_meter_type == 2)
+            {
+                my_lv_set_object_rotation(ui_TestMotorMeterPointorPanel, packet.rx.gyro_deg, 43);
+            }
             break;
         case SENSORMONITOR_BALL:
-            my_lv_set_object_rotation(ui_SensorMonitorBallMeterPointorPanelA, 0, 43);
+            lv_label_set_text_fmt(ui_SensorMonitorBallDebugLabel,
+                                  "ball_deg: %d\nball_dis: %d",
+                                  packet.rx.ball_deg, packet.rx.ball_dis);
+            my_lv_set_object_rotation(ui_SensorMonitorBallMeterPointorPanelA, packet.rx.ball_deg, 43);
             my_lv_set_object_rotation(ui_SensorMonitorBallMeterPointorPanelB, 0, 43);
             break;
         case SENSORMONITOR_LINE:
+            lv_label_set_text_fmt(ui_SensorMonitorLineDebugLabel,
+                                  "line_angel: %s\nline_right_side: %d\nline_left_side: %d",
+                                  my_lv_num_dec10_to_bin32(packet.rx.line_angel), packet.rx.line_right_side_val, packet.rx.line_left_side_val);
             my_lv_set_object_rotation(ui_SensorMonitorLineMeterPointorPanelA, 0, 43);
             my_lv_set_object_rotation(ui_SensorMonitorLineMeterPointorPanelB, 0, 43);
             break;
         case SENSORMONITOR_GYRO:
-            my_lv_set_object_rotation(ui_SensorMonitorGyroMeterPointorPanelA, 0, 43);
+            lv_label_set_text_fmt(ui_SensorMonitorGyroDebugLabel,
+                                  "gyro_deg: %d",
+                                  packet.rx.gyro_deg);
+            my_lv_set_object_rotation(ui_SensorMonitorGyroMeterPointorPanelA, packet.rx.gyro_deg, 43);
             my_lv_set_object_rotation(ui_SensorMonitorGyroMeterPointorPanelB, 0, 43);
             break;
         case SENSORMONITOR_GOAL:
-            my_lv_set_object_rotation(ui_SensorMonitorGoalMeterPointorPanelA, 0, 43);
-            my_lv_set_object_rotation(ui_SensorMonitorGoalMeterPointorPanelB, 0, 43);
+            lv_label_set_text_fmt(ui_SensorMonitorGoalDebugLabel,
+                                  "yellow_goal_deg: %d\nyellow_goal_dis: %d\nblue_goal_deg: %d\nblue_goal_dis: %d",
+                                  packet.rx.yellow_goal_deg, packet.rx.yellow_goal_dis, packet.rx.blue_goal_deg, packet.rx.blue_goal_dis);
+            my_lv_set_object_rotation(ui_SensorMonitorGoalMeterPointorPanelA, packet.rx.yellow_goal_deg, 43);
+            my_lv_set_object_rotation(ui_SensorMonitorGoalMeterPointorPanelB, packet.rx.blue_goal_deg, 43);
             break;
         case SENSORMONITOR_LIDAR:
             break;

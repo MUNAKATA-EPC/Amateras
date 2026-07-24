@@ -562,7 +562,7 @@ void ui_Test_screen_init(void)
     lv_obj_set_width(ui_TestMotorMeterButton, 70);
     lv_obj_set_height(ui_TestMotorMeterButton, 70);
     lv_obj_set_align(ui_TestMotorMeterButton, LV_ALIGN_CENTER);
-    lv_obj_add_state(ui_TestMotorMeterButton, LV_STATE_USER_1);       /// States
+    lv_obj_add_state(ui_TestMotorMeterButton, LV_STATE_USER_1 | LV_STATE_USER_2);       /// States
     lv_obj_add_flag(ui_TestMotorMeterButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_TestMotorMeterButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_TestMotorMeterButton, 35, LV_PART_MAIN | LV_STATE_DEFAULT);

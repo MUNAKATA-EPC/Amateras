@@ -73,7 +73,7 @@ void ui_Action_screen_init(void)
     lv_obj_clear_flag(ui_ActionTopContainer, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_ActionDropdown = lv_dropdown_create(ui_ActionTopContainer);
-    lv_dropdown_set_options(ui_ActionDropdown, "Offense\nDefense\nRadioControl");
+    lv_dropdown_set_options(ui_ActionDropdown, "Offence\nDefence\nRadioControl");
     lv_obj_set_width(ui_ActionDropdown, 258);
     lv_obj_set_height(ui_ActionDropdown, 38);
     lv_obj_set_x(ui_ActionDropdown, 1);

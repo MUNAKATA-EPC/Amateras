@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Arduino.h>
 
 template <class tx_t, class rx_t>

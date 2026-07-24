@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include "common/serial_packet.hpp"
+#include "common/my_interface.hpp"
 
 class button
 {
@@ -105,3 +107,6 @@ public:
         _press_start_time = millis();
     }
 };
+
+button left_btn;
+button right_btn;
