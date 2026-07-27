@@ -27,6 +27,15 @@ public:
         digitalWrite(_pin, LOW);
         return;
     }
+
+    void light(bool up)
+    {
+        if (up)
+            lightup();
+        else
+            lightdown();
+        return;
+    }
 };
 
 inline led red_led;

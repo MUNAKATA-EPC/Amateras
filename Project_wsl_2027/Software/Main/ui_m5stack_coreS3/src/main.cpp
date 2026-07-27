@@ -1,41 +1,19 @@
 #include <lvgl.h>
 #include <M5Unified.h>
 #include "ui.h"
-#include "my_lv_func.h"
+#include "my_lv.h"
 #include "common/timer.hpp"
 #include "sensor/serial_packet.hpp"
 #include "common/vector.hpp"
 
+// スクリーン幅
 static const uint32_t screen_width = 320;
 static const uint32_t screen_height = 240;
-
+// スクリーンブァッファ
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[screen_width * 60];
 
-void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
-{
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
-    M5.Display.pushImage(area->x1, area->y1, w, h, (uint16_t *)color_p);
-    lv_disp_flush_ready(disp);
-}
-
-void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
-{
-    auto count = M5.Touch.getCount();
-    if (count > 0)
-    {
-        auto t = M5.Touch.getDetail(0);
-        data->state = LV_INDEV_STATE_PR;
-        data->point.x = t.x;
-        data->point.y = t.y;
-    }
-    else
-    {
-        data->state = LV_INDEV_STATE_REL;
-    }
-}
-
+// 通常の送受信データ内容
 struct t_data
 {
     bool action_run = false;
@@ -47,9 +25,7 @@ struct t_data
     bool testdribbler_front = false;
     bool testmotor_toggle = false;
     int8_t testmotor_meter_type = 0;
-
 } __attribute__((packed));
-
 struct r_data
 {
     bool action_run = false;
@@ -65,13 +41,13 @@ struct r_data
     int16_t blue_goal_dis = 0;
 } __attribute__((packed));
 
+// アクションが起動中の場合の送受信データ内容
 struct action_run_t_data
 {
     bool action_run = false;
     int16_t my_posi_x = 0;
     int16_t my_posi_y = 0;
 } __attribute__((packed));
-
 struct action_run_r_data
 {
     bool action_run = false;
@@ -79,14 +55,16 @@ struct action_run_r_data
     int16_t my_posi_y = 0;
 } __attribute__((packed));
 
-serial_packet<t_data, r_data> packet;
-serial_packet<action_run_t_data, action_run_r_data> action_run_packet;
+serial_packet<t_data, r_data> packet;                                  // 通常時の送受信パケット
+serial_packet<action_run_t_data, action_run_r_data> action_run_packet; // アクションが起動中の送受信パケット
 
+// アクションが起動中かどうか
 bool action_run = false;
 bool last_action_run = false;
 bool just_action_run_started = false;
 bool just_action_run_stopped = false;
 
+// アクションが選択中かどうか
 bool isActionState(UI_STATE state)
 {
     return (state == ACTION_OFFENCE || state == ACTION_DEFENCE || state == ACTION_RADIOCONTROL);
@@ -111,14 +89,14 @@ void setup()
     lv_disp_drv_init(&disp_drv);
     disp_drv.hor_res = screen_width;
     disp_drv.ver_res = screen_height;
-    disp_drv.flush_cb = my_disp_flush;
+    disp_drv.flush_cb = my_lv_disp_flush;
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register(&disp_drv);
 
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = my_touchpad_read;
+    indev_drv.read_cb = my_lv_touchpad_read;
     lv_indev_drv_register(&indev_drv);
 
     ui_init();

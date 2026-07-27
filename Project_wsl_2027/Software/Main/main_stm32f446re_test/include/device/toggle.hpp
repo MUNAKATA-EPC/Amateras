@@ -12,6 +12,10 @@ private:
 
     bool _stable_judge(bool cur)
     {
+#define NORMAL
+#ifdef NORMAL
+        return cur;
+#endif
 // #define TREND_TRUE // trueになりやすいトグル判定
 #ifdef TREND_TRUE
         static bool last_state = false;
@@ -32,7 +36,7 @@ private:
         }
         return false;
 #endif
-#define TREND_FALSE // falseになりやすいトグル判定
+// #define TREND_FALSE // falseになりやすいトグル判定
 #ifdef TREND_FALSE
         static bool last_state = false;
         static uint8_t count = 0;

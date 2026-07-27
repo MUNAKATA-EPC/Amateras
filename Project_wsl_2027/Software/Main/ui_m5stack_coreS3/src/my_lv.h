@@ -2,6 +2,30 @@
 #include <M5Unified.h>
 #include "ui.h"
 
+void my_lv_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+{
+    uint32_t w = (area->x2 - area->x1 + 1);
+    uint32_t h = (area->y2 - area->y1 + 1);
+    M5.Display.pushImage(area->x1, area->y1, w, h, (uint16_t *)color_p);
+    lv_disp_flush_ready(disp);
+}
+
+void my_lv_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data)
+{
+    auto count = M5.Touch.getCount();
+    if (count > 0)
+    {
+        auto t = M5.Touch.getDetail(0);
+        data->state = LV_INDEV_STATE_PR;
+        data->point.x = t.x;
+        data->point.y = t.y;
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_REL;
+    }
+}
+
 void my_lv_set_object_rotation(lv_obj_t *target, float angle_deg, float radius = 0)
 {
     if (target == NULL)

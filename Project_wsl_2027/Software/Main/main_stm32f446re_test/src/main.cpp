@@ -80,27 +80,61 @@ void setup()
 
 void loop()
 {
-  // btn更新
-  left_btn.update();
-  right_btn.update();
-  // toggle更新
-  action_toggle.update();
+  static uint32_t last_time = 0;
+  if (millis() - last_time > 50)
+  {
+    // btn更新
+    left_btn.update();
+    right_btn.update();
+    // toggle更新
+    action_toggle.update();
+
+    // led初期化
+    red_led.light(ui::cur_state != ui::STATE::HOME);
+
+    if (ui::ACTION::run)
+    {
+      yellow_led.light(right_btn.isPushing() || left_btn.isPushing());
+      green_led.lightup();
+    }
+    else
+    {
+      switch (ui::cur_state)
+      {
+      case ui::STATE::HOME:
+        green_led.lightdown();
+        yellow_led.lightdown();
+        break;
+      case ui::STATE::TEST_KICKER:
+        green_led.light(ui::TEST_KICKER::btn);
+        yellow_led.light(ui::TEST_KICKER::front);
+        break;
+      case ui::STATE::TEST_DRIBBLER:
+        green_led.light(ui::TEST_DRIBBLER::toggle);
+        yellow_led.light(ui::TEST_DRIBBLER::front);
+        break;
+      case ui::STATE::TEST_MOTOR:
+        green_led.light(ui::TEST_MOTOR::toggle);
+        yellow_led.light(right_btn.isPushing() || left_btn.isPushing());
+        break;
+      default:
+        yellow_led.lightdown();
+        green_led.lightdown();
+        break;
+      }
+    }
+
+    mySerial2.println(String(int(ui::cur_state)) + " , " + String(action_toggle.isTurnedOn()));
+
+    last_time = millis();
+  }
 
   // ui更新
   ui::process(action_toggle.isTurnedOn());
 
-  // led初期化
-  if (ui::cur_state == ui::STATE::HOME)
-    red_led.lightdown();
-  else
-    red_led.lightup();
-  yellow_led.lightdown();
-  green_led.lightdown();
-
+  // action実行
   if (ui::ACTION::run)
   {
-    green_led.lightup();
-
     switch (ui::cur_state)
     {
     case ui::STATE::ACTION_OFFENCE:
@@ -113,46 +147,4 @@ void loop()
       break;
     }
   }
-  else
-  {
-    switch (ui::cur_state)
-    {
-    case ui::STATE::HOME:
-      break;
-    case ui::STATE::TEST_KICKER:
-      if (ui::TEST_KICKER::btn)
-        green_led.lightup();
-      if (ui::TEST_KICKER::front)
-        yellow_led.lightup();
-      break;
-    case ui::STATE::TEST_DRIBBLER:
-      if (ui::TEST_DRIBBLER::toggle)
-        green_led.lightup();
-      if (ui::TEST_DRIBBLER::front)
-        yellow_led.lightup();
-      break;
-    case ui::STATE::TEST_MOTOR:
-      if (ui::TEST_MOTOR::toggle)
-        green_led.lightup();
-      if (left_btn.isPushing() || right_btn.isPushing())
-        yellow_led.lightup();
-      break;
-    case ui::STATE::SENSORMONITOR_BALL:
-      break;
-    case ui::STATE::SENSORMONITOR_LINE:
-      break;
-    case ui::STATE::SENSORMONITOR_GYRO:
-      break;
-    case ui::STATE::SENSORMONITOR_GOAL:
-      break;
-    case ui::STATE::SENSORMONITOR_LIDAR:
-      break;
-    case ui::STATE::COMMUNICATION_TRANSMIT:
-      break;
-    case ui::STATE::COMMUNICATION_RECEIVE:
-      break;
-    }
-  }
-
-  delay(50);
 }
