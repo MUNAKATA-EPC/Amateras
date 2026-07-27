@@ -11,6 +11,9 @@
 #include "device/led.hpp"
 #include "device/toggle.hpp"
 // module
+#include "module/camera.hpp"
+#include "module/lidar.hpp"
+#include "module/line.hpp"
 #include "module/ui.hpp"
 
 extern "C" void SystemClock_Config(void)
@@ -80,16 +83,14 @@ void setup()
 
 void loop()
 {
+  // btn・toggle・led更新
   static uint32_t last_time = 0;
-  if (millis() - last_time > 50)
+  if (millis() - last_time > 100)
   {
-    // btn更新
     left_btn.update();
     right_btn.update();
-    // toggle更新
     action_toggle.update();
 
-    // led初期化
     red_led.light(ui::cur_state != ui::STATE::HOME);
 
     if (ui::ACTION::run)
@@ -123,8 +124,6 @@ void loop()
         break;
       }
     }
-
-    mySerial2.println(String(int(ui::cur_state)) + " , " + String(action_toggle.isTurnedOn()));
 
     last_time = millis();
   }

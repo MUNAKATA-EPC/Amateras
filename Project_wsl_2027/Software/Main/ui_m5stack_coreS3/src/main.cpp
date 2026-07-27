@@ -18,7 +18,7 @@ struct t_data
 {
     bool action_run = false;
     int8_t action_meter_type = 0;
-    UI_STATE ui_state = HOME;
+    UI_STATE cur_state = HOME;
     bool testkicker_btn = false;
     bool testkicker_front = false;
     bool testdribbler_toggle = false;
@@ -40,23 +40,7 @@ struct r_data
     int16_t blue_goal_deg = 0;
     int16_t blue_goal_dis = 0;
 } __attribute__((packed));
-
-// アクションが起動中の場合の送受信データ内容
-struct action_run_t_data
-{
-    bool action_run = false;
-    int16_t my_posi_x = 0;
-    int16_t my_posi_y = 0;
-} __attribute__((packed));
-struct action_run_r_data
-{
-    bool action_run = false;
-    int16_t my_posi_x = 0;
-    int16_t my_posi_y = 0;
-} __attribute__((packed));
-
-serial_packet<t_data, r_data> packet;                                  // 通常時の送受信パケット
-serial_packet<action_run_t_data, action_run_r_data> action_run_packet; // アクションが起動中の送受信パケット
+serial_packet<t_data, r_data> packet; // 通常時の送受信パケット
 
 // アクションが起動中かどうか
 bool action_run = false;
@@ -76,7 +60,6 @@ void setup()
 
     Serial0.begin(115200);
     packet.begin(Serial0);
-    action_run_packet.begin(Serial0);
 
     auto cfg = M5.config();
     M5.begin(cfg);
@@ -104,85 +87,67 @@ void setup()
 
 void loop()
 {
-    // アップデート
-    static uint32_t last_time = 0;
-    if (millis() - last_time > 20)
+    // STMのデータを受送信
+    packet.update();
+
+    // t_data初期化
+    packet.tx.testmotor_meter_type = -1;
+    packet.tx.testkicker_btn = false;
+    packet.tx.testkicker_front = false;
+    packet.tx.testdribbler_toggle = false;
+    packet.tx.testdribbler_front = false;
+    packet.tx.testmotor_toggle = false;
+    packet.tx.testmotor_meter_type = -1;
+    // t_data代入
+    packet.tx.cur_state = ui_state;
+    if (isActionState(ui_state))
     {
-        // STMのデータを受送信
-        if (action_run)
+        if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_1))
         {
-            action_run_packet.update();
-
-            // アクション応答
-            action_run_packet.tx.action_run = action_run_packet.rx.action_run;
-            action_run = action_run_packet.rx.action_run;
+            packet.tx.testmotor_meter_type = 0;
         }
-        else
+        else if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_2))
         {
-            packet.update();
-
-            // ui_stateによる場合分けはしていない
-            packet.tx.ui_state = ui_state;
-            if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_1))
-            {
-                packet.tx.testmotor_meter_type = 0;
-            }
-            else if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_2))
-            {
-                packet.tx.testmotor_meter_type = 1;
-            }
-            else // if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_3))
-            {
-                packet.tx.testmotor_meter_type = 2;
-            }
-            packet.tx.testkicker_btn = lv_obj_has_state(ui_TestKickerKickButton, LV_STATE_PRESSED);
-            packet.tx.testkicker_front = !lv_obj_has_flag(ui_TestKickerLeverFrontButton, LV_OBJ_FLAG_HIDDEN);
-            packet.tx.testdribbler_toggle = !lv_obj_has_flag(ui_TestDribblerLeverRunButton, LV_OBJ_FLAG_HIDDEN);
-            packet.tx.testdribbler_front = !lv_obj_has_flag(ui_TestDribblerLeverFrontButton, LV_OBJ_FLAG_HIDDEN);
-            packet.tx.testmotor_toggle = !lv_obj_has_flag(ui_TestMotorLeverRunButton, LV_OBJ_FLAG_HIDDEN);
-            if (lv_obj_has_state(ui_TestMotorMeterButton, LV_STATE_USER_1))
-            {
-                packet.tx.testmotor_meter_type = 0;
-            }
-            else if (lv_obj_has_state(ui_TestMotorMeterButton, LV_STATE_USER_2))
-            {
-                packet.tx.testmotor_meter_type = 1;
-            }
-            else // if (lv_obj_has_state(ui_TestMotorMeterButton, LV_STATE_USER_3))
-            {
-                packet.tx.testmotor_meter_type = 2;
-            }
-
-            // UI画面がAction可能状態かつSTMからの要求がある場合のみ実行許可
-            if (isActionState(ui_state) && packet.rx.action_run)
-            {
-                packet.tx.action_run = true;
-                action_run = true;
-            }
-            else
-            {
-                packet.tx.action_run = false;
-                action_run = false;
-            }
+            packet.tx.testmotor_meter_type = 1;
         }
-
-        // フラグ変化判定
-        just_action_run_started = (action_run && !last_action_run);
-        just_action_run_stopped = (!action_run && last_action_run);
-        last_action_run = action_run;
-
-        // モード切り替え時にバッファをクリアして通信を安定化
-        if (just_action_run_started)
+        else // if (lv_obj_has_state(ui_ActionMeterButton, LV_STATE_USER_3))
         {
-            action_run_packet.reset();
+            packet.tx.testmotor_meter_type = 2;
         }
-        else if (just_action_run_stopped)
-        {
-            packet.reset();
-        }
-
-        last_time = millis();
     }
+    if (ui_state == TEST_KICKER)
+    {
+        packet.tx.testkicker_btn = lv_obj_has_state(ui_TestKickerKickButton, LV_STATE_PRESSED);
+        packet.tx.testkicker_front = !lv_obj_has_flag(ui_TestKickerLeverFrontButton, LV_OBJ_FLAG_HIDDEN);
+    }
+    if (ui_state == TEST_DRIBBLER)
+    {
+        packet.tx.testdribbler_toggle = !lv_obj_has_flag(ui_TestDribblerLeverRunButton, LV_OBJ_FLAG_HIDDEN);
+        packet.tx.testdribbler_front = !lv_obj_has_flag(ui_TestDribblerLeverFrontButton, LV_OBJ_FLAG_HIDDEN);
+    }
+    if (ui_state == TEST_MOTOR)
+    {
+        packet.tx.testmotor_toggle = !lv_obj_has_flag(ui_TestMotorLeverRunButton, LV_OBJ_FLAG_HIDDEN);
+        if (lv_obj_has_state(ui_TestMotorMeterButton, LV_STATE_USER_1))
+        {
+            packet.tx.testmotor_meter_type = 0;
+        }
+        else if (lv_obj_has_state(ui_TestMotorMeterButton, LV_STATE_USER_2))
+        {
+            packet.tx.testmotor_meter_type = 1;
+        }
+        else // if (lv_obj_has_state(ui_TestMotorMeterButton, LV_STATE_USER_3))
+        {
+            packet.tx.testmotor_meter_type = 2;
+        }
+    }
+    // r_data代入
+    action_run = packet.rx.action_run;
+
+    // フラグ変化判定
+    just_action_run_started = (action_run && !last_action_run);
+    just_action_run_stopped = (!action_run && last_action_run);
+    last_action_run = action_run;
 
     // モニター / UI描画
     if (action_run)

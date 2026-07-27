@@ -79,7 +79,7 @@ struct t_data
 struct r_data
 {
 };
-serial_packet<t_data, r_data> packet(20);
+serial_packet<t_data, r_data> packet;
 
 void setup()
 {
