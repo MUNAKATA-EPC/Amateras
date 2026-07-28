@@ -8,6 +8,10 @@
 		},
 		{
 			"path": "ui_m5stack_coreS3"
+		},
+		{
+			"name": "lidar_seeeduinoxiao",
+			"path": "lidar_seeeduinoxiao"
 		}
 	]
 }

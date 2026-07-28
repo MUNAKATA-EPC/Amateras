@@ -88,10 +88,10 @@ namespace ui
         packet.begin(serial_obj);
     }
 
-    inline void process(bool action_toggle) // M5Stackとの通信
+    inline void process(bool toggle) // M5Stackとの通信
     {
         // ACTION::runを更新
-        ACTION::run = (isActionState(cur_state) && (action_toggle == true));
+        ACTION::run = (isActionState(cur_state) && (toggle == true));
 
         // M5Stackのデータを受送信 // ACTION::run中はpacketの更新は行わない
         static timer run_wait;

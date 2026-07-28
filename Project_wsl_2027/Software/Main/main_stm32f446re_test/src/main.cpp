@@ -128,6 +128,12 @@ void loop()
     last_time = millis();
   }
 
+  // camera更新
+  camera::process(ui::ACTION::meter_type);
+  // lidar更新
+  lidar::process();
+  // line更新
+  line::process();
   // ui更新
   ui::process(action_toggle.isTurnedOn());
 

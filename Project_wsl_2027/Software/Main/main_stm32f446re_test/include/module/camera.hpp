@@ -29,12 +29,17 @@ namespace camera
     int16_t blue_goal_deg = UNDETECTED;
     int16_t blue_goal_dis = UNDETECTED;
 
+    int16_t offence_goal_deg = UNDETECTED;
+    int16_t offence_goal_dis = UNDETECTED;
+    int16_t defence_goal_deg = UNDETECTED;
+    int16_t defence_goal_dis = UNDETECTED;
+
     inline void attach(HardwareSerial &serial_obj) // どのシリアルで通信するか紐づけ
     {
         packet.begin(serial_obj);
     }
 
-    inline void process() // STM32との通信
+    inline void process(int8_t meter_type) // STM32との通信
     {
         // STM32のデータを受送信
         packet.update();
@@ -46,5 +51,28 @@ namespace camera
         int16_t yellow_goal_dis = packet.rx.yellow_goal_dis;
         int16_t blue_goal_deg = packet.rx.blue_goal_deg;
         int16_t blue_goal_dis = packet.rx.blue_goal_dis;
+
+        // offence・defence
+        if (meter_type == 0)
+        {
+            offence_goal_deg = yellow_goal_deg;
+            offence_goal_dis = yellow_goal_dis;
+            defence_goal_deg = blue_goal_deg;
+            defence_goal_dis = blue_goal_dis;
+        }
+        else if (meter_type == 1)
+        {
+            offence_goal_deg = blue_goal_deg;
+            offence_goal_dis = blue_goal_dis;
+            defence_goal_deg = yellow_goal_deg;
+            defence_goal_dis = yellow_goal_dis;
+        }
+        else // if (meter_type == 2 || meter_type == -1)
+        {
+            offence_goal_deg = yellow_goal_deg;
+            offence_goal_dis = yellow_goal_dis;
+            defence_goal_deg = blue_goal_deg;
+            defence_goal_dis = blue_goal_dis;
+        }
     }
 }
