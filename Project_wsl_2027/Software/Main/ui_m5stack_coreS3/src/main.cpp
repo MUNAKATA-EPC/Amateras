@@ -3,7 +3,7 @@
 #include "ui.h"
 #include "my_lv.h"
 #include "common/timer.hpp"
-#include "sensor/serial_packet.hpp"
+#include "common/serial_packet.hpp"
 #include "common/vector.hpp"
 
 // スクリーン幅
