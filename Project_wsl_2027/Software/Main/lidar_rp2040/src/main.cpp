@@ -150,7 +150,7 @@ public:
     }
 
     int x_count = 0;
-    x = average_posi(_left, _right, x1_idx, x2_idx, _x_limit, x_count);
+    x = average_posi(_right, _left, x1_idx, x2_idx, _x_limit, x_count);
     x_confidence = 100.0f * x_count / average_count;
 
     int y_count = 0;
@@ -194,21 +194,21 @@ private:
     float c = cos(radians(abs_deg));
     float s = sin(radians(abs_deg));
 
-    if (range(abs_deg, corner_deg[1], corner_deg[0]))
-      return (abs(c) < 0.01f) ? 0xFFFF : (uint16_t)abs((float)(_y_limit / 2 - my_y) / c);
-    else if (range(abs_deg, corner_deg[2], corner_deg[1]))
-      return (abs(s) < 0.01f) ? 0xFFFF : (uint16_t)abs((float)(-_x_limit / 2 - my_x) / s);
-    else if (range(abs_deg, corner_deg[3], corner_deg[2]))
-      return (abs(c) < 0.01f) ? 0xFFFF : (uint16_t)abs((float)(-_y_limit / 2 - my_y) / c);
+    if (range(abs_deg, corner_deg[0], corner_deg[1]))
+      return (abs(c) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(_y_limit / 2 - my_y) / c);
+    else if (range(abs_deg, corner_deg[1], corner_deg[2]))
+      return (abs(s) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(-_x_limit / 2 - my_x) / s);
+    else if (range(abs_deg, corner_deg[2], corner_deg[3]))
+      return (abs(c) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(-_y_limit / 2 - my_y) / c);
     else
-      return (abs(s) < 0.01f) ? 0xFFFF : (uint16_t)abs((float)(_x_limit / 2 - my_x) / s);
+      return (abs(s) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(_x_limit / 2 - my_x) / s);
   }
 
 public:
   int16_t x[3] = {0, 0, 0}, y[3] = {0, 0, 0};
   int enemy_count = 0;
-  int16_t enemy_deg = 0; // 確認用（仮）
-  int16_t diff_realdis[360];
+  uint16_t diff_realdis[360];
+  int16_t corner_deg[4] = {0, 0, 0, 0};
 
   check_enemy_posi(uint16_t x_limit, uint16_t y_limit, uint16_t allow_dis)
   {
@@ -220,14 +220,10 @@ public:
   void calc(int16_t my_x, int16_t my_y, uint16_t *lidar_dis, int16_t gyro_deg)
   {
     // y軸性の向きを0度と定める
-    int16_t corner_deg[4] = {0, 0, 0, 0};
-    corner_deg[0] = (90 - int16_t(degrees(atan2(_y_limit / 2 - my_y, _x_limit / 2 - my_x)) + 0.5f) + 360) % 360;   // 右前
-    corner_deg[1] = (90 - int16_t(degrees(atan2(_y_limit / 2 - my_y, -_x_limit / 2 - my_x)) + 0.5f) + 360) % 360;  // 左前
-    corner_deg[2] = (90 - int16_t(degrees(atan2(-_y_limit / 2 - my_y, -_x_limit / 2 - my_x)) + 0.5f) + 360) % 360; // 左後
-    corner_deg[3] = (90 - int16_t(degrees(atan2(-_y_limit / 2 - my_y, _x_limit / 2 - my_x)) + 0.5f) + 360) % 360;  // 右後
-
-    int16_t diff_realdis_max = _allow_dis;
-    enemy_deg = UNDETECTED; // 敵が見つからなかった時のための無効値
+    corner_deg[0] = (int16_t(degrees(atan2(_y_limit / 2 - my_y, _x_limit / 2 - my_x)) + 0.5f) - 90 + 360) % 360;   // 右前
+    corner_deg[1] = (int16_t(degrees(atan2(_y_limit / 2 - my_y, -_x_limit / 2 - my_x)) + 0.5f) - 90 + 360) % 360;  // 左前
+    corner_deg[2] = (int16_t(degrees(atan2(-_y_limit / 2 - my_y, -_x_limit / 2 - my_x)) + 0.5f) - 90 + 360) % 360; // 左後
+    corner_deg[3] = (int16_t(degrees(atan2(-_y_limit / 2 - my_y, _x_limit / 2 - my_x)) + 0.5f) - 90 + 360) % 360;  // 右後
 
     for (int i = 0; i < 360; i++)
     {
@@ -245,13 +241,13 @@ public:
         continue;
       }
 
-      int16_t dr = (int16_t)realdis(corner_deg, i, my_x, my_y) - (int16_t)l_dis;
+      uint16_t temp = realdis(corner_deg, i, my_x, my_y);
+      uint16_t dr = (temp != UNDEFINED) ? max((int16_t)(temp - l_dis), 0) : 0;
       diff_realdis[i] = dr;
 
-      if (dr > 0 && dr > diff_realdis_max) // ← dr > 0 を追加
+      if (dr <= _allow_dis)
       {
-        diff_realdis_max = dr;
-        enemy_deg = i;
+        diff_realdis[i] = 0;
       }
     }
   }
@@ -283,19 +279,15 @@ void loop()
     calc_finished = true;
   }
 
-  // 5ms周期でプリント
+  // 1000ms周期でプリント
   static uint32_t last_time = millis();
   if (millis() - last_time > 5)
   {
-    Serial.print(my_posi.x);
-    Serial.print("(");
-    Serial.print(my_posi.x_confidence);
-    Serial.print(") , ");
-    Serial.print(my_posi.y);
-    Serial.print("(");
-    Serial.print(my_posi.y_confidence);
-    Serial.print(") -> ");
-    Serial.println(enemy_posi.enemy_deg);
+    uint8_t header[4] = {0xFF, 0xFF, 0xAA, 0x55};
+    Serial.write(header, 4);
+    Serial.write((uint8_t *)enemy_posi.diff_realdis, 360 * sizeof(uint16_t));
+    Serial.write((uint8_t *)&my_posi.x, sizeof(int16_t));
+    Serial.write((uint8_t *)&my_posi.y, sizeof(int16_t));
 
     last_time = millis();
   }

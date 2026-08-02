@@ -12,6 +12,9 @@
 		},
 		{
 			"path": "main_stm32f446re"
+		},
+		{
+			"path": "lidar2_rp2040"
 		}
 	]
 }
