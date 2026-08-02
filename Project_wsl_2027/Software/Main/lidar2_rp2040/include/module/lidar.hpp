@@ -11,7 +11,7 @@ namespace lidar
     const uint8_t point_per_packet = 12; // 1パケットが受信するデータ量
     const uint8_t header = 0x54;         // ヘッダーコード
 
-    inline uint16_t dis[360];                // 距離
+    inline uint16_t dis[360];                // 距離 y軸正の向きから反時計回りに格納
     inline uint8_t cycle = 0;                // point_per_packet回データを受け取ると0に戻る
     inline uint8_t prev_cycle = 0;           // point_per_packet回データを受け取ると0に戻る
     inline HardwareSerial *serial = nullptr; // シリアル
@@ -70,7 +70,7 @@ namespace lidar
 
             if (distance >= 50 && distance <= 12000)
             {
-                dis[angle_bucket] = distance;
+                dis[359 - angle_bucket] = distance;
             }
         }
 
