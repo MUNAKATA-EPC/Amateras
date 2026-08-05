@@ -382,7 +382,7 @@ void playDefenderVer4(Defender::Mode mode)
             else
             {
                 // ゴールから離れる
-                if (defenceGoalDis() < 60)
+                if (defenceGoalDis() < 50)
                 {
                     move_vec = Vector(defenceGoalDeg() + 180, 70);
                 }

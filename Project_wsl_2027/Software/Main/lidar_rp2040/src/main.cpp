@@ -15,9 +15,9 @@ private:
 
   const uint8_t average_count = 10; // 10個の平均をとる
 
-  int16_t idx(int16_t abs_deg, int16_t gyro_deg)
+  int16_t idx(int16_t world_deg, int16_t gyro_deg)
   {
-    return (abs_deg - gyro_deg + 360) % 360;
+    return (world_deg - gyro_deg + 360) % 360;
   }
 
   uint16_t diff(uint16_t a, uint16_t b)
@@ -92,17 +92,17 @@ public:
       if (i == 45)
         continue;
 
-      int16_t left_abs_deg = (i + 45) % 360;
-      int16_t right_abs_deg = (i + 225) % 360;
+      int16_t left_world_deg = (i + 45) % 360;
+      int16_t right_world_deg = (i + 225) % 360;
 
-      _left[i] = abs(lidar_dis[idx(left_abs_deg, gyro_deg)] * sin(radians(left_abs_deg)));
-      _right[i] = abs(lidar_dis[idx(right_abs_deg, gyro_deg)] * sin(radians(right_abs_deg)));
+      _left[i] = abs(lidar_dis[idx(left_world_deg, gyro_deg)] * sin(radians(left_world_deg)));
+      _right[i] = abs(lidar_dis[idx(right_world_deg, gyro_deg)] * sin(radians(right_world_deg)));
 
-      int16_t front_abs_deg = (i - 45 + 360) % 360;
-      int16_t rear_abs_deg = (i + 135) % 360;
+      int16_t front_world_deg = (i - 45 + 360) % 360;
+      int16_t rear_world_deg = (i + 135) % 360;
 
-      _front[i] = abs(lidar_dis[idx(front_abs_deg, gyro_deg)] * cos(radians(front_abs_deg)));
-      _rear[i] = abs(lidar_dis[idx(rear_abs_deg, gyro_deg)] * cos(radians(rear_abs_deg)));
+      _front[i] = abs(lidar_dis[idx(front_world_deg, gyro_deg)] * cos(radians(front_world_deg)));
+      _rear[i] = abs(lidar_dis[idx(rear_world_deg, gyro_deg)] * cos(radians(rear_world_deg)));
     }
 
     for (int a = 0; a <= 90; a++)
@@ -166,9 +166,9 @@ private:
   uint16_t _y_limit = 0;   // コートの縦幅
   uint16_t _allow_dis = 0; // 許容誤差
 
-  int16_t idx(int16_t abs_deg, int16_t gyro_deg)
+  int16_t idx(int16_t world_deg, int16_t gyro_deg)
   {
-    return (abs_deg - gyro_deg + 360) % 360;
+    return (world_deg - gyro_deg + 360) % 360;
   }
 
   uint16_t diff(uint16_t a, uint16_t b)
@@ -189,16 +189,16 @@ private:
       return deg >= from && deg <= to;
   }
 
-  uint16_t realdis(int16_t *corner_deg, int16_t abs_deg, int16_t my_x, int16_t my_y)
+  uint16_t realdis(int16_t *corner_deg, int16_t world_deg, int16_t my_x, int16_t my_y)
   {
-    float c = cos(radians(abs_deg));
-    float s = sin(radians(abs_deg));
+    float c = cos(radians(world_deg));
+    float s = sin(radians(world_deg));
 
-    if (range(abs_deg, corner_deg[0], corner_deg[1]))
+    if (range(world_deg, corner_deg[0], corner_deg[1]))
       return (abs(c) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(_y_limit / 2 - my_y) / c);
-    else if (range(abs_deg, corner_deg[1], corner_deg[2]))
+    else if (range(world_deg, corner_deg[1], corner_deg[2]))
       return (abs(s) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(-_x_limit / 2 - my_x) / s);
-    else if (range(abs_deg, corner_deg[2], corner_deg[3]))
+    else if (range(world_deg, corner_deg[2], corner_deg[3]))
       return (abs(c) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(-_y_limit / 2 - my_y) / c);
     else
       return (abs(s) < 0.01f) ? UNDEFINED : (uint16_t)abs((float)(_x_limit / 2 - my_x) / s);

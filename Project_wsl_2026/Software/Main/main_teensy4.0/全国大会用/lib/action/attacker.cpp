@@ -497,13 +497,13 @@ void playAttacker(Attacker::Mode mode)
                 const float b = 90.0f; // キッカー判定用の青色ゴール距離
                 int kick_at_goal_dis = (mode == Attacker::Mode::YELLOWGOAL) ? y : b;
 
-                if (attackGoalDetected() && attackGoalDis() <= kick_at_goal_dis)
+                if (attackGoalDetected()) //&& attackGoalDis() <= kick_at_goal_dis)
                 {
                     kicker1.kick();
                 }
                 else // if (attackGoalDis() > kick_at_goal_dis)
                 {
-                    if (catching_timer.msTime() > 100)
+                    if (catching_timer.msTime() > 10)
                     {
                         kicker1.kick();
                     }

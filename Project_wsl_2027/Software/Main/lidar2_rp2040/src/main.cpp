@@ -12,6 +12,8 @@ private:
   uint16_t _height = 0;    // コートの縦幅
   uint16_t _allow_dis = 0; // 許容誤差
 
+  float sin_table[360] = {0}, cos_table[360] = {0}; // sin,cosのテーブル
+
   int16_t _x[360] = {0}, _y[360] = {0};           // 絶対座標系での点群(x,y)
   int16_t _sort_x[360] = {0}, _sort_y[360] = {0}; // 昇順にソートした点群(x,y)
   int16_t _yfw[360] = {0}, _ybw[360] = {0};       // コートの前壁,後壁のy座標
@@ -19,9 +21,9 @@ private:
   int16_t _exw_idx[360] = {0};                    // _yfw,_ybw,_xlf,_xrfのうちどれにも属さないもののインデックス番号
   int16_t _xc = 0, _yc = 0;                       // 自分に対するコートの中心座標(x,y)
 
-  int16_t _idx(int16_t abs_deg, int16_t gyro_deg) // 絶対座標系でのインデックス番号を求める
+  int16_t _idx(int16_t world_deg, int16_t gyro_deg) // 絶対座標系でのインデックス番号を求める
   {
-    return (((abs_deg - gyro_deg) % 360) + 360) % 360;
+    return (((world_deg - gyro_deg) % 360) + 360) % 360;
   }
 
   uint16_t _diff(int16_t a, int16_t b) // 差の絶対値を求める
@@ -52,6 +54,13 @@ public:
     _width = width;
     _height = height;
     _allow_dis = allow_dis;
+
+    // sin,cosのテーブルを計算
+    for (int i = 0; i < 360; i++)
+    {
+      sin_table[i] = sin(radians(i));
+      cos_table[i] = cos(radians(i));
+    }
   }
 
   void calc(uint16_t *lidar_dis, int16_t gyro_deg) // 計算
@@ -61,8 +70,8 @@ public:
     {
       uint16_t l_dis = lidar_dis[_idx(i, gyro_deg)];
 
-      float c = cos(radians(i));
-      float s = sin(radians(i));
+      float c = cos_table[i];
+      float s = sin_table[i];
 
       // 右,前をそれぞれx軸正の方向,y軸正の方向とする
       _x[i] = (int16_t)(-s * l_dis);
@@ -81,25 +90,31 @@ public:
 
     if (xsum == FAILED && ysum == FAILED) // 壁が検出されなかった場合は計算を中止
       return;
-    bool x_failed = (xsum == FAILED), y_failed = (ysum == FAILED);
+    bool xc_prime_failed = (xsum == FAILED), yc_prime_failed = (ysum == FAILED);
 
     int16_t xc_prime = xsum / 2; // 仮コートの中心のx座標
     int16_t yc_prime = ysum / 2; // 仮コートの中心のy座標
 
     int16_t yfw_prime = yc_prime + _height / 2; // 仮コートの前壁のy座標
     int16_t ybw_prime = yc_prime - _height / 2; // 仮コートの後壁のy座標
-    int16_t xlf_prime = xc_prime - _width / 2;  // 仮コートの左壁のx座標
-    int16_t xrf_prime = xc_prime + _width / 2;  // 仮コートの右壁のx座標
+    int16_t xlw_prime = xc_prime - _width / 2;  // 仮コートの左壁のx座標
+    int16_t xrw_prime = xc_prime + _width / 2;  // 仮コートの右壁のx座標
 
     // 壁を表す点群w系に格納
     uint8_t yfw_count = 0, ybw_count = 0, xlw_count = 0, xrw_count = 0, exw_count = 0;
     for (int i = 0; i < 360; i++)
     {
-      uint16_t d[4] = {_diff(_y[i], yfw_prime),
-                       _diff(_y[i], ybw_prime),
-                       _diff(_x[i], xlf_prime),
-                       _diff(_x[i], xrf_prime)};
-      uint16_t min_index = std::min_element(d, d + 4) - d;
+      int16_t d[4] = {yfw_prime - _y[i],
+                      _y[i] - ybw_prime,
+                      _x[i] - xlw_prime,
+                      xrw_prime - _x[i]};
+      if (d[0] < 0 || d[1] < 0 || d[2] < 0 || d[3] < 0) // lidarの異常値であるため除外
+        continue;
+      uint16_t abs_d[4] = {abs(d[0]),
+                           abs(d[1]),
+                           abs(d[2]),
+                           abs(d[3])};
+      uint16_t min_index = std::min_element(abs_d, abs_d + 4) - abs_d;
 
       if (d[min_index] > _allow_dis)
       {
@@ -152,12 +167,12 @@ public:
 
     int32_t xc_num = xw_sum + (int32_t)_width * ((int32_t)xlw_count - (int32_t)xrw_count) / 2;
     int32_t xc_den = xrw_count + xlw_count;
-    if (xc_den != 0 && !x_failed)
+    if (xc_den != 0 && !xc_prime_failed)
       _xc = int16_t((xc_num + (xc_num >= 0 ? xc_den / 2 : -xc_den / 2)) / xc_den); // xc_num / xc_denの四捨五入
 
     int32_t yc_num = yw_sum + (int32_t)_height * ((int32_t)ybw_count - (int32_t)yfw_count) / 2;
     int32_t yc_den = yfw_count + ybw_count;
-    if (yc_den != 0 && !y_failed)
+    if (yc_den != 0 && !yc_prime_failed)
       _yc = int16_t((yc_num + (yc_num >= 0 ? yc_den / 2 : -yc_den / 2)) / yc_den); // yc_num / yc_denの四捨五入
 
     // コートの中心に対する自分の座標を計算
