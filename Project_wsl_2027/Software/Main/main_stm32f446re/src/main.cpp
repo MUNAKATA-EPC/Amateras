@@ -60,64 +60,29 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
-void setup()
+HardwareTimer *myTim1;
+void tim1Callback()
 {
-  // pc
-  mySerial1.begin(115200);
+  reset_btn.update();
+  sub_btn.update();
+  action_toggle.update();
+  sub1_toggle.update();
+  sub2_toggle.update();
+  sub3_toggle.update();
 
-  // ui
-  mySerial3.begin(115200);
-  ui::attach(mySerial3);
-
-  // line
-  mySerial4.begin(115200);
-  line::attach(mySerial4);
-
-  // camera
-  mySerial2.begin(115200);
-  camera::attach(mySerial2);
-
-  // lidar
-  mySerial6.begin(115200);
-  lidar::attach(mySerial6);
-
-  // gyro
-  gyro.begin(Wire3, 0x28);
-
-  // btn
-  reset_btn.begin(PB15, INPUT_PULLDOWN);
-  sub_btn.begin(PC8, INPUT_PULLDOWN);
-
-  // toggle
-  action_toggle.begin(PC2, INPUT_PULLDOWN);
-  sub1_toggle.begin(PA15, INPUT_PULLDOWN);
-  sub2_toggle.begin(PC3, INPUT_PULLDOWN);
-  sub3_toggle.begin(PC4, INPUT_PULLDOWN);
+  /*
+  mySerial1.print("gyro:");
+  mySerial1.print(gyro.deg());
+  mySerial1.print(" posi:");
+  mySerial1.print(lidar::posi_x);
+  mySerial1.print(",");
+  mySerial1.println(lidar::posi_y);
+  */
 }
 
-void loop()
+HardwareTimer *myTim2;
+void tim2Callback()
 {
-  // btn/toggle更新
-  static uint32_t last_time = 0;
-  if (millis() - last_time > 100)
-  {
-    reset_btn.update();
-    sub_btn.update();
-    action_toggle.update();
-    sub1_toggle.update();
-    sub2_toggle.update();
-    sub3_toggle.update();
-
-    mySerial1.print("gyro:");
-    mySerial1.print(gyro.deg());
-    mySerial1.print(" posi:");
-    mySerial1.print(lidar::posi_x);
-    mySerial1.print(",");
-    mySerial1.println(lidar::posi_y);
-
-    last_time = millis();
-  }
-
   // bno更新
   gyro.update(reset_btn.isPushing());
 
@@ -129,7 +94,51 @@ void loop()
   camera::process(ui::ACTION::meter_type);
   // lidar更新
   lidar::process((int16_t)gyro.deg());
+}
 
+void setup()
+{
+  // gyro
+  gyro.begin(Wire3, 0x28);
+
+  // pc
+  mySerial1.begin(115200);
+  // ui
+  mySerial3.begin(115200);
+  ui::attach(mySerial3);
+  // line
+  mySerial4.begin(115200);
+  line::attach(mySerial4);
+  // camera
+  mySerial2.begin(115200);
+  camera::attach(mySerial2);
+  // lidar
+  mySerial6.begin(115200);
+  lidar::attach(mySerial6);
+
+  // btn
+  reset_btn.begin(PB15, INPUT_PULLDOWN);
+  sub_btn.begin(PC8, INPUT_PULLDOWN);
+  // toggle
+  action_toggle.begin(PC2, INPUT_PULLDOWN);
+  sub1_toggle.begin(PA15, INPUT_PULLDOWN);
+  sub2_toggle.begin(PC3, INPUT_PULLDOWN);
+  sub3_toggle.begin(PC4, INPUT_PULLDOWN);
+
+  // Tim1
+  myTim1 = new HardwareTimer(TIM1);
+  myTim1->setOverflow(5, HERTZ_FORMAT); // 200ms
+  myTim1->attachInterrupt(tim1Callback);
+  myTim1->resume();
+  // Tim2
+  myTim2 = new HardwareTimer(TIM2);
+  myTim2->setOverflow(100, HERTZ_FORMAT); // 10ms
+  myTim2->attachInterrupt(tim2Callback);
+  myTim2->resume();
+}
+
+void loop()
+{
   // action実行
   if (ui::ACTION::run)
   {
