@@ -7,14 +7,11 @@
 			"path": "ui_m5stack_coreS3"
 		},
 		{
-			"name": "lidar_rp2040",
-			"path": "lidar_rp2040"
-		},
-		{
 			"path": "main_stm32f446re"
 		},
 		{
-			"path": "lidar2_rp2040"
+			"name": "lidar_rp2350",
+			"path": "lidar_rp2350"
 		}
 	]
 }

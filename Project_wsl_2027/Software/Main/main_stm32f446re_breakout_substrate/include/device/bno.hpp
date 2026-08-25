@@ -32,14 +32,14 @@ public:
         }
     }
 
-    bool begin(TwoWire &wire, uint8_t address)
+    bool begin(TwoWire *wire, uint8_t address)
     {
         if (_bno != nullptr)
         {
             delete _bno;
             _bno = nullptr;
         }
-        _bno = new Adafruit_BNO055(BNO055_ID, address, &wire);
+        _bno = new Adafruit_BNO055(BNO055_ID, address, wire);
 
         uint16_t last_time = millis();
         bool success = false;

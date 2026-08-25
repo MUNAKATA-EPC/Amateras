@@ -107,5 +107,5 @@ public:
     }
 };
 
-inline button reset_btn;
-inline button sub_btn;
+inline button left_btn;
+inline button right_btn;

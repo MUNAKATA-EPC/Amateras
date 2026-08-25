@@ -37,3 +37,7 @@ public:
         return;
     }
 };
+
+inline led red_led;
+inline led yellow_led;
+inline led green_led;

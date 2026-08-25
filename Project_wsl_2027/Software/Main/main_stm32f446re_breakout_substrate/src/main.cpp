@@ -62,73 +62,80 @@ extern "C" void SystemClock_Config(void)
 
 void setup()
 {
-  // pc
-  mySerial1.begin(115200);
-
-  // ui
+  // m5
   mySerial3.begin(115200);
   ui::attach(mySerial3);
 
-  // line
-  mySerial4.begin(115200);
-  line::attach(mySerial4);
-
-  // camera
+  // pc
   mySerial2.begin(115200);
-  camera::attach(mySerial2);
-
-  // lidar
-  mySerial6.begin(115200);
-  lidar::attach(mySerial6);
-
-  // gyro
-  gyro.begin(Wire3, 0x28);
 
   // btn
-  reset_btn.begin(PB15, INPUT_PULLDOWN);
-  sub_btn.begin(PC8, INPUT_PULLDOWN);
+  left_btn.begin(PC11, INPUT_PULLDOWN);
+  right_btn.begin(PB15, INPUT_PULLDOWN);
 
   // toggle
-  action_toggle.begin(PC2, INPUT_PULLDOWN);
-  sub1_toggle.begin(PA15, INPUT_PULLDOWN);
-  sub2_toggle.begin(PC3, INPUT_PULLDOWN);
-  sub3_toggle.begin(PC4, INPUT_PULLDOWN);
+  action_toggle.begin(PB14, INPUT_PULLDOWN);
+  // led
+  red_led.begin(PB5);
+  yellow_led.begin(PA11);
+  green_led.begin(PC8);
 }
 
 void loop()
 {
-  // btn/toggle更新
+  // btn・toggle・led更新
   static uint32_t last_time = 0;
   if (millis() - last_time > 100)
   {
-    reset_btn.update();
-    sub_btn.update();
+    left_btn.update();
+    right_btn.update();
     action_toggle.update();
-    sub1_toggle.update();
-    sub2_toggle.update();
-    sub3_toggle.update();
 
-    mySerial1.print("gyro:");
-    mySerial1.print(gyro.deg());
-    mySerial1.print(" posi:");
-    mySerial1.print(lidar::posi_x);
-    mySerial1.print(",");
-    mySerial1.println(lidar::posi_y);
+    red_led.light(ui::cur_state != ui::STATE::HOME);
+
+    if (ui::ACTION::run)
+    {
+      yellow_led.light(right_btn.isPushing() || left_btn.isPushing());
+      green_led.lightup();
+    }
+    else
+    {
+      switch (ui::cur_state)
+      {
+      case ui::STATE::HOME:
+        green_led.lightdown();
+        yellow_led.lightdown();
+        break;
+      case ui::STATE::TEST_KICKER:
+        green_led.light(ui::TEST_KICKER::btn);
+        yellow_led.light(ui::TEST_KICKER::front);
+        break;
+      case ui::STATE::TEST_DRIBBLER:
+        green_led.light(ui::TEST_DRIBBLER::toggle);
+        yellow_led.light(ui::TEST_DRIBBLER::front);
+        break;
+      case ui::STATE::TEST_MOTOR:
+        green_led.light(ui::TEST_MOTOR::toggle);
+        yellow_led.light(right_btn.isPushing() || left_btn.isPushing());
+        break;
+      default:
+        yellow_led.lightdown();
+        green_led.lightdown();
+        break;
+      }
+    }
 
     last_time = millis();
   }
 
-  // bno更新
-  gyro.update(reset_btn.isPushing());
-
-  // ui更新
-  ui::process(action_toggle.isTurnedOn());
-  // line更新
-  line::process();
   // camera更新
   camera::process(ui::ACTION::meter_type);
   // lidar更新
-  lidar::process((int16_t)gyro.deg());
+  lidar::process();
+  // line更新
+  line::process();
+  // ui更新
+  ui::process(action_toggle.isTurnedOn());
 
   // action実行
   if (ui::ACTION::run)

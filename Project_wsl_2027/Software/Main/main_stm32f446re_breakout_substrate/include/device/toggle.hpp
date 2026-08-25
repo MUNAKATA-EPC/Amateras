@@ -92,6 +92,3 @@ public:
 };
 
 inline toggle action_toggle;
-inline toggle sub1_toggle;
-inline toggle sub2_toggle;
-inline toggle sub3_toggle;

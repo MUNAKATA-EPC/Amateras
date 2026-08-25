@@ -136,17 +136,17 @@ public:
     uint8_t yfw_count = 0, ybw_count = 0, xlw_count = 0, xrw_count = 0, exw_count = 0;
     for (int i = 0; i < 360; i++)
     {
-      int16_t d[4] = {yfw_prime - _y[i],
+      int32_t d[4] = {yfw_prime - _y[i],
                       _y[i] - ybw_prime,
                       _x[i] - xlw_prime,
                       xrw_prime - _x[i]};
       if (d[0] < 0 || d[1] < 0 || d[2] < 0 || d[3] < 0) // lidarの異常値であるため除外
         continue;
-      uint16_t abs_d[4] = {abs(d[0]),
-                           abs(d[1]),
-                           abs(d[2]),
-                           abs(d[3])};
-      uint16_t min_index = std::min_element(abs_d, abs_d + 4) - abs_d;
+      long abs_d[4] = {abs(d[0]),
+                       abs(d[1]),
+                       abs(d[2]),
+                       abs(d[3])};
+      uint32_t min_index = std::min_element(abs_d, abs_d + 4) - abs_d;
 
       if (d[min_index] > _allow_dis && d[min_index] > ROBO_RADIOUS) // どの壁にも属さない点群はexw系に格納
       {
@@ -218,11 +218,15 @@ calc_posi posi(1800, 2430, 150); // コートの横幅,縦幅,許容誤差
 
 void setup()
 {
-  Serial.begin(115200);
-  packet.begin(Serial); // STM32との通信
-  
-  Serial1.begin(230400);
-  lidar::attach(Serial1); // lidarとの通信
+  Serial1.setRX(1);
+  Serial1.setTX(0);
+  Serial1.begin(115200);
+  packet.begin(Serial1); // STM32との通信
+
+  Serial2.setRX(5);
+  Serial2.setTX(4);
+  Serial2.begin(230400);
+  lidar::attach(Serial2); // lidarとの通信
 }
 
 void loop()
