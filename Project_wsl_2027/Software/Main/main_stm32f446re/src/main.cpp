@@ -61,40 +61,12 @@ extern "C" void SystemClock_Config(void)
 }
 
 HardwareTimer *myTim1;
-void tim1Callback()
-{
-  reset_btn.update();
-  sub_btn.update();
-  action_toggle.update();
-  sub1_toggle.update();
-  sub2_toggle.update();
-  sub3_toggle.update();
-
-  /*
-  mySerial1.print("gyro:");
-  mySerial1.print(gyro.deg());
-  mySerial1.print(" posi:");
-  mySerial1.print(lidar::posi_x);
-  mySerial1.print(",");
-  mySerial1.println(lidar::posi_y);
-  */
-}
+volatile bool tim1_flag = false;
+void tim1Callback() { tim1_flag = true; }
 
 HardwareTimer *myTim2;
-void tim2Callback()
-{
-  // bno更新
-  gyro.update(reset_btn.isPushing());
-
-  // ui更新
-  ui::process(action_toggle.isTurnedOn());
-  // line更新
-  line::process();
-  // camera更新
-  camera::process(ui::ACTION::meter_type);
-  // lidar更新
-  lidar::process((int16_t)gyro.deg());
-}
+volatile bool tim2_flag = false;
+void tim2Callback() { tim2_flag = true; }
 
 void setup()
 {
@@ -139,6 +111,47 @@ void setup()
 
 void loop()
 {
+  // 200ms周期
+  if (tim1_flag)
+  {
+    tim1_flag = false;
+
+    // btn更新
+    reset_btn.update();
+    sub_btn.update();
+
+    // toggle更新
+    action_toggle.update();
+    sub1_toggle.update();
+    sub2_toggle.update();
+    sub3_toggle.update();
+
+    mySerial1.print("gyro:");
+    mySerial1.print(gyro.deg());
+    mySerial1.print(" posi:");
+    mySerial1.print(lidar::posi_x);
+    mySerial1.print(",");
+    mySerial1.println(lidar::posi_y);
+  }
+
+  // 10ms周期
+  if (tim2_flag)
+  {
+    tim2_flag = false;
+
+    // bno更新
+    gyro.update(reset_btn.isPushing());
+
+    // ui更新
+    ui::process(action_toggle.isTurnedOn());
+    // line更新
+    line::process();
+    // camera更新
+    camera::process(ui::ACTION::meter_type);
+    // lidar更新
+    lidar::process((int16_t)gyro.deg());
+  }
+
   // action実行
   if (ui::ACTION::run)
   {

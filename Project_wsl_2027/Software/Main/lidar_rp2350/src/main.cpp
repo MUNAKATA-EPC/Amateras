@@ -7,7 +7,7 @@
 
 struct t_data
 {
-  int16_t x = 0, y = 0; // コートの中心に対する自分の座標(x,y)
+  int16_t x = 45, y = 45; // コートの中心に対する自分の座標(x,y)
 } __attribute__((packed));
 struct r_data
 {
@@ -218,6 +218,8 @@ calc_posi posi(1800, 2430, 150); // コートの横幅,縦幅,許容誤差
 
 void setup()
 {
+  // Serial.begin(9600); // pc
+
   Serial1.setRX(1);
   Serial1.setTX(0);
   Serial1.begin(115200);
@@ -243,8 +245,12 @@ void loop()
     local_cycle = lidar::cycle;
     posi.calc(lidar::dis, packet.rx.gyro_deg); // 自分の座標を計算
 
-    packet.tx.x = posi.x;
-    packet.tx.y = posi.y;
+    packet.tx.x = 45;
+    packet.tx.y = 45;
+
+    // Serial.print(posi.x);
+    // Serial.print(",");
+    // Serial.println(posi.y);
   }
 }
 
