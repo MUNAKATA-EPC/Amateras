@@ -220,8 +220,8 @@ void setup()
 {
   // Serial.begin(9600); // pc
 
-  Serial1.setRX(1);
-  Serial1.setTX(0);
+  Serial1.setRX(29);
+  Serial1.setTX(28);
   Serial1.begin(115200);
   packet.begin(Serial1); // STM32との通信
 
