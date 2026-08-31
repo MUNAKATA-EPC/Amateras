@@ -26,9 +26,9 @@ namespace lidar
         packet.begin(serial_obj);
     }
 
-    inline void process(int16_t gyro_deg) // STM32との通信
+    inline void process(int16_t gyro_deg) // RP2350との通信
     {
-        // STM32のデータを受送信
+        // RP2350のデータを受送信
         packet.update();
 
         // t_data代入

@@ -14,6 +14,7 @@
 #include "module/camera.hpp"
 #include "module/lidar.hpp"
 #include "module/line.hpp"
+#include "module/motordriver.hpp"
 #include "module/ui.hpp"
 
 extern "C" void SystemClock_Config(void)
@@ -68,8 +69,15 @@ HardwareTimer *myTim2;
 volatile bool tim2_flag = false;
 void tim2Callback() { tim2_flag = true; }
 
+HardwareTimer *myTim3;
+volatile bool tim3_flag = false;
+void tim3Callback() { tim3_flag = true; }
+
 void setup()
 {
+  // resolution
+  analogWriteResolution(12);
+
   // gyro
   gyro.begin(Wire3, 0x28);
 
@@ -97,6 +105,9 @@ void setup()
   sub2_toggle.begin(PC3, INPUT_PULLDOWN);
   sub3_toggle.begin(PC4, INPUT_PULLDOWN);
 
+  // motordriver
+  motordriver::attach({PA6, PA7}, {PB0, PB1}, {PB6, PB7}, {PB8, PB9});
+
   // Tim1
   myTim1 = new HardwareTimer(TIM1);
   myTim1->setOverflow(5, HERTZ_FORMAT); // 200ms
@@ -107,6 +118,11 @@ void setup()
   myTim2->setOverflow(100, HERTZ_FORMAT); // 10ms
   myTim2->attachInterrupt(tim2Callback);
   myTim2->resume();
+  // Tim3
+  myTim3 = new HardwareTimer(TIM9);
+  myTim3->setOverflow(2000, HERTZ_FORMAT); // 0.5ms
+  myTim3->attachInterrupt(tim3Callback);
+  myTim3->resume();
 }
 
 void loop()
@@ -152,6 +168,12 @@ void loop()
     lidar::process((int16_t)gyro.deg());
   }
 
+  // 0.5ms周期
+  if (tim3_flag)
+  {
+    motordriver::process();
+  }
+
   // action実行
   if (ui::ACTION::run)
   {
@@ -165,6 +187,12 @@ void loop()
       break;
     case ui::STATE::ACTION_RADIOCONTROL:
       break;
+    default:
+      motordriver::move(0, 0, 0, 0);
     }
+  }
+  else
+  {
+    motordriver::move(0, 0, 0, 0);
   }
 }
