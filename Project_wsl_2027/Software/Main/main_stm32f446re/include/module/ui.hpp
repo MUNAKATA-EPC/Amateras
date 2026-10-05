@@ -56,6 +56,19 @@ namespace ui
     inline STATE cur_state = STATE::HOME;        // 現在のステート
     inline serial_packet<t_data, r_data> packet; // 通常時の送受信パケット
 
+    namespace TRANSMIT_DATA
+    {
+        uint32_t line_angel = 0UL;
+        int16_t line_right_side_val = 0;
+        int16_t line_left_side_val = 0;
+        int16_t ball_deg = UNDETECTED;
+        int16_t ball_dis = UNDETECTED;
+        int16_t gyro_deg = UNDETECTED;
+        int16_t yellow_goal_deg = UNDETECTED;
+        int16_t yellow_goal_dis = UNDETECTED;
+        int16_t blue_goal_deg = UNDETECTED;
+        int16_t blue_goal_dis = UNDETECTED;
+    }
     namespace ACTION
     {
         inline bool run = false;      // アクションが起動中かどうか
@@ -116,6 +129,16 @@ namespace ui
 
         // t_data代入
         packet.tx.action_run = ACTION::run;
+        packet.tx.line_angel = TRANSMIT_DATA::line_angel;
+        packet.tx.line_right_side_val = TRANSMIT_DATA::line_right_side_val;
+        packet.tx.line_left_side_val = TRANSMIT_DATA::line_left_side_val;
+        packet.tx.ball_deg = TRANSMIT_DATA::ball_deg;
+        packet.tx.ball_dis = TRANSMIT_DATA::ball_dis;
+        packet.tx.gyro_deg = TRANSMIT_DATA::gyro_deg;
+        packet.tx.yellow_goal_deg = TRANSMIT_DATA::yellow_goal_deg;
+        packet.tx.yellow_goal_dis = TRANSMIT_DATA::yellow_goal_dis;
+        packet.tx.blue_goal_deg = TRANSMIT_DATA::blue_goal_deg;
+        packet.tx.blue_goal_dis = TRANSMIT_DATA::blue_goal_dis;
         // r_data代入
         cur_state = packet.rx.cur_state;
         ACTION::meter_type = packet.rx.action_meter_type;

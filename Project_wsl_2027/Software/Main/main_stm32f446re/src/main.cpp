@@ -8,6 +8,7 @@
 // device
 #include "device/bno.hpp"
 #include "device/button.hpp"
+#include "device/cyclic_timer.hpp"
 #include "device/led.hpp"
 #include "device/toggle.hpp"
 // module
@@ -61,18 +62,6 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
-HardwareTimer *myTim1;
-volatile bool tim1_flag = false;
-void tim1Callback() { tim1_flag = true; }
-
-HardwareTimer *myTim2;
-volatile bool tim2_flag = false;
-void tim2Callback() { tim2_flag = true; }
-
-HardwareTimer *myTim3;
-volatile bool tim3_flag = false;
-void tim3Callback() { tim3_flag = true; }
-
 void setup()
 {
   // resolution
@@ -105,33 +94,19 @@ void setup()
   sub2_toggle.begin(PC3, INPUT_PULLDOWN);
   sub3_toggle.begin(PC4, INPUT_PULLDOWN);
 
-  // motordriver
-  motordriver::attach({PA6, PA7}, {PB0, PB1}, {PB6, PB7}, {PB8, PB9});
+  // motordriver // {right_front, right_back, left_back, left_front} // 全て正1000で右回転
+  motordriver::attach({PB6, PB7}, {PA6, PA7}, {PB8, PB9}, {PB0, PB1});
 
-  // Tim1
-  myTim1 = new HardwareTimer(TIM1);
-  myTim1->setOverflow(5, HERTZ_FORMAT); // 200ms
-  myTim1->attachInterrupt(tim1Callback);
-  myTim1->resume();
-  // Tim2
-  myTim2 = new HardwareTimer(TIM2);
-  myTim2->setOverflow(100, HERTZ_FORMAT); // 10ms
-  myTim2->attachInterrupt(tim2Callback);
-  myTim2->resume();
-  // Tim3
-  myTim3 = new HardwareTimer(TIM9);
-  myTim3->setOverflow(2000, HERTZ_FORMAT); // 0.5ms
-  myTim3->attachInterrupt(tim3Callback);
-  myTim3->resume();
+  cyclic_timer_1ms.begin(TIM9, 1);     // 1ms周期
+  cyclic_timer_10ms.begin(TIM2, 10);   // 10ms周期
+  cyclic_timer_200ms.begin(TIM1, 200); // 200ms周期
 }
 
 void loop()
 {
   // 200ms周期
-  if (tim1_flag)
+  if (cyclic_timer_200ms.called())
   {
-    tim1_flag = false;
-
     // btn更新
     reset_btn.update();
     sub_btn.update();
@@ -151,14 +126,13 @@ void loop()
   }
 
   // 10ms周期
-  if (tim2_flag)
+  if (cyclic_timer_10ms.called())
   {
-    tim2_flag = false;
-
     // bno更新
     gyro.update(reset_btn.isPushing());
 
     // ui更新
+    ui::TRANSMIT_DATA::gyro_deg = (int16_t)gyro.deg();
     ui::process(action_toggle.isTurnedOn());
     // line更新
     line::process();
@@ -168,8 +142,8 @@ void loop()
     lidar::process((int16_t)gyro.deg());
   }
 
-  // 0.5ms周期
-  if (tim3_flag)
+  // 1ms周期
+  if (cyclic_timer_1ms.called())
   {
     motordriver::process();
   }
