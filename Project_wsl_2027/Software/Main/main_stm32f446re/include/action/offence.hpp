@@ -23,11 +23,19 @@
 #include "module/lidar.hpp"
 #include "module/line.hpp"
 #include "module/motordriver.hpp"
+#include "module/ps3.hpp"
 #include "module/ui.hpp"
 
 void offence()
 {
     motor::process(pd_gyro, gyro.deg(), 0);
 
-    motor::move(45, 500);
+    if (ps3::stick_rdis > 20)
+    {
+        motor::maximizemove(ps3::rdeg, 500);
+    }
+    else
+    {
+        motor::stay();
+    }
 }

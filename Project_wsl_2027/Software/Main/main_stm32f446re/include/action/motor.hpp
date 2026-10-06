@@ -115,14 +115,14 @@ namespace motor
         }
     }
 
-    inline void maximizemove(int16_t deg)
+    inline void maximizemove(int16_t deg, int16_t max_pow)
     {
         float c = cos(radians(deg + 45));
         float s = sin(radians(deg + 45));
-        int16_t move_pow[4] = {static_cast<int16_t>(-1000.0f * c),
-                               static_cast<int16_t>(-1000.0f * s),
-                               static_cast<int16_t>(1000.0f * c),
-                               static_cast<int16_t>(1000.0f * s)};
+        int16_t move_pow[4] = {static_cast<int16_t>(-static_cast<float>(max_pow) * c),
+                               static_cast<int16_t>(-static_cast<float>(max_pow) * s),
+                               static_cast<int16_t>(static_cast<float>(max_pow) * c),
+                               static_cast<int16_t>(static_cast<float>(max_pow) * s)};
 
         int max_abs_move_pow = 0;
         for (int i = 0; i < 4; i++)
@@ -131,7 +131,7 @@ namespace motor
                 max_abs_move_pow = abs(move_pow[i]);
         }
 
-        float scale = 1000.0f / static_cast<float>(max_abs_move_pow);
+        float scale = static_cast<float>(max_pow) / static_cast<float>(max_abs_move_pow);
         for (int i = 0; i < 4; i++)
         {
             move_pow[i] = static_cast<int16_t>(static_cast<float>(move_pow[i]) * scale);
@@ -144,10 +144,10 @@ namespace motor
     {
         float c = cos(radians(deg + 45));
         float s = sin(radians(deg + 45));
-        int16_t move_pow[4] = {static_cast<int16_t>(-(float)pow * c),
-                               static_cast<int16_t>(-(float)pow * s),
-                               static_cast<int16_t>((float)pow * c),
-                               static_cast<int16_t>((float)pow * s)};
+        int16_t move_pow[4] = {static_cast<int16_t>(static_cast<float>(pow) * c),
+                               static_cast<int16_t>(static_cast<float>(pow) * s),
+                               static_cast<int16_t>(-static_cast<float>(pow) * c),
+                               static_cast<int16_t>(-static_cast<float>(pow) * s)};
 
         detail::movemain(move_pow);
     }
@@ -158,5 +158,5 @@ namespace motor
     }
 }
 
-const motor::pd_data pd_gyro = {0.8f, 0.05f};
-const motor::pd_data pd_cam = {0.8f, 0.05f};
+const motor::pd_data pd_gyro = {12.0f, 0.0f};
+const motor::pd_data pd_cam = {12.0f, 0.0f};

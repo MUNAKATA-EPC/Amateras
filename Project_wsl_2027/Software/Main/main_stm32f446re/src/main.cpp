@@ -16,6 +16,7 @@
 #include "module/lidar.hpp"
 #include "module/line.hpp"
 #include "module/motordriver.hpp"
+#include "module/ps3.hpp"
 #include "module/ui.hpp"
 
 extern "C" void SystemClock_Config(void)
@@ -75,6 +76,9 @@ void setup()
   // ui
   mySerial3.begin(115200);
   ui::attach(mySerial3);
+  // ps3
+  mySerial5.begin(115200);
+  ps3::attach(mySerial5);
   // line
   mySerial4.begin(115200);
   line::attach(mySerial4);
@@ -96,6 +100,7 @@ void setup()
 
   // motordriver // {right_front, right_back, left_back, left_front} // 全て正1000で右回転
   motordriver::attach({PB6, PB7}, {PA6, PA7}, {PB8, PB9}, {PB0, PB1});
+  motordriver::move(0, 0, 0, 0);
 
   cyclic_timer_1ms.begin(TIM9, 1);     // 1ms周期
   cyclic_timer_10ms.begin(TIM2, 10);   // 10ms周期
@@ -134,6 +139,8 @@ void loop()
     // ui更新
     ui::TRANSMIT_DATA::gyro_deg = (int16_t)gyro.deg();
     ui::process(action_toggle.isTurnedOn());
+    // ps3更新
+    ps3::process();
     // line更新
     line::process();
     // camera更新

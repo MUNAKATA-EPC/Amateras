@@ -23,11 +23,12 @@
 #include "module/lidar.hpp"
 #include "module/line.hpp"
 #include "module/motordriver.hpp"
+#include "module/ps3.hpp"
 #include "module/ui.hpp"
 
 void defence()
 {
     motor::process(pd_gyro, gyro.deg(), 0);
 
-    motor::stay();
+    motor::move(0, 500);
 }

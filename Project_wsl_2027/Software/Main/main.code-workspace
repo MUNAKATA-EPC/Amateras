@@ -12,6 +12,15 @@
 		{
 			"name": "lidar_rp2350",
 			"path": "lidar_rp2350"
+		},
+		{
+			"path": "camera_stm32f446re"
+		},
+		{
+			"path": "camera_unitv"
+		},
+		{
+			"path": "ps3_m5stamp-pico"
 		}
 	]
 }

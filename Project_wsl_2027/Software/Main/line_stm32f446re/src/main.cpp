@@ -75,10 +75,10 @@ struct t_data
   uint32_t angel = 0UL;
   int16_t right_side_val = 0;
   int16_t left_side_val = 0;
-};
+} __attribute__((packed));
 struct r_data
 {
-};
+} __attribute__((packed));
 serial_packet<t_data, r_data> packet;
 
 void setup()
