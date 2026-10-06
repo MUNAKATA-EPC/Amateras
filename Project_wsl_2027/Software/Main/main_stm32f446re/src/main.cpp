@@ -160,6 +160,7 @@ void loop()
       defence();
       break;
     case ui::STATE::ACTION_RADIOCONTROL:
+      motordriver::move(400, 400, 400, 400);
       break;
     default:
       motordriver::move(0, 0, 0, 0);
