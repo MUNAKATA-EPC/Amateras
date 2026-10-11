@@ -28,7 +28,21 @@
 
 void defence()
 {
-    motor::process(pd_gyro, gyro.deg(), 0);
+    if (ps3::stick_rdis > 20)
+    {
+        motor::process(pd_gyro, gyro.deg(), ps3::stick_rdeg);
+    }
+    else
+    {
+        motor::process(pd_gyro, gyro.deg(), 0);
+    }
 
-    motor::move(0, 500);
+    if (ps3::stick_ldis > 20)
+    {
+        motor::maximizemove(ps3::stick_ldeg, static_cast<int16_t>(ps3::stick_ldis * 800 / 128));
+    }
+    else
+    {
+        motor::stay();
+    }
 }

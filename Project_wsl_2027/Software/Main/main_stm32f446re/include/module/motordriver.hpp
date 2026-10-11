@@ -21,7 +21,7 @@ namespace motordriver
 
     namespace detail
     {
-        inline uint32_t power_to_duty12bit(int16_t power)
+        inline uint32_t powerToDuty12bit(int16_t power)
         {
             int32_t abs_p = (power < 0) ? -power : power;
             if (abs_p > MP_MAX)
@@ -31,7 +31,7 @@ namespace motordriver
             return ccr * 4095u / PWM_ARR;
         }
 
-        inline void drive_channel(uint8_t ch)
+        inline void driveChannel(uint8_t ch)
         {
             const int16_t p = m_p[ch];
 
@@ -52,14 +52,14 @@ namespace motordriver
             else if (p > 0)
             {
                 // 正転 IN1にPWMを印加、IN2は0 (LOW)
-                uint32_t duty = power_to_duty12bit(p);
+                uint32_t duty = powerToDuty12bit(p);
                 analogWrite(in2, 0);
                 analogWrite(in1, static_cast<int>(duty));
             }
             else
             {
                 // 逆転 IN1は0 (LOW)、IN2にPWMを印加
-                uint32_t duty = power_to_duty12bit(p);
+                uint32_t duty = powerToDuty12bit(p);
                 analogWrite(in1, 0);
                 analogWrite(in2, static_cast<int>(duty));
             }
@@ -98,16 +98,16 @@ namespace motordriver
     {
         for (int i = 0; i < 4; i++)
         {
-            detail::drive_channel(static_cast<uint8_t>(i));
+            detail::driveChannel(static_cast<uint8_t>(i));
         }
     }
 
-    inline void stop_all()
+    inline void stopAll()
     {
         for (int i = 0; i < 4; i++)
         {
             m_p[i] = 0;
-            detail::drive_channel(static_cast<uint8_t>(i));
+            detail::driveChannel(static_cast<uint8_t>(i));
         }
     }
 

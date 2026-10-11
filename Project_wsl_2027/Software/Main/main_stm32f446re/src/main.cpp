@@ -63,6 +63,12 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
+void setup() {}
+
+void loop() { delay(100); }
+
+/*
+
 void setup()
 {
   // resolution
@@ -124,10 +130,14 @@ void loop()
 
     mySerial1.print("gyro:");
     mySerial1.print(gyro.deg());
-    mySerial1.print(" posi:");
-    mySerial1.print(lidar::posi_x);
+    mySerial1.print(" ps3:");
+    mySerial1.print(ps3::stick_lx);
     mySerial1.print(",");
-    mySerial1.println(lidar::posi_y);
+    mySerial1.print(ps3::stick_ly);
+    mySerial1.print(",");
+    mySerial1.print(ps3::stick_rdeg);
+    mySerial1.print(",");
+    mySerial1.println(ps3::stick_rdis);
   }
 
   // 10ms周期
@@ -178,3 +188,5 @@ void loop()
     motordriver::move(0, 0, 0, 0);
   }
 }
+
+*/

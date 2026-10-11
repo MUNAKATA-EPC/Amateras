@@ -18,10 +18,28 @@ namespace ps3
     } __attribute__((packed));
     serial_packet<t_data, r_data> packet;
 
-    int8_t stick_lx, stick_ly, stick_rx, stick_ry;
-    int8_t stick_ldis, stick_rdis;
-    int16_t ldeg, rdeg;
+    int16_t stick_lx, stick_ly, stick_rx, stick_ry;
+    int16_t stick_ldis, stick_rdis;
+    int16_t stick_ldeg, stick_rdeg;
+    // ボタン
     uint16_t buttons_data_bit_mask = 0;
+    enum class BUTTON : uint8_t
+    {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        TRIANGLE,
+        CIRCLE,
+        CROSS,
+        SQUARE,
+        L1,
+        L2,
+        L3,
+        R1,
+        R2,
+        R3
+    };
 
     inline void attach(HardwareSerial &serial_obj) // どのシリアルで通信するか紐づけ
     {
@@ -34,18 +52,23 @@ namespace ps3
         packet.update();
 
         // r_data代入
-        stick_lx = packet.rx.stick_lx;
-        stick_ly = packet.rx.stick_ly;
-        stick_rx = packet.rx.stick_rx;
-        stick_ry = packet.rx.stick_ry;
+        stick_lx = static_cast<int16_t>(packet.rx.stick_lx);
+        stick_ly = -static_cast<int16_t>(packet.rx.stick_ly);
+        stick_rx = static_cast<int16_t>(packet.rx.stick_rx);
+        stick_ry = -static_cast<int16_t>(packet.rx.stick_ry);
         buttons_data_bit_mask = packet.rx.buttons_data_bit_mask;
 
         // dis計算
-        stick_ldis = static_cast<int8_t>(sqrt(float(stick_lx * stick_lx) + float(stick_ly * stick_ly)));
-        stick_rdis = static_cast<int8_t>(sqrt(float(stick_rx * stick_rx) + float(stick_ry * stick_ry)));
+        stick_ldis = static_cast<int16_t>(constrain(sqrt(static_cast<float>(stick_lx) * static_cast<float>(stick_lx) + static_cast<float>(stick_ly) * static_cast<float>(stick_ly)), 0.0f, 128.0f));
+        stick_rdis = static_cast<int16_t>(constrain(sqrt(static_cast<float>(stick_rx) * static_cast<float>(stick_rx) + static_cast<float>(stick_ry) * static_cast<float>(stick_ry)), 0.0f, 128.0f));
 
         // deg計算
-        ldeg = static_cast<int16_t>(atan2(stick_ly, stick_lx) * 180.0 / PI);
-        rdeg = static_cast<int16_t>(atan2(stick_ry, stick_rx) * 180.0 / PI);
+        stick_ldeg = static_cast<int16_t>(atan2(static_cast<float>(stick_lx), static_cast<float>(stick_ly)) * 180.0 / PI);
+        stick_rdeg = static_cast<int16_t>(atan2(static_cast<float>(stick_rx), static_cast<float>(stick_ry)) * 180.0 / PI);
+    }
+
+    bool isPushing(BUTTON btn)
+    {
+        return ((1 << (int)btn) & buttons_data_bit_mask) > 0;
     }
 }
