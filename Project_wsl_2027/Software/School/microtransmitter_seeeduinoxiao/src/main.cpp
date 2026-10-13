@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -6,6 +7,97 @@
 #define NO_LED_SEND_FEEDBACK_CODE         // ledデバックを消す
 #include "common/infra_packet.hpp"
 
+#include <Wire.h>
+#include <U8g2lib.h>
+
+// display
+// 128x64 SSD1306、ハードウェアI2C、フルバッファ、リセット線なし
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(
+    U8G2_R0,
+    U8X8_PIN_NONE);
+
+// UTF-8文字が何バイトかを調べる（日本語は通常3バイト）
+uint8_t utf8CharBytes(const uint8_t *p)
+{
+  if ((*p & 0x80) == 0x00)
+    return 1;
+  if ((*p & 0xE0) == 0xC0)
+    return 2;
+  if ((*p & 0xF0) == 0xE0)
+    return 3;
+  if ((*p & 0xF8) == 0xF0)
+    return 4;
+  return 1;
+}
+
+// x, baselineY を開始位置に、maxWidth の範囲で自動改行して描画
+void printWrappedUTF8(
+  const char* text,
+  uint16_t x,
+  uint16_t baselineY,
+  uint16_t maxWidth,
+  uint8_t asciiGapPx = 1
+) {
+  const uint16_t screenWidth = display.getDisplayWidth();
+
+  if (x >= screenWidth) return;
+  if (maxWidth > screenWidth - x) {
+    maxWidth = screenWidth - x;
+  }
+
+  const uint16_t rightEdge = x + maxWidth;
+  const uint16_t linePitch = display.getMaxCharHeight() + 2;
+
+  uint16_t cursorX = x;
+  uint16_t cursorY = baselineY;
+  const uint8_t* p = (const uint8_t*)text;
+
+  while (*p != '\0') {
+    if (*p == '\r') {
+      p++;
+      continue;
+    }
+    if (*p == '\n') {
+      cursorX = x;
+      cursorY += linePitch;
+      p++;
+      continue;
+    }
+
+    uint8_t bytes = utf8CharBytes(p);
+    char glyph[5];
+
+    for (uint8_t i = 0; i < bytes; i++) {
+      glyph[i] = (char)p[i];
+    }
+    glyph[bytes] = '\0';
+
+    uint16_t glyphWidth = display.getUTF8Width(glyph);
+
+    // 英字・数字の後ろに指定ピクセル分の間隔を足す
+    bool isAsciiLetterOrDigit =
+      bytes == 1 &&
+      ((glyph[0] >= 'A' && glyph[0] <= 'Z') ||
+       (glyph[0] >= 'a' && glyph[0] <= 'z') ||
+       (glyph[0] >= '0' && glyph[0] <= '9'));
+
+    uint8_t gap = isAsciiLetterOrDigit ? asciiGapPx : 0;
+
+    // 次の文字と間隔が右端を超えるなら改行
+    if (cursorX > x && cursorX + glyphWidth > rightEdge) {
+      cursorX = x;
+      cursorY += linePitch;
+    }
+
+    display.setCursor(cursorX, cursorY);
+    display.print(glyph);
+
+    cursorX += glyphWidth + gap;
+    p += bytes;
+  }
+}
+
+// infra
 struct packet // 50文字まで送る
 {
   uint8_t count = 0;
@@ -24,7 +116,7 @@ size_t textrecord_targetindex = 0; // 次に記録するインデックス
 const size_t text_size = sizeof(infra.tx.text);
 const size_t textrecord_size = sizeof(textrecord);
 
-void appendRecord(uint8_t direction, const char *data, uint8_t len)
+void appendTextrecord(uint8_t direction, const char *data, uint8_t len)
 {
   if (len > text_size - 1)
     return;
@@ -60,10 +152,39 @@ void appendRecord(uint8_t direction, const char *data, uint8_t len)
   }
 }
 
+bool readRecordHeader(const char *data, size_t used, size_t idx,
+                      uint8_t &direction, uint8_t &len)
+{
+  if (idx > used || used - idx < 2)
+    return false;
+
+  direction = static_cast<uint8_t>(data[idx]);
+  len = static_cast<uint8_t>(data[idx + 1]);
+
+  if (direction != static_cast<uint8_t>(textrecord_recv) &&
+      direction != static_cast<uint8_t>(textrecord_send))
+    return false;
+
+  if (len > text_size - 1 || len > used - idx - 2)
+    return false;
+
+  return true;
+}
+
 void setup()
 {
   Serial.begin(9600);
 
+  // display
+  display.begin();
+  display.enableUTF8Print();                  // print() にUTF-8文字列を渡せるようにする
+  display.setFont(u8g2_font_b10_t_japanese1); // 日本語フォント
+  display.setFontPosBaseline();
+  display.clearBuffer(); // ブッファ初期化
+  display.sendBuffer();  // バッファの内容をOLEDへ送る
+  // display.drawFrame(0, 0, 128, 64); // 枠を描画
+
+  // infra
   infra.begin(9, 10);
 }
 
@@ -73,10 +194,9 @@ void loop()
   {
     // rx
     static uint8_t last_count = 0;
-    static bool has_last_count = false;
     uint8_t cur_count = infra.rx.count;
 
-    if (!has_last_count || cur_count != last_count)
+    if (cur_count != last_count)
     {
       size_t rx_len = 0;
       while (rx_len < text_size && infra.rx.text[rx_len] != '\0')
@@ -84,13 +204,17 @@ void loop()
         rx_len++;
       }
 
-      appendRecord(static_cast<uint8_t>(textrecord_recv),
-                   infra.rx.text,
-                   static_cast<uint8_t>(rx_len));
+      appendTextrecord(static_cast<uint8_t>(textrecord_recv),
+                       infra.rx.text,
+                       static_cast<uint8_t>(rx_len));
+
+      // displayに描画
+      display.clearBuffer();
+      printWrappedUTF8(infra.rx.text, 0, 14, 128);
+      display.sendBuffer();
     }
 
     last_count = cur_count;
-    has_last_count = true;
   }
 
   // tx
@@ -99,20 +223,35 @@ void loop()
     String c = Serial.readStringUntil('\n');
     c.trim();
 
-    ////
+    //// debug
     if (c == "show")
     {
-      for (size_t i = 0; i < textrecord_targetindex; i++)
+      size_t i = 0;
+
+      while (i < textrecord_targetindex)
       {
-        if (textrecord[i] == textrecord_recv)
-          Serial.print("friend:");
-        else if (textrecord[i] == textrecord_send)
-          Serial.print("you   :");
-        else
-          Serial.print(textrecord[i]);
-        if (textrecord[i + 1] == textrecord_recv || textrecord[i + 1] == textrecord_send)
-          Serial.println("");
+        uint8_t direction;
+        uint8_t len;
+
+        if (!readRecordHeader(textrecord, textrecord_targetindex,
+                              i, direction, len))
+        {
+          Serial.println("[record error]");
+          break;
+        }
+
+        Serial.print(direction == static_cast<uint8_t>(textrecord_recv)
+                         ? "friend:"
+                         : "you   :");
+
+        Serial.write(
+            reinterpret_cast<const uint8_t *>(textrecord + i + 2), len);
+        Serial.println();
+
+        i += 2 + len;
       }
+
+      return; // "show" 自体は送信しない
     }
     ////
 
@@ -130,9 +269,14 @@ void loop()
       strncpy(infra.tx.text, c.c_str(), text_size); // 50バイト以下の本文と余分な部分を'\0'で埋めてコピーする
 
       // textrecordに記録
-      appendRecord(static_cast<uint8_t>(textrecord_send),
-                   c.c_str(),
-                   static_cast<uint8_t>(c.length()));
+      appendTextrecord(static_cast<uint8_t>(textrecord_send),
+                       c.c_str(),
+                       static_cast<uint8_t>(c.length()));
+
+      // displayに描画
+      display.clearBuffer();
+      printWrappedUTF8(infra.tx.text, 0, 14, 128);
+      display.sendBuffer();
     }
     else
     {

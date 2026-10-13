@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "microtransmitter_seeeduinoxiao"
+		},
+		{
+			"path": "microtransmitter_rp2040-zero"
 		}
 	]
 }

@@ -63,12 +63,6 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
-void setup() {}
-
-void loop() { delay(100); }
-
-/*
-
 void setup()
 {
   // resolution
@@ -148,6 +142,10 @@ void loop()
 
     // ui更新
     ui::TRANSMIT_DATA::gyro_deg = (int16_t)gyro.deg();
+    ui::TRANSMIT_DATA::yellow_goal_deg = lidar::posi_x;
+    ui::TRANSMIT_DATA::yellow_goal_dis = lidar::posi_y;
+    ui::TRANSMIT_DATA::blue_goal_deg = lidar::posi_enemy_x;
+    ui::TRANSMIT_DATA::blue_goal_dis = lidar::posi_enemy_y;
     ui::process(action_toggle.isTurnedOn());
     // ps3更新
     ps3::process();
@@ -188,5 +186,3 @@ void loop()
     motordriver::move(0, 0, 0, 0);
   }
 }
-
-*/
