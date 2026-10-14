@@ -20,6 +20,42 @@ void setup()
 
     // infra
     infra.begin(8, 26); // TX=GP8, RX=GP26
+
+    // id確定
+    char printtext[31];
+    uint32_t last_time = millis();;
+    String a;
+    do
+    {
+        my_id = hardware_randam(9, 0, 127);
+        infra.tx.j = (my_id) & 0b01111111; // 8bit目を0にしてmy_id代入
+        while (!infra.update())
+        {
+            display.clearBuffer();
+
+            a = "自分のID:" + String(my_id);
+            strncpy(printtext, a.c_str(), 31);
+            utf8_printwrapped(printtext, 0, 14, 128);
+            uint32_t pass_time = millis() - last_time;
+            a = "友達探索中... " + String(static_cast<int>(pass_time / 1000)) + "秒";
+            strncpy(printtext, a.c_str(), 31);
+            utf8_printwrapped(printtext, 0, 28, 128);
+
+            display.sendBuffer();
+        }
+        friends_id = (infra.rx.j) & 0b01111111; // 8bit目を0にしてfriends_id確定
+    } while (my_id == friends_id);
+
+    display.clearBuffer();
+
+    a = "自分のID:" + String(my_id);
+    strncpy(printtext, a.c_str(), 31);
+    utf8_printwrapped(printtext, 0, 14, 128);
+    a = "友達のID:" + String(friends_id);
+    strncpy(printtext, a.c_str(), 31);
+    utf8_printwrapped(printtext, 0, 28, 128);
+
+    display.sendBuffer();
 }
 
 void loop()

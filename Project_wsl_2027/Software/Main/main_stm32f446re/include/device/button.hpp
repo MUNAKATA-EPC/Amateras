@@ -94,13 +94,13 @@ public:
         _oldpressed = _pressed;
     }
 
-    bool isPressed() const { return _pressed && !_oldpressed; }
-    bool isPushing() const { return _pressed; }
-    bool isReleased() const { return _released; }
+    bool is_pressed() const { return _pressed && !_oldpressed; }
+    bool is_pushing() const { return _pressed; }
+    bool is_released() const { return _released; }
 
-    unsigned long pushingTime() const { return _pushing_time; }
+    unsigned long pushing_time() const { return _pushing_time; }
 
-    void pushingTimeReset()
+    void pushing_time_reset()
     {
         _pushing_time = 0;
         _press_start_time = millis();

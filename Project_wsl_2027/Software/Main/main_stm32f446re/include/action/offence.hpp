@@ -37,11 +37,15 @@ void offence()
         motor::process(pd_gyro, gyro.deg(), 0);
     }
 
-    if (ps3::stick_ldis > 20)
+    if (line::angel)
     {
-        if (ps3::isPushing(ps3::BUTTON::CIRCLE))
+        motor::move(deg_wrap(line::angel_deg + 180), 900);
+    }
+    else if (ps3::stick_ldis > 20)
+    {
+        if (ps3::is_pushing(ps3::BUTTON::CIRCLE))
         {
-            motor::move(ps3::stick_ldeg, static_cast<int16_t>(ps3::stick_ldis * 800 / 128));
+            motor::move(ps3::stick_ldeg, static_cast<int16_t>(ps3::stick_ldis * 900 / 128));
         }
         else
         {

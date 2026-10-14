@@ -67,7 +67,7 @@ namespace ps3
         stick_rdeg = static_cast<int16_t>(atan2(static_cast<float>(stick_rx), static_cast<float>(stick_ry)) * 180.0 / PI);
     }
 
-    bool isPushing(BUTTON btn)
+    bool is_pushing(BUTTON btn)
     {
         return ((1 << (int)btn) & buttons_data_bit_mask) > 0;
     }

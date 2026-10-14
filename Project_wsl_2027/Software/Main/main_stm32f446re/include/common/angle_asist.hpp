@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-int16_t degError(int16_t target_deg, int16_t cur_deg)
+int16_t deg_error(int16_t target_deg, int16_t cur_deg)
 {
     int16_t error = target_deg - cur_deg;
     if (error > 180)
@@ -12,7 +12,7 @@ int16_t degError(int16_t target_deg, int16_t cur_deg)
     return error;
 }
 
-float degErrorFloat(float target_deg, float current_deg)
+float deg_error_float(float target_deg, float current_deg)
 {
     float error = fmodf(target_deg - current_deg, 360.0f);
     if (error > 180.0f)
@@ -22,7 +22,7 @@ float degErrorFloat(float target_deg, float current_deg)
     return error;
 }
 
-float radError(float target_rad, float cur_rad)
+float rad_error(float target_rad, float cur_rad)
 {
     float error = target_rad - cur_rad;
     if (error > PI)
@@ -32,7 +32,7 @@ float radError(float target_rad, float cur_rad)
     return error;
 }
 
-int16_t degWrap(int16_t deg)
+int16_t deg_wrap(int16_t deg)
 {
     int16_t wrapped = deg % 360;
     if (wrapped < 0)
@@ -40,7 +40,7 @@ int16_t degWrap(int16_t deg)
     return wrapped;
 }
 
-float degWrapFloat(float deg)
+float deg_wrap_float(float deg)
 {
     float wrapped = fmodf(deg, 360.0f);
     if (wrapped < 0.0f)

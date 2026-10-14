@@ -31,11 +31,8 @@ public:
   {
 
     _rx_state = 0;
-
     _rx_index = 0;
-
     _expected_size = 0;
-
     _calc_checksum = 0;
 
     if (_serial)

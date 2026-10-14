@@ -63,7 +63,7 @@ namespace motor
 
         if (!angle_ref_initialized)
         {
-            deg_ref = degWrapFloat(static_cast<float>(cur_deg));
+            deg_ref = deg_wrap_float(static_cast<float>(cur_deg));
             omega_ref = 0.0f;
             last_deg = static_cast<float>(cur_deg);
             angle_ref_initialized = true;
@@ -80,7 +80,7 @@ namespace motor
         }
         else
         {
-            float remaining_deg = degErrorFloat(static_cast<float>(target_deg), deg_ref);
+            float remaining_deg = deg_error_float(static_cast<float>(target_deg), deg_ref);
             float direction = 0.0f;
             if (remaining_deg > 0.0f)
                 direction = 1.0f;
@@ -106,14 +106,14 @@ namespace motor
                 omega_ref = 0.0f;
             }
 
-            deg_ref = degWrapFloat(deg_ref + deg_ref_step);
+            deg_ref = deg_wrap_float(deg_ref + deg_ref_step);
         }
 
-        // 今回の角度測定変化量。degErrorFloatで角度の折り返しを処理する
-        float measured_step = degErrorFloat(static_cast<float>(cur_deg), last_deg);
+        // 今回の角度測定変化量。deg_error_floatで角度の折り返しを処理する
+        float measured_step = deg_error_float(static_cast<float>(cur_deg), last_deg);
 
         // P項は途中目標と実角度の誤差、D項は目標と実際の1周期変化量の差
-        float error = degErrorFloat(deg_ref, static_cast<float>(cur_deg));
+        float error = deg_error_float(deg_ref, static_cast<float>(cur_deg));
         float p_raw = pd.p * error;
         float d_diff = deg_ref_step - measured_step;
         float d_raw = pd.d * d_diff;

@@ -99,7 +99,7 @@ void setup()
   sub3_toggle.begin(PC4, INPUT_PULLDOWN);
 
   // motordriver // {right_front, right_back, left_back, left_front} // 全て正1000で右回転
-  motordriver::attach({PB6, PB7}, {PA6, PA7}, {PB8, PB9}, {PB0, PB1});
+  motordriver::attach({PB6, PB7}, {PB3, PA7}, {PB8, PB9}, {PB0, PB1});
   motordriver::move(0, 0, 0, 0);
 
   cyclic_timer_1ms.begin(TIM9, 1);     // 1ms周期
@@ -138,7 +138,7 @@ void loop()
   if (cyclic_timer_10ms.called())
   {
     // bno更新
-    gyro.update(reset_btn.isPushing());
+    gyro.update(reset_btn.is_pushing());
 
     // ui更新
     ui::TRANSMIT_DATA::gyro_deg = (int16_t)gyro.deg();
@@ -146,7 +146,7 @@ void loop()
     ui::TRANSMIT_DATA::yellow_goal_dis = lidar::posi_y;
     ui::TRANSMIT_DATA::blue_goal_deg = lidar::posi_enemy_x;
     ui::TRANSMIT_DATA::blue_goal_dis = lidar::posi_enemy_y;
-    ui::process(action_toggle.isTurnedOn());
+    ui::process(action_toggle.is_turned_on());
     // ps3更新
     ps3::process();
     // line更新

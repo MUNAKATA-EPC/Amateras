@@ -48,14 +48,11 @@ bool last_action_run = false;
 bool just_action_run_started = false;
 bool just_action_run_stopped = false;
 
-// ── 変化検出用キャッシュ ──────────────────────────────
-// 前回のrx値を保持し、変化があった時だけLVGLを更新する
+// 変化検出用キャッシュ
 static r_data last_rx = {};
 static bool rx_changed = false; // 今ループでrxに変化があったか
 
-// ── ヘルパー：変化があった時だけラベル更新 ───────────────
-// テキスト内容が変わっていなければ lv_label_set_text_fmt を呼ばない
-// → LVGLの再描画フラグが立たず、描画コストゼロ
+// 変化があった時だけラベル更新
 #define UPDATE_LABEL_IF_CHANGED(label, fmt, ...)            \
     do                                                      \
     {                                                       \
@@ -65,7 +62,7 @@ static bool rx_changed = false; // 今ループでrxに変化があったか
         }                                                   \
     } while (0)
 
-// ── ヘルパー：変化があった時だけ回転更新 ─────────────────
+// 変化があった時だけ回転更新
 #define UPDATE_ROTATION_IF_CHANGED(panel, deg, r)     \
     do                                                \
     {                                                 \

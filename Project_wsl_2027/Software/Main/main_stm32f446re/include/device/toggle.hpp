@@ -88,7 +88,7 @@ public:
         _turned_on = _stable_judge(cur);
     }
 
-    bool isTurnedOn() { return _turned_on; }
+    bool is_turned_on() { return _turned_on; }
 };
 
 inline toggle action_toggle;

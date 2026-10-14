@@ -39,7 +39,7 @@ public:
         }
     }
 
-    unsigned long msTime()
+    unsigned long ms_time()
     {
         if (!_is_stopped)
         {
@@ -53,6 +53,6 @@ public:
         return _now_time;
     }
 
-    bool isStopped() const { return _is_stopped; }
-    bool everReset() const { return _ever_reset; }
+    bool is_stopped() const { return _is_stopped; }
+    bool ever_reset() const { return _ever_reset; }
 };

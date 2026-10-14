@@ -91,7 +91,7 @@ namespace ui
         inline int8_t meter_type = 0; // 0:yellow,1:blue,2:gyro
     }
 
-    inline bool isActionState(STATE state) // アクションが選択中かどうか
+    inline bool is_action_state(STATE state) // アクションが選択中かどうか
     {
         return (state == STATE::ACTION_OFFENCE || state == STATE::ACTION_DEFENCE || state == STATE::ACTION_RADIOCONTROL);
     }
@@ -104,7 +104,7 @@ namespace ui
     inline void process(bool toggle) // M5Stackとの通信
     {
         // ACTION::runを更新
-        ACTION::run = (isActionState(cur_state) && (toggle == true));
+        ACTION::run = (is_action_state(cur_state) && (toggle == true));
 
         // M5Stackのデータを受送信 // ACTION::run中はpacketの更新は行わない
         static timer run_wait;
@@ -116,7 +116,7 @@ namespace ui
 
                 run_wait.reset();
             }
-            else if (run_wait.everReset() && run_wait.msTime() < 100)
+            else if (run_wait.ever_reset() && run_wait.ms_time() < 100)
             {
                 packet.update();
             }
