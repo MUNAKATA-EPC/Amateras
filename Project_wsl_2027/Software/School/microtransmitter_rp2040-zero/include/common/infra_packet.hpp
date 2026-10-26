@@ -95,7 +95,7 @@ public:
     }
     else
     {
-      _tx_interval_ms = _rx_enabled ? frameMs(sizeof(rx_t)) + 20 : 0;
+      _tx_interval_ms = _rx_enabled ? frame_ms(sizeof(rx_t)) + 20 : 0;
       _last_tx_time = millis();
       _next_tx_time = _last_tx_time + jitter();
     }
@@ -112,7 +112,7 @@ public:
   {
     if (!_tx_enabled && !_rx_enabled)
       return false;
-    return readPacket();
+    return read_packet();
   }
 
   // 1フレーム送信する
@@ -169,7 +169,7 @@ public:
   bool update()
   {
     bool received = read();
-    if (txReady())
+    if (tx_ready())
       send();
 
     return received;
@@ -177,14 +177,14 @@ public:
 
 private:
   // 1フレームの最悪(全ビット1)の長さ [us]
-  static constexpr uint32_t frameTimeUs(size_t payload)
+  static constexpr uint32_t frame_time_us(size_t payload)
   {
     return _header_mark + _header_space + 8UL * (payload + 3) * (_bit_mark + _one_space) + _bit_mark;
   }
 
-  static constexpr uint32_t frameMs(size_t payload)
+  static constexpr uint32_t frame_ms(size_t payload)
   {
-    return (frameTimeUs(payload) + 999) / 1000;
+    return (frame_time_us(payload) + 999) / 1000;
   }
 
   // 双方が同じ周期で送り続けて衝突し続けないよう、送信間隔にばらつきを入れる (双方向のときだけ)
@@ -195,7 +195,7 @@ private:
     return (uint32_t)(micros() >> 2) % (_tx_interval_ms / 2 + 1);
   }
 
-  bool txReady() const
+  bool tx_ready() const
   {
     if (!_tx_enabled)
       return false;
@@ -207,25 +207,25 @@ private:
       return true;
 
     // 相手が送信中 (受信中) は待つ。ただしノイズ等でずっと塞がっているなら諦めて送る
-    return late >= 2 * frameMs(sizeof(rx_t));
+    return late >= 2 * frame_ms(sizeof(rx_t));
   }
 
-  static bool inRange(uint16_t v, uint16_t lo, uint16_t hi)
+  static bool in_range(uint16_t v, uint16_t lo, uint16_t hi)
   {
     return v >= lo && v <= hi;
   }
 
   // rawbuf の idx から8ビット(LSB first)読む。idx は次のバイトの先頭に進む
-  static bool readByte(const IRRawbufType *r, uint16_t &idx, uint8_t &out)
+  static bool read_byte(const IRRawbufType *r, uint16_t &idx, uint8_t &out)
   {
     uint8_t v = 0;
     for (uint8_t bit = 0; bit < 8; bit++, idx += 2)
     {
       uint16_t m = r[idx];     // bit の mark
       uint16_t s = r[idx + 1]; // bit の space (長さで 0/1 が決まる)
-      if (!inRange(m, _t_bit_mark_min, _t_bit_mark_max))
+      if (!in_range(m, _t_bit_mark_min, _t_bit_mark_max))
         return false;
-      if (!inRange(s, _t_zero_space_min, _t_one_space_max))
+      if (!in_range(s, _t_zero_space_min, _t_one_space_max))
         return false;
       if (s >= _t_one_threshold)
         v |= (uint8_t)(1 << bit);
@@ -235,47 +235,47 @@ private:
   }
 
   // IRremote が受信し終えた1フレーム(rawbuf)を検証して rx に取り込む
-  bool parseFrame()
+  bool parse_frame()
   {
     const irparams_struct &p = IrReceiver.irparams;
     if (p.OverflowFlag || (uint16_t)p.rawlen != (uint16_t)(2 * 8 * (sizeof(rx_t) + 3) + 4))
       return false; // 他のリモコン / ノイズ / 長さ違い
 
     const IRRawbufType *r = p.rawbuf; // r[0] は未使用, r[1]=ヘッダmark, r[2]=ヘッダspace, 以降 mark/space の繰り返し
-    if (!inRange(r[1], _t_header_mark_min, _t_header_mark_max) ||
-        !inRange(r[2], _t_header_space_min, _t_header_space_max))
+    if (!in_range(r[1], _t_header_mark_min, _t_header_mark_max) ||
+        !in_range(r[2], _t_header_space_min, _t_header_space_max))
       return false;
 
     uint16_t idx = 3;
     uint8_t b = 0;
     uint8_t calc_checksum = 0;
 
-    if (!readByte(r, idx, b) || b != _start_byte)
+    if (!read_byte(r, idx, b) || b != _start_byte)
       return false;
-    if (!readByte(r, idx, b) || b != (uint8_t)sizeof(rx_t))
+    if (!read_byte(r, idx, b) || b != (uint8_t)sizeof(rx_t))
       return false;
     for (size_t i = 0; i < sizeof(rx_t); i++)
     {
-      if (!readByte(r, idx, b))
+      if (!read_byte(r, idx, b))
         return false;
       _rx_buffer[i] = b;
       calc_checksum ^= b;
     }
-    if (!readByte(r, idx, b) || b != calc_checksum)
+    if (!read_byte(r, idx, b) || b != calc_checksum)
       return false;
-    if (!inRange(r[idx], _t_bit_mark_min, _t_bit_mark_max)) // 終端の mark
+    if (!in_range(r[idx], _t_bit_mark_min, _t_bit_mark_max)) // 終端の mark
       return false;
 
     memcpy(&rx, _rx_buffer, sizeof(rx_t));
     return true;
   }
 
-  bool readPacket()
+  bool read_packet()
   {
     if (!_rx_enabled || !IrReceiver.available())
       return false; // まだ1フレーム受け終わっていない
 
-    bool packet_received = parseFrame();
+    bool packet_received = parse_frame();
     IrReceiver.resume(); // rawbuf を読み終えたので次のフレームを受け付ける
     return packet_received;
   }

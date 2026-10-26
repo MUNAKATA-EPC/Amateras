@@ -103,8 +103,8 @@ void setup()
   motordriver::move(0, 0, 0, 0);
 
   cyclic_timer_1ms.begin(TIM9, 1);     // 1ms周期
-  cyclic_timer_10ms.begin(TIM2, 10);   // 10ms周期
-  cyclic_timer_200ms.begin(TIM1, 200); // 200ms周期
+  cyclic_timer_10ms.begin(TIM6, 10);   // 10ms周期
+  cyclic_timer_200ms.begin(TIM7, 200); // 200ms周期
 }
 
 void loop()
