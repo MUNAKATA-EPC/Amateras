@@ -48,8 +48,8 @@ namespace line
                 if (angel & (1UL << i))
                 {
                     angel_count++;
-                    angel_x += cosf(radians(360.0f / 32 * i));
-                    angel_y += sinf(radians(360.0f / 32 * i));
+                    angel_x += LINEANGEL_RADIOUS * cosf(radians(360.0f / 32 * i));
+                    angel_y += LINEANGEL_RADIOUS * sinf(radians(360.0f / 32 * i));
                 }
             }
 

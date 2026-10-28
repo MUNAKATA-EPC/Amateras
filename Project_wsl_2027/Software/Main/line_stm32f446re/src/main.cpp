@@ -92,7 +92,7 @@ void setup()
   digitalWrite(led_pin, HIGH);
 
   analogWriteResolution(12);
-  analogWrite(vref_pin, 2048);
+  analogWrite(vref_pin, 3000);
 
   pinMode(left_side_pin, INPUT);
   pinMode(right_side_pin, INPUT);

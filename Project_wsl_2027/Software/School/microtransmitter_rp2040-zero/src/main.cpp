@@ -3,9 +3,10 @@
 #include <cstring>
 #include <atomic>
 #include "common/timer.hpp"
-#include "display.hpp"
+#include "device/button.hpp"
+#include "ui.hpp"
 #include "infra.hpp"
-#include "log.hpp"
+#include "record.hpp"
 
 /* common */
 
@@ -17,12 +18,12 @@ volatile uint32_t my_count = 0;      // 自分の(自分が送信した)メッ�
 std::atomic<bool> j0_recv{false}; // j=0の未処理データがある
 uint8_t j0_recv_cycle = 0;
 uint32_t j0_recv_message_id = 0;
-char j0_recv_text[text_size_max];
+char j0_recv_text[infra::text_size_max];
 
 std::atomic<bool> j1_recv{false}; // j=1の未処理応答がある
 uint8_t j1_recv_cycle = 0;
 uint32_t j1_recv_message_id = 0;
-char j1_recv_text[text_size_max];
+char j1_recv_text[infra::text_size_max];
 
 std::atomic<bool> setup1_ok{false}; // setup1が完了した
 
@@ -31,11 +32,11 @@ std::atomic<bool> infrared_sending{false};
 std::atomic<bool> infrared_reading{false};
 
 // core1だけが使うACK送信状態
-packet pending_ack_packet{};
+infra::data pending_ack_data{};
 bool ack_pending = false;
 
 // core1だけが使う未確認の送信データ
-packet pending_outgoing_packet{};
+infra::data pending_outgoing_data{};
 bool pending_outgoing_valid = false;
 size_t pending_outgoing_text_size = 0;
 
@@ -129,7 +130,7 @@ bool time_reached(uint32_t now, uint32_t target)
     return static_cast<int32_t>(now - target) >= 0;
 }
 
-bool try_read_infra(packet &received_packet)
+bool try_read_infra(infra::data &received_data)
 {
     // Core 0は読み取り中フラグを立ててから、Core 1の送信状態を確認する
     infrared_reading.store(true);
@@ -139,25 +140,25 @@ bool try_read_infra(packet &received_packet)
         return false;
     }
 
-    const bool received = infra.read();
+    const bool received = infra::packet.read();
     if (received)
-        received_packet = infra.rx;
+        received_data = infra::packet.rx;
 
     infrared_reading.store(false);
     return received;
 }
 
-void send_infra_packet(const packet &outgoing_packet)
+void send_infra_data(const infra::data &outgoing_data)
 {
     // Core 1は送信中フラグを立ててから、Core 0の読み取り完了を待つ
     infrared_sending.store(true);
     while (infrared_reading.load())
         delayMicroseconds(20);
 
-    const packet previous_tx = infra.tx;
-    infra.tx = outgoing_packet;
-    infra.send();
-    infra.tx = previous_tx;
+    const infra::data previous_tx = infra::packet.tx;
+    infra::packet.tx = outgoing_data;
+    infra::packet.send();
+    infra::packet.tx = previous_tx;
 
     infrared_sending.store(false);
 }
@@ -170,25 +171,25 @@ void setup()
 
 void loop()
 {
-    packet received_packet{};
-    const bool received = try_read_infra(received_packet);
+    infra::data received_data{};
+    const bool received = try_read_infra(received_data);
 
     if (!received)
         return;
 
-    const bool is_ack = get_j(received_packet.j);
-    const uint8_t id = get_id(received_packet.j);
+    const bool is_ack = get_j(received_data.j);
+    const uint8_t id = get_id(received_data.j);
 
-    if (id != friends_id)
+    if (id != infra::friends_id)
         return;
 
     if (is_ack)
     {
         if (!j1_recv.load(std::memory_order_acquire))
         {
-            j1_recv_cycle = received_packet.cycle;
-            j1_recv_message_id = received_packet.message_id;
-            memcpy(j1_recv_text, received_packet.text, text_size_max);
+            j1_recv_cycle = received_data.cycle;
+            j1_recv_message_id = received_data.message_id;
+            memcpy(j1_recv_text, received_data.text, infra::text_size_max);
             j1_recv.store(true, std::memory_order_release);
         }
     }
@@ -196,9 +197,9 @@ void loop()
     {
         if (!j0_recv.load(std::memory_order_acquire))
         {
-            j0_recv_cycle = received_packet.cycle;
-            j0_recv_message_id = received_packet.message_id;
-            memcpy(j0_recv_text, received_packet.text, text_size_max);
+            j0_recv_cycle = received_data.cycle;
+            j0_recv_message_id = received_data.message_id;
+            memcpy(j0_recv_text, received_data.text, infra::text_size_max);
             j0_recv.store(true, std::memory_order_release);
         }
     }
@@ -206,13 +207,13 @@ void loop()
 
 /* core1 */
 // infra send
-// display
-// log
+// ui::display
+// record
 
 // func
-void queue_ack(const packet &ack_packet)
+void queue_ack(const infra::data &ack_data)
 {
-    pending_ack_packet = ack_packet;
+    pending_ack_data = ack_data;
     ack_pending = true;
 }
 
@@ -223,17 +224,17 @@ void recv() // 受信データを解析し受信完了コードを送信する
 
     const uint8_t received_cycle = j0_recv_cycle;
     const uint32_t received_message_id = j0_recv_message_id;
-    char received_text[text_size_max];
-    memcpy(received_text, j0_recv_text, text_size_max);
+    char received_text[infra::text_size_max];
+    memcpy(received_text, j0_recv_text, infra::text_size_max);
     j0_recv.store(false, std::memory_order_release);
 
     const size_t received_text_size =
-        packet_text_length(received_text, text_size_max);
+        packet_text_length(received_text, infra::text_size_max);
 
-    packet ack_packet{};
-    ack_packet.j = 0b10000000 | my_id;
-    ack_packet.cycle = received_cycle;
-    ack_packet.message_id = received_message_id;
+    infra::data ack_data{};
+    ack_data.j = 0b10000000 | infra::my_id;
+    ack_data.cycle = received_cycle;
+    ack_data.message_id = received_message_id;
 
     const uint32_t expect_message_id = friends_count + 1;
 
@@ -242,7 +243,7 @@ void recv() // 受信データを解析し受信完了コードを送信する
 
     if (received_message_id == expect_message_id) // 受信正常成功
     {
-        append_log(friends_id, received_cycle, received_text, received_text_size);
+        record::append(infra::friends_id, received_cycle, received_text, received_text_size);
         friends_count++;
 
         Serial.print("friend:");
@@ -251,19 +252,19 @@ void recv() // 受信データを解析し受信完了コードを送信する
             received_text_size);
         Serial.println();
 
-        queue_ack(ack_packet);
+        queue_ack(ack_data);
     }
     else if (received_message_id == friends_count) // 受信cycleが期待cycleより古い
     {
         // 同じmessage_idの再送なので本文は二重記録せず、ACKだけ再送する
-        queue_ack(ack_packet);
+        queue_ack(ack_data);
     }
     else // 受信cycleが期待cycleより新しい
     {
         // 期待する番号より先のデータは記録せず、最後に受理した番号を返す
-        ack_packet.message_id = friends_count;
-        ack_packet.cycle = static_cast<uint8_t>(friends_count);
-        queue_ack(ack_packet);
+        ack_data.message_id = friends_count;
+        ack_data.cycle = static_cast<uint8_t>(friends_count);
+        queue_ack(ack_data);
     }
 }
 
@@ -272,13 +273,13 @@ void keep_recv()
     if (!ack_pending)
         return;
 
-    // ACKは1回だけ送る。同じ本文が再送された場合はrecv()がACKを再度予約する
+    // ACKは1回だけ送り、同じ本文が再送された場合はrecv()がACKを再度予約する
     ack_pending = false;
-    utf8_printwrapped("受信完了コードを送信中", 0, 42, 128);
-    send_infra_packet(pending_ack_packet);
+    ui::utf8_printwrapped("受信完了コードを送信中", 0, 42, 128);
+    send_infra_data(pending_ack_data);
 }
 
-bool take_matching_ack(const packet &outgoing_packet)
+bool take_matching_ack(const infra::data &outgoing_data)
 {
     if (!j1_recv.load(std::memory_order_acquire))
         return false;
@@ -287,8 +288,8 @@ bool take_matching_ack(const packet &outgoing_packet)
     const uint32_t ack_message_id = j1_recv_message_id;
     j1_recv.store(false, std::memory_order_release);
 
-    return ack_cycle == outgoing_packet.cycle &&
-           ack_message_id == outgoing_packet.message_id;
+    return ack_cycle == outgoing_data.cycle &&
+           ack_message_id == outgoing_data.message_id;
 }
 
 void print_log_history()
@@ -297,9 +298,9 @@ void print_log_history()
     uint8_t id, cycle, text_len;
     const char *text;
 
-    while (get_log(num, id, cycle, text, text_len))
+    while (record::get(num, id, cycle, text, text_len))
     {
-        Serial.print(id == my_id ? "you   :" : "friend:");
+        Serial.print(id == infra::my_id ? "you   :" : "friend:");
         Serial.write(
             reinterpret_cast<const uint8_t *>(text),
             text_len);
@@ -312,7 +313,7 @@ void send(String c)
 {
     const size_t text_size = c.length();
 
-    if (text_size > text_size_max) // サイズオーバーは送らない
+    if (text_size > infra::text_size_max) // サイズオーバーは送らない
         return;
 
     if (pending_outgoing_valid)
@@ -320,7 +321,7 @@ void send(String c)
         const bool same_text =
             text_size == pending_outgoing_text_size &&
             memcmp(
-                pending_outgoing_packet.text,
+                pending_outgoing_data.text,
                 c.c_str(),
                 text_size) == 0;
 
@@ -332,14 +333,14 @@ void send(String c)
     }
     else
     {
-        memset(&pending_outgoing_packet, 0, sizeof(pending_outgoing_packet));
+        memset(&pending_outgoing_data, 0, sizeof(pending_outgoing_data));
         if (text_size > 0)
-            memcpy(pending_outgoing_packet.text, c.c_str(), text_size);
+            memcpy(pending_outgoing_data.text, c.c_str(), text_size);
 
-        pending_outgoing_packet.j = my_id;
-        pending_outgoing_packet.message_id = my_count + 1;
-        pending_outgoing_packet.cycle =
-            static_cast<uint8_t>(pending_outgoing_packet.message_id);
+        pending_outgoing_data.j = infra::my_id;
+        pending_outgoing_data.message_id = my_count + 1;
+        pending_outgoing_data.cycle =
+            static_cast<uint8_t>(pending_outgoing_data.message_id);
 
         pending_outgoing_text_size = text_size;
         pending_outgoing_valid = true;
@@ -350,19 +351,19 @@ void send(String c)
 
     const uint32_t send_started_at = millis();
     const uint32_t first_send_at =
-        send_started_at + (my_id > friends_id ? k_higherId_turn_delay_ms : 0);
+        send_started_at + (infra::my_id > infra::friends_id ? k_higherId_turn_delay_ms : 0);
     uint32_t last_send_at = 0;
     bool has_sent = false;
     bool send_success = false;
 
     while (static_cast<uint32_t>(millis() - send_started_at) < k_send_timeout_ms)
     {
-        utf8_printwrapped("データを送信中", 0, 14, 128);
+        ui::utf8_printwrapped("データを送信中", 0, 14, 128);
 
         if (j0_recv.load(std::memory_order_acquire))
             recv();
 
-        if (take_matching_ack(pending_outgoing_packet))
+        if (take_matching_ack(pending_outgoing_data))
         {
             send_success = true;
             break;
@@ -379,43 +380,43 @@ void send(String c)
 
         if (first_send_due || retry_due)
         {
-            send_infra_packet(pending_outgoing_packet);
+            send_infra_data(pending_outgoing_data);
             last_send_at = millis();
             has_sent = true;
 
-            if (take_matching_ack(pending_outgoing_packet))
+            if (take_matching_ack(pending_outgoing_data))
             {
                 send_success = true;
                 break;
             }
         }
 
-        display.sendBuffer();
-        display.clearBuffer();
+        ui::display.sendBuffer();
+        ui::display.clearBuffer();
         delay(1);
     }
 
     if (send_success)
     {
-        append_log(
-            my_id,
-            pending_outgoing_packet.cycle,
-            pending_outgoing_packet.text,
+        record::append(
+            infra::my_id,
+            pending_outgoing_data.cycle,
+            pending_outgoing_data.text,
             pending_outgoing_text_size);
 
-        my_count = pending_outgoing_packet.message_id;
+        my_count = pending_outgoing_data.message_id;
         pending_outgoing_valid = false;
 
         Serial.print("you   :");
         Serial.write(
-            reinterpret_cast<const uint8_t *>(pending_outgoing_packet.text),
+            reinterpret_cast<const uint8_t *>(pending_outgoing_data.text),
             pending_outgoing_text_size);
         Serial.println();
     }
 
-    display.clearBuffer();
-    utf8_printwrapped((send_success ? "送信成功" : "送信失敗"), 0, 14, 128);
-    display.sendBuffer();
+    ui::display.clearBuffer();
+    ui::utf8_printwrapped((send_success ? "送信成功" : "送信失敗"), 0, 14, 128);
+    ui::display.sendBuffer();
 }
 
 void setup1()
@@ -426,16 +427,22 @@ void setup1()
     Wire1.setSDA(2); // GP2
     Wire1.setSCL(3); // GP3
 
-    // display
-    display.begin();
-    display.enableUTF8Print();
-    display.setFont(u8g2_font_b10_t_japanese1);
-    display.setFontPosBaseline();
-    display.clearBuffer();
-    display.sendBuffer();
+    // ui::display
+    ui::display.begin();
+    ui::display.enableUTF8Print();
+    ui::display.setFont(u8g2_font_b10_t_japanese1);
+    ui::display.setFontPosBaseline();
+    ui::display.clearBuffer();
+    ui::display.sendBuffer();
 
     // infra
-    infra.begin(8, 26); // TX=GP8, RX=GP26
+    infra::packet.begin(8, 26); // TX=GP8, RX=GP26
+
+    // button
+    front_btn.begin(4, INPUT_PULLUP);
+    right_btn.begin(5, INPUT_PULLUP);
+    left_btn.begin(6, INPUT_PULLUP);
+    rear_btn.begin(7, INPUT_PULLUP);
 
     // id確定
     String a;
@@ -444,67 +451,67 @@ void setup1()
     uint32_t last_time = millis();
     do
     {
-        my_id = hardware_random(0, 127);
-        infra.tx.j = (my_id) | 0b10000000; // 8bit目を1にしてj確定
-        infra.tx.cycle = 0;
-        infra.tx.message_id = 0;
-        memset(infra.tx.text, 0, text_size_max);
+        infra::my_id = hardware_random(0, 127);
+        infra::packet.tx.j = (infra::my_id) | 0b10000000; // 8bit目を1にしてj確定
+        infra::packet.tx.cycle = 0;
+        infra::packet.tx.message_id = 0;
+        memset(infra::packet.tx.text, 0, infra::text_size_max);
 
-        while (!infra.update())
+        while (!infra::packet.update())
         {
-            display.clearBuffer();
+            ui::display.clearBuffer();
 
-            a = "自分のID:" + String(my_id);
+            a = "自分のID:" + String(infra::my_id);
             strncpy(a_array, a.c_str(), 31);
-            utf8_printwrapped(a_array, 0, 14, 128);
+            ui::utf8_printwrapped(a_array, 0, 14, 128);
             uint32_t pass_time = millis() - last_time;
             a = "友達探索中... " + String(static_cast<int>(pass_time / 1000)) + "秒";
             strncpy(a_array, a.c_str(), 31);
-            utf8_printwrapped(a_array, 0, 28, 128);
+            ui::utf8_printwrapped(a_array, 0, 28, 128);
 
-            display.sendBuffer();
+            ui::display.sendBuffer();
         }
-        friends_id = (infra.rx.j) & 0b01111111; // 8bit目を0にしてfriends_id確定
-    } while (my_id == friends_id);
+        infra::friends_id = (infra::packet.rx.j) & 0b01111111; // 8bit目を0にしてfriends_id確定
+    } while (infra::my_id == infra::friends_id);
 
     timer keep;
     keep.reset();
     while (keep.msTime() < 5000)
     {
-        infra.update();
+        infra::packet.update();
 
-        display.clearBuffer();
+        ui::display.clearBuffer();
 
-        a = "自分のID:" + String(my_id);
+        a = "自分のID:" + String(infra::my_id);
         strncpy(a_array, a.c_str(), 31);
-        utf8_printwrapped(a_array, 0, 14, 128);
-        a = "友達のID:" + String(friends_id);
+        ui::utf8_printwrapped(a_array, 0, 14, 128);
+        a = "友達のID:" + String(infra::friends_id);
         strncpy(a_array, a.c_str(), 31);
-        utf8_printwrapped(a_array, 0, 28, 128);
+        ui::utf8_printwrapped(a_array, 0, 28, 128);
         a = "通信安定化... " + String(static_cast<int>(keep.msTime() / 1000)) + "秒";
         strncpy(a_array, a.c_str(), 31);
-        utf8_printwrapped(a_array, 0, 42, 128);
+        ui::utf8_printwrapped(a_array, 0, 42, 128);
 
-        display.sendBuffer();
+        ui::display.sendBuffer();
     }
 
-    display.clearBuffer();
+    ui::display.clearBuffer();
 
-    a = "自分のID:" + String(my_id);
+    a = "自分のID:" + String(infra::my_id);
     strncpy(a_array, a.c_str(), 31);
-    utf8_printwrapped(a_array, 0, 14, 128);
-    a = "友達のID:" + String(friends_id);
+    ui::utf8_printwrapped(a_array, 0, 14, 128);
+    a = "友達のID:" + String(infra::friends_id);
     strncpy(a_array, a.c_str(), 31);
-    utf8_printwrapped(a_array, 0, 28, 128);
+    ui::utf8_printwrapped(a_array, 0, 28, 128);
 
-    display.sendBuffer();
+    ui::display.sendBuffer();
 
-    infra.rx.cycle = 0;
-    infra.rx.message_id = 0;
-    infra.rx.j = 0;
-    infra.tx.cycle = 0;
-    infra.tx.message_id = 0;
-    infra.tx.j = 0;
+    infra::packet.rx.cycle = 0;
+    infra::packet.rx.message_id = 0;
+    infra::packet.rx.j = 0;
+    infra::packet.tx.cycle = 0;
+    infra::packet.tx.message_id = 0;
+    infra::packet.tx.j = 0;
     delay(1000);
 
     setup1_ok.store(true, std::memory_order_release);
@@ -523,11 +530,11 @@ void loop1()
         {
             print_log_history();
         }
-        else if (c.length() > 0 && c.length() <= text_size_max)
+        else if (c.length() > 0 && c.length() <= infra::text_size_max)
         {
             send_ready = true;
         }
-        else if (c.length() > text_size_max)
+        else if (c.length() > infra::text_size_max)
         {
             Serial.println("文章を短くしてください");
         }
@@ -544,956 +551,6 @@ void loop1()
 
     keep_recv();
 
-    display.sendBuffer();
-    display.clearBuffer();
+    ui::display.sendBuffer();
+    ui::display.clearBuffer();
 }
-
-#ifdef C
-
-/* common */
-
-// var
-volatile uint32_t friends_count = 0; // 友達の(自分が受信した)メッセージの数
-volatile uint32_t my_count = 0;      // 自分の(自分が送信した)メッセージの数
-
-// signal
-std::atomic<bool> j0_recv{false}; // j=0の未処理データがある
-uint8_t j0_recv_cycle = 0;
-char j0_recv_text[text_size_max];
-
-std::atomic<bool> j1_recv{false}; // j=1の未処理応答がある
-uint8_t j1_recv_cycle = 0;
-char j1_recv_text[text_size_max];
-
-std::atomic<bool> setup1_ok{false}; // setup1が完了した
-
-// func
-/**
- * @brief 真の乱数生成関数
- *
- * @param min_val   乱数の最小値
- * @param max_val   乱数の最大値
- *
- * @return min_val から max_val までの整数
- */
-int hardware_random(int min_val, int max_val)
-{
-    if (max_val < min_val)
-    {
-        return min_val;
-    }
-
-    uint64_t range =
-        (uint64_t)((int64_t)max_val - (int64_t)min_val + 1);
-
-    uint64_t threshold = (uint64_t)(-range) % range;
-    uint64_t r;
-
-    do
-    {
-        r = ((uint64_t)rp2040.hwrand32() << 32) | rp2040.hwrand32();
-    } while (r < threshold);
-
-    return (int)((int64_t)min_val + (int64_t)(r % range));
-}
-
-/**
- * @brief 周期カウント(T=256)同士を比較する関数
- * @attention 128を境にcycleの大小を比較 diffが128当たりの時は正確な大小比較ではなくなる
- *
- * @param[in]   cycle1  比較カウント
- * @param[in]   cycle2  比較カウント
- * @param[out]  diff    カウント同士の差(正のみ)
- *
- * @return 1 (cycle1>cycle2),または0 (cycle1==cycle2),または-1 (cycle1<cycle2)
- */
-int compare_cycle(uint8_t cycle1, uint8_t cycle2, uint8_t &diff)
-{
-    const uint8_t forward = static_cast<uint8_t>(cycle1 - cycle2);
-
-    if (forward == 0)
-    {
-        diff = 0;
-        return 0;
-    }
-
-    if (forward < 128)
-    {
-        diff = forward;
-        return 1;
-    }
-
-    if (forward > 128)
-    {
-        diff = static_cast<uint8_t>(256 - forward);
-        return -1;
-    }
-
-    diff = 128;
-    return cycle1 > cycle2 ? 1 : -1;
-}
-
-/* core0 */
-// infra recv
-
-// func
-uint8_t get_id(uint8_t j) { return j & 0b01111111; }
-bool get_j(uint8_t j) { return static_cast<bool>(j & 0b10000000); }
-
-size_t packet_text_length(const char *text, size_t capacity)
-{
-    size_t length = 0;
-    while (length < capacity && text[length] != '\0')
-        length++;
-    return length;
-}
-
-void setup()
-{
-    while (!setup1_ok.load(std::memory_order_acquire)) // setup1が終わるまで待つ
-        ;
-}
-
-void loop()
-{
-    const bool received = infra.read();
-
-    if (!received)
-        return;
-
-    const bool is_ack = get_j(infra.rx.j);
-    const uint8_t id = get_id(infra.rx.j);
-
-    if (id != friends_id)
-        return;
-
-    if (is_ack)
-    {
-        if (!j1_recv.load(std::memory_order_acquire))
-        {
-            j1_recv_cycle = infra.rx.cycle;
-            memcpy(j1_recv_text, infra.rx.text, text_size_max);
-            j1_recv.store(true, std::memory_order_release);
-        }
-    }
-    else
-    {
-        if (!j0_recv.load(std::memory_order_acquire))
-        {
-            j0_recv_cycle = infra.rx.cycle;
-            memcpy(j0_recv_text, infra.rx.text, text_size_max);
-            j0_recv.store(true, std::memory_order_release);
-        }
-    }
-}
-
-/* core1 */
-// infra send
-// display
-// log
-
-// func
-void recv() // 受信データを解析し受信完了コードを送信する
-{
-    if (!j0_recv.load(std::memory_order_acquire))
-        return;
-
-    const uint8_t received_cycle = j0_recv_cycle;
-    char received_text[text_size_max];
-    memcpy(received_text, j0_recv_text, text_size_max);
-    j0_recv.store(false, std::memory_order_release);
-
-    const size_t received_text_size =
-        packet_text_length(received_text, text_size_max);
-
-    const uint8_t expect_j0_recv_cycle =
-        static_cast<uint8_t>((friends_count + 1) % 256);
-
-    uint8_t d = 0;
-
-    memset(infra.tx.text, 0, text_size_max);
-
-    switch (compare_cycle(received_cycle, expect_j0_recv_cycle, d))
-    {
-    case 0: // 受信正常成功
-        infra.tx.j = 0b10000000 | my_id;
-        infra.tx.cycle = received_cycle;
-
-        append_log(friends_id, received_cycle, received_text, received_text_size);
-        friends_count++;
-        break;
-
-    case 1: // 受信cycleが期待cycleより新しい
-        infra.tx.j = 0b10000000 | my_id;
-        infra.tx.cycle = static_cast<uint8_t>(expect_j0_recv_cycle - 1);
-        break;
-
-    case -1: // 受信cycleが期待cycleより古い
-        infra.tx.j = 0b10000000 | my_id;
-        infra.tx.cycle = received_cycle;
-
-        reappend_log(friends_id, received_cycle, received_text, received_text_size);
-        delete_log(
-            friends_id,
-            static_cast<uint8_t>(received_cycle + 1),
-            static_cast<uint8_t>(expect_j0_recv_cycle - 1));
-
-        friends_count = friends_count + 1 - d;
-        break;
-    }
-}
-
-void keep_recv()
-{
-    if (get_j(infra.tx.j))
-    {
-        utf8_printwrapped("受信完了コードを送信中", 0, 42, 128);
-        infra.send();
-    }
-}
-
-void send(String c)
-{
-    const size_t text_size = c.length();
-
-    if (text_size > text_size_max) // サイズオーバーは送らない
-        return;
-
-    memset(infra.tx.text, 0, text_size_max);
-    if (text_size > 0)
-        memcpy(infra.tx.text, c.c_str(), text_size);
-
-    infra.tx.j = my_id;
-    infra.tx.cycle = static_cast<uint8_t>((my_count + 1) % 256);
-
-    timer send_timer;
-    send_timer.reset();
-    bool send_success = false;
-
-    while (send_timer.msTime() < 5000UL) // 5秒でタイムアウト
-    {
-        utf8_printwrapped("データを送信中", 0, 14, 128);
-
-        if (j0_recv.load(std::memory_order_acquire) &&
-            my_id < friends_id) // 自分のidの方が小さい かつ 受信 するとまず recv処理を行う
-        {
-            packet outgoing_packet = infra.tx; // send用のpacketデータを記録しておく
-
-            recv();
-
-            timer recv_timer;
-            recv_timer.reset();
-            while (recv_timer.msTime() < 5000UL)
-            {
-                keep_recv();
-
-                display.sendBuffer();
-                display.clearBuffer();
-            }
-
-            infra.tx = outgoing_packet; // send処理に移る
-        }
-
-        infra.send();
-
-        if (j1_recv.load(std::memory_order_acquire))
-        {
-            const uint8_t ack_cycle = j1_recv_cycle;
-            const uint8_t sent_cycle = infra.tx.cycle;
-            uint8_t d = 0;
-
-            switch (compare_cycle(sent_cycle, ack_cycle, d))
-            {
-            case 0: // 送信正常完了
-                send_success = true;
-                append_log(my_id, sent_cycle, infra.tx.text, text_size);
-                my_count++;
-                break;
-
-            case 1: // 送信cycleの方が新しい
-                delete_log(
-                    my_id,
-                    static_cast<uint8_t>(ack_cycle + 1),
-                    static_cast<uint8_t>(sent_cycle - 1));
-
-                my_count = my_count + 1 - d;
-
-                infra.tx.cycle = static_cast<uint8_t>((my_count + 1) % 256);
-                break;
-
-            default:
-                send_success = false;
-                break;
-            }
-
-            j1_recv.store(false, std::memory_order_release);
-        }
-
-        if (send_success)
-            break;
-
-        display.sendBuffer();
-        display.clearBuffer();
-    }
-
-    display.clearBuffer();
-    utf8_printwrapped((send_success ? "送信成功" : "送信失敗"), 0, 14, 128);
-    display.sendBuffer();
-
-    send_timer.reset();
-    while (send_timer.msTime() < 1000)
-    {
-        if (j0_recv.load(std::memory_order_acquire))
-            break;
-    }
-
-    display.clearBuffer();
-}
-
-void setup1()
-{
-    Serial.begin(115200); // pc
-
-    Wire1.setSDA(2); // GP2
-    Wire1.setSCL(3); // GP3
-
-    // display
-    display.begin();
-    display.enableUTF8Print();
-    display.setFont(u8g2_font_b10_t_japanese1);
-    display.setFontPosBaseline();
-    display.clearBuffer();
-    display.sendBuffer();
-
-    // infra
-    infra.begin(8, 26); // TX=GP8, RX=GP26
-
-    // id確定
-    String a;
-    char a_array[31];
-
-    uint32_t last_time = millis();
-    do
-    {
-        my_id = hardware_random(0, 127);
-        infra.tx.j = (my_id) | 0b10000000; // 8bit目を1にしてj確定
-        while (!infra.update())
-        {
-            display.clearBuffer();
-
-            a = "あなたのID:" + String(my_id);
-            strncpy(a_array, a.c_str(), 31);
-            utf8_printwrapped(a_array, 0, 14, 128);
-            uint32_t pass_time = millis() - last_time;
-            a = "友達探索中... " + String(static_cast<int>(pass_time / 1000)) + "秒";
-            strncpy(a_array, a.c_str(), 31);
-            utf8_printwrapped(a_array, 0, 28, 128);
-
-            display.sendBuffer();
-        }
-        friends_id = (infra.rx.j) & 0b01111111; // 8bit目を0にしてfriends_id確定
-    } while (my_id == friends_id);
-
-    timer keep;
-    keep.reset();
-    while (keep.msTime() < 5000)
-    {
-        infra.update();
-
-        display.clearBuffer();
-
-        a = "あなたのID:" + String(my_id);
-        strncpy(a_array, a.c_str(), 31);
-        utf8_printwrapped(a_array, 0, 14, 128);
-        a = "友達のID:" + String(friends_id);
-        strncpy(a_array, a.c_str(), 31);
-        utf8_printwrapped(a_array, 0, 28, 128);
-        a = "通信安定化... " + String(static_cast<int>(keep.msTime() / 1000)) + "秒";
-        strncpy(a_array, a.c_str(), 31);
-        utf8_printwrapped(a_array, 0, 42, 128);
-
-        display.sendBuffer();
-    }
-
-    display.clearBuffer();
-
-    a = "あなたのID:" + String(my_id);
-    strncpy(a_array, a.c_str(), 31);
-    utf8_printwrapped(a_array, 0, 14, 128);
-    a = "友達のID:" + String(friends_id);
-    strncpy(a_array, a.c_str(), 31);
-    utf8_printwrapped(a_array, 0, 28, 128);
-
-    display.sendBuffer();
-
-    infra.rx.cycle = 0;
-    infra.rx.j = 0;
-    infra.tx.cycle = 0;
-    infra.tx.j = 0;
-    delay(1000);
-
-    setup1_ok.store(true, std::memory_order_release);
-}
-
-void loop1()
-{
-    bool send_ready = false;
-    String c;
-    if (Serial.available() > 0)
-    {
-        c = Serial.readStringUntil('\n');
-        c.trim();
-        if (c.length() <= text_size_max)
-        {
-            send_ready = true;
-        }
-        else
-        {
-            Serial.println("文章を短くしてください");
-        }
-    }
-
-    if (send_ready)
-    {
-        send(c);
-    }
-    else if (j0_recv.load(std::memory_order_acquire))
-    {
-        recv();
-    }
-
-    keep_recv();
-
-    uint8_t s_id, s_cycle, s_text_len;
-    const char *s_text;
-
-    if (get_log(0, s_id, s_cycle, s_text, s_text_len))
-    {
-        String s;
-        char s_array[70];
-        if (s_id == friends_id)
-            s = "友達:" + String(s_text);
-        else
-            s = "あなた:" + String(s_text);
-
-        if (s.length() <= 70)
-        {
-            strncpy(s_array, s.c_str(), 70);
-            utf8_printwrapped(s_array, 0, 28, 128);
-        }
-    }
-
-    display.sendBuffer();
-    display.clearBuffer();
-}
-
-// packet の実サイズは count 1 byte + text 51 bytes = 52 bytes。
-#define INFRA_PACKET_MAX_PAYLOAD (52 + 2)
-#define NO_LED_SEND_FEEDBACK_CODE
-#include "common/infra_packet.hpp"
-
-#include <Wire.h>
-#include <U8g2lib.h>
-
-// Core 1だけがOLEDを操作する。
-U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C display(
-    U8G2_R0,
-    U8X8_PIN_NONE);
-
-constexpr uint8_t kTextCapacity = 50; // UTF-8では文字数でなくバイト数
-constexpr uint8_t kTextBufferSize = kTextCapacity + 1;
-constexpr uint8_t kRecordRecv = 127;
-constexpr uint8_t kRecordSend = 126;
-constexpr size_t ktextlogSize = 2048;
-constexpr size_t kSerialLineBufferSize = 160;
-constexpr uint32_t kSerialIdleFlushMs = 500;
-
-struct packet
-{
-    uint8_t count = 0;
-    char text[kTextBufferSize] = {};
-} __attribute__((packed));
-
-infra_packet<packet, packet> infra;
-
-struct DisplayEvent
-{
-    uint8_t direction = 0;
-    uint8_t len = 0;
-    char text[kTextBufferSize] = {};
-};
-
-struct TxRequest
-{
-    uint8_t count = 0;
-    uint8_t len = 0;
-    char text[kTextBufferSize] = {};
-};
-
-// 単一producer / 単一consumerの固定長キュー。
-// DisplayEvent: Core 0 -> Core 1、TxRequest: Core 1 -> Core 0。
-template <class T, uint8_t Capacity>
-class SpscQueue
-{
-private:
-    static_assert(Capacity >= 2, "Queue capacity must be at least 2");
-    T _items[Capacity] = {};
-    std::atomic<uint8_t> _head{0};
-    std::atomic<uint8_t> _tail{0};
-
-public:
-    // 1枠を空/満杯の区別に使うため、Capacity=16なら15件保持できる。
-    bool push(const T &item)
-    {
-        const uint8_t head = _head.load(std::memory_order_relaxed);
-        const uint8_t next = static_cast<uint8_t>((head + 1) % Capacity);
-        if (next == _tail.load(std::memory_order_acquire))
-            return false;
-
-        _items[head] = item;
-        _head.store(next, std::memory_order_release);
-        return true;
-    }
-
-    bool pop(T &item)
-    {
-        const uint8_t tail = _tail.load(std::memory_order_relaxed);
-        if (tail == _head.load(std::memory_order_acquire))
-            return false;
-
-        item = _items[tail];
-        const uint8_t next = static_cast<uint8_t>((tail + 1) % Capacity);
-        _tail.store(next, std::memory_order_release);
-        return true;
-    }
-};
-
-SpscQueue<DisplayEvent, 16> displayQueue;
-SpscQueue<TxRequest, 8> txQueue;
-
-// Serial.begin()はCore 0、USB Serialの読み書きはCore 1に集約する。
-volatile bool serialReady = false;
-
-// Core 1だけが所有する表示履歴。
-char textlog[ktextlogSize] = {};
-size_t textlog_targetindex = 0;
-DisplayEvent latestDisplayEvent;
-bool hasDisplayEvent = false;
-bool displayDirty = false;
-uint8_t nextTxCount = 0;
-
-// Core 1だけが所有するSerial行バッファ。
-char serialLine[kSerialLineBufferSize] = {};
-size_t serialLineLength = 0;
-bool serialLineOverflow = false;
-bool previousSerialCharWasCR = false;
-uint32_t serialLastByteAt = 0;
-
-// Core 0だけが所有する送信待ち状態。
-bool pendingTx = false;
-uint8_t txRepeatsLeft = 0;
-uint32_t txNotBefore = 0;
-
-uint8_t utf8CharBytes(const uint8_t *p)
-{
-    if ((*p & 0x80) == 0x00)
-        return 1;
-    if ((*p & 0xE0) == 0xC0)
-        return 2;
-    if ((*p & 0xF0) == 0xE0)
-        return 3;
-    if ((*p & 0xF8) == 0xF0)
-        return 4;
-    return 1;
-}
-
-void printWrappedUTF8(
-    const char *text,
-    uint16_t x,
-    uint16_t baselineY,
-    uint16_t maxWidth,
-    uint8_t asciiGapPx = 1)
-{
-    const uint16_t screenWidth = display.getDisplayWidth();
-    if (x >= screenWidth)
-        return;
-    if (maxWidth > screenWidth - x)
-        maxWidth = screenWidth - x;
-
-    const uint16_t rightEdge = x + maxWidth;
-    const uint16_t linePitch = display.getMaxCharHeight() + 2;
-    uint16_t cursorX = x;
-    uint16_t cursorY = baselineY;
-    const uint8_t *p = reinterpret_cast<const uint8_t *>(text);
-
-    while (*p != '\0')
-    {
-        if (*p == '\r')
-        {
-            ++p;
-            continue;
-        }
-        if (*p == '\n')
-        {
-            cursorX = x;
-            cursorY += linePitch;
-            ++p;
-            continue;
-        }
-
-        const uint8_t bytes = utf8CharBytes(p);
-        char glyph[5];
-        for (uint8_t i = 0; i < bytes; ++i)
-            glyph[i] = static_cast<char>(p[i]);
-        glyph[bytes] = '\0';
-
-        const uint16_t glyphWidth = display.getUTF8Width(glyph);
-        const bool isAsciiLetterOrDigit =
-            bytes == 1 &&
-            ((glyph[0] >= 'A' && glyph[0] <= 'Z') ||
-             (glyph[0] >= 'a' && glyph[0] <= 'z') ||
-             (glyph[0] >= '0' && glyph[0] <= '9'));
-        const uint8_t gap = isAsciiLetterOrDigit ? asciiGapPx : 0;
-
-        if (cursorX > x && cursorX + glyphWidth > rightEdge)
-        {
-            cursorX = x;
-            cursorY += linePitch;
-        }
-
-        display.setCursor(cursorX, cursorY);
-        display.print(glyph);
-        cursorX += glyphWidth + gap;
-        p += bytes;
-    }
-}
-
-void appendtextlog(uint8_t direction, const char *data, uint8_t len)
-{
-    if (len > kTextCapacity)
-        return;
-
-    const size_t needed = 2 + len;
-    while (textlog_targetindex + needed > ktextlogSize)
-    {
-        if (textlog_targetindex < 2)
-        {
-            textlog_targetindex = 0;
-            break;
-        }
-
-        const uint8_t oldLen = static_cast<uint8_t>(textlog[1]);
-        const size_t oldSize = 2 + oldLen;
-        if (oldSize > textlog_targetindex)
-        {
-            textlog_targetindex = 0;
-            break;
-        }
-
-        memmove(textlog,
-                textlog + oldSize,
-                textlog_targetindex - oldSize);
-        textlog_targetindex -= oldSize;
-    }
-
-    textlog[textlog_targetindex++] = static_cast<char>(direction);
-    textlog[textlog_targetindex++] = static_cast<char>(len);
-    if (len > 0)
-    {
-        memcpy(textlog + textlog_targetindex, data, len);
-        textlog_targetindex += len;
-    }
-}
-
-bool readRecordHeader(const char *data, size_t used, size_t idx,
-                      uint8_t &direction, uint8_t &len)
-{
-    if (idx > used || used - idx < 2)
-        return false;
-
-    direction = static_cast<uint8_t>(data[idx]);
-    len = static_cast<uint8_t>(data[idx + 1]);
-    if ((direction != kRecordRecv && direction != kRecordSend) ||
-        len > kTextCapacity || len > used - idx - 2)
-        return false;
-    return true;
-}
-
-void showtextlog()
-{
-    size_t i = 0;
-    while (i < textlog_targetindex)
-    {
-        uint8_t direction;
-        uint8_t len;
-        if (!readRecordHeader(textlog, textlog_targetindex,
-                              i, direction, len))
-        {
-            Serial.println("[record error]");
-            break;
-        }
-
-        Serial.print(direction == kRecordRecv ? "friend:" : "you   :");
-        Serial.write(reinterpret_cast<const uint8_t *>(textlog + i + 2), len);
-        Serial.println();
-        i += 2 + len;
-    }
-}
-
-void setLatestDisplayEvent(uint8_t direction, const char *data, uint8_t len)
-{
-    if (len > kTextCapacity)
-        return;
-
-    latestDisplayEvent = DisplayEvent{};
-    latestDisplayEvent.direction = direction;
-    latestDisplayEvent.len = len;
-    if (len > 0)
-        memcpy(latestDisplayEvent.text, data, len);
-    latestDisplayEvent.text[len] = '\0';
-    hasDisplayEvent = true;
-    displayDirty = true;
-}
-
-void drawLatestEvent()
-{
-    if (!hasDisplayEvent)
-        return;
-
-    display.clearBuffer();
-    display.setCursor(0, 13);
-    display.print(latestDisplayEvent.direction == kRecordRecv
-                      ? "friend:"
-                      : "you   :");
-    printWrappedUTF8(latestDisplayEvent.text, 0, 28, 128);
-    display.sendBuffer();
-}
-
-void finishSerialLine()
-{
-    if (serialLineOverflow)
-    {
-        Serial.println("input line too long; trim it to 50 bytes or fewer");
-    }
-    else
-    {
-        serialLine[serialLineLength] = '\0';
-
-        size_t begin = 0;
-        size_t end = strlen(serialLine);
-        while (begin < end && isspace(static_cast<unsigned char>(serialLine[begin])))
-            ++begin;
-        while (end > begin && isspace(static_cast<unsigned char>(serialLine[end - 1])))
-            --end;
-        const size_t len = end - begin;
-        if (begin > 0)
-            memmove(serialLine, serialLine + begin, len);
-        serialLine[len] = '\0';
-
-        if (len > 0)
-        {
-            if (strcmp(serialLine, "show") == 0)
-            {
-                showtextlog();
-            }
-            else if (len > kTextCapacity)
-            {
-                Serial.println("trim your text to 50 bytes or fewer");
-            }
-            else
-            {
-                TxRequest request{};
-                request.count = (nextTxCount > 200)
-                                    ? 0
-                                    : static_cast<uint8_t>(nextTxCount + 1);
-                request.len = static_cast<uint8_t>(len);
-                memcpy(request.text, serialLine, len);
-                request.text[len] = '\0';
-
-                if (txQueue.push(request))
-                {
-                    nextTxCount = request.count;
-                    appendtextlog(kRecordSend, serialLine, request.len);
-                    setLatestDisplayEvent(kRecordSend, serialLine, request.len);
-                    Serial.print("[TX queued] bytes=");
-                    Serial.println(request.len);
-                }
-                else
-                {
-                    Serial.println("[TX queue full] wait and try again");
-                }
-            }
-        }
-    }
-
-    serialLineLength = 0;
-    serialLineOverflow = false;
-}
-
-void pollSerialInput()
-{
-    while (Serial.available() > 0)
-    {
-        const char ch = static_cast<char>(Serial.read());
-        serialLastByteAt = millis();
-        if (ch == '\r' || ch == '\n')
-        {
-            const bool secondCrLfChar = (ch == '\n' && previousSerialCharWasCR);
-            previousSerialCharWasCR = (ch == '\r');
-            if (!secondCrLfChar)
-                finishSerialLine();
-            continue;
-        }
-
-        previousSerialCharWasCR = false;
-        if (!serialLineOverflow)
-        {
-            if (serialLineLength + 1 < kSerialLineBufferSize)
-                serialLine[serialLineLength++] = ch;
-            else
-                serialLineOverflow = true;
-        }
-    }
-
-    // 改行を送らないシリアルモニターでも、入力が止まったら1行として扱う。
-    if ((serialLineLength > 0 || serialLineOverflow) &&
-        millis() - serialLastByteAt >= kSerialIdleFlushMs)
-    {
-        finishSerialLine();
-        previousSerialCharWasCR = false;
-    }
-}
-
-void handleReceivedPacket()
-{
-    static bool havePrevious = false;
-    static uint8_t previousCount = 0;
-    static uint8_t previousLen = 0;
-    static char previousText[kTextBufferSize] = {};
-
-    const uint8_t count = infra.rx.count;
-    size_t len = 0;
-    while (len < kTextCapacity && infra.rx.text[len] != '\0')
-        ++len;
-
-    const bool isNew = !havePrevious ||
-                       count != previousCount ||
-                       len != previousLen ||
-                       memcmp(infra.rx.text, previousText, len) != 0;
-
-    previousCount = count;
-    previousLen = static_cast<uint8_t>(len);
-    memcpy(previousText, infra.rx.text, len);
-    previousText[len] = '\0';
-    havePrevious = true;
-
-    // 起動時に相手が繰り返す空の初期パケットは表示しない。
-    if (!isNew || len == 0)
-        return;
-
-    DisplayEvent event{};
-    event.direction = kRecordRecv;
-    event.len = static_cast<uint8_t>(len);
-    memcpy(event.text, infra.rx.text, len);
-    event.text[len] = '\0';
-    if (!displayQueue.push(event))
-        return; // OLED側が遅れても赤外線受信処理を止めない
-}
-
-bool timeReached(uint32_t now, uint32_t target)
-{
-    return static_cast<int32_t>(now - target) >= 0;
-}
-
-void loadNextTxRequest()
-{
-    if (pendingTx)
-        return;
-
-    TxRequest request;
-    if (!txQueue.pop(request))
-        return;
-
-    infra.tx.count = request.count;
-    memset(infra.tx.text, 0, sizeof(infra.tx.text));
-    memcpy(infra.tx.text, request.text, request.len);
-
-    pendingTx = true;
-    txRepeatsLeft = 2; // 2回送って受信機会を増やす。受信側はcountで重複を除く。
-    txNotBefore = millis() + 50 + (micros() % 800); // 同時送信の衝突を減らす
-}
-
-// Core 0: Infraだけを所有する。update()の自動定期送信は使わず、
-// USB Serial/OLEDを止めずに済むよう、要求がある時だけsend()する。
-void setup()
-{
-    Serial.begin(115200); // Arduino-PicoのUSB CDCではbaud値は実通信速度に使われない
-    infra.begin(8, 26);    // TX=GP8, RX=GP26
-    serialReady = true;
-}
-
-void loop()
-{
-    // 受信は常にポーリングする。Infraとinfra.rxはCore 0だけから触る。
-    if (infra.read())
-        handleReceivedPacket();
-
-    loadNextTxRequest();
-
-    if (pendingTx &&
-        timeReached(millis(), txNotBefore) &&
-        IrReceiver.isIdle())
-    {
-        infra.send(); // 送信中Core 0はブロックするが、Serial/OLEDのCore 1は動き続ける。
-        --txRepeatsLeft;
-        if (txRepeatsLeft == 0)
-        {
-            pendingTx = false;
-        }
-        else
-        {
-            txNotBefore = millis() + 80 + (micros() % 250);
-        }
-    }
-}
-
-// Core 1: OLED、USB Serial、recordtextを所有する。
-void setup1()
-{
-    Wire1.setSDA(2); // GP2
-    Wire1.setSCL(3); // GP3
-    display.begin();
-    display.enableUTF8Print();
-    display.setFont(u8g2_font_b10_t_japanese1);
-    display.setFontPosBaseline();
-    display.clearBuffer();
-    display.setCursor(0, 14);
-    display.print("RP2040 Core 1");
-    display.setCursor(0, 30);
-    display.print("OLED ready");
-    display.setCursor(0, 46);
-    display.print("waiting for message");
-    display.sendBuffer();
-}
-
-void loop1()
-{
-    // Serial処理はCore 1で続くため、赤外線send()がCore 0を占有しても入力を逃さない。
-    if (serialReady)
-        pollSerialInput();
-
-    DisplayEvent event;
-    while (displayQueue.pop(event))
-    {
-        appendtextlog(event.direction, event.text, event.len);
-        setLatestDisplayEvent(event.direction, event.text, event.len);
-    }
-
-    if (displayDirty)
-    {
-        displayDirty = false;
-        drawLatestEvent();
-    }
-}
-
-#endif

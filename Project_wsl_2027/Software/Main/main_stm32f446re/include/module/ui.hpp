@@ -58,16 +58,16 @@ namespace ui
 
     namespace TRANSMIT_DATA
     {
-        uint32_t line_angel = 0UL;
-        int16_t line_right_side_val = 0;
-        int16_t line_left_side_val = 0;
-        int16_t ball_deg = UNDETECTED;
-        int16_t ball_dis = UNDETECTED;
-        int16_t gyro_deg = UNDETECTED;
-        int16_t yellow_goal_deg = UNDETECTED;
-        int16_t yellow_goal_dis = UNDETECTED;
-        int16_t blue_goal_deg = UNDETECTED;
-        int16_t blue_goal_dis = UNDETECTED;
+        inline uint32_t line_angel = 0UL;
+        inline int16_t line_right_side_val = 0;
+        inline int16_t line_left_side_val = 0;
+        inline int16_t ball_deg = UNDETECTED;
+        inline int16_t ball_dis = UNDETECTED;
+        inline int16_t gyro_deg = UNDETECTED;
+        inline int16_t yellow_goal_deg = UNDETECTED;
+        inline int16_t yellow_goal_dis = UNDETECTED;
+        inline int16_t blue_goal_deg = UNDETECTED;
+        inline int16_t blue_goal_dis = UNDETECTED;
     }
     namespace ACTION
     {

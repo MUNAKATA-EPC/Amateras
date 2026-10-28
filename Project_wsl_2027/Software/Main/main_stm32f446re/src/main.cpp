@@ -124,14 +124,12 @@ void loop()
 
     mySerial1.print("gyro:");
     mySerial1.print(gyro.deg());
-    mySerial1.print(" ps3:");
-    mySerial1.print(ps3::stick_lx);
-    mySerial1.print(",");
-    mySerial1.print(ps3::stick_ly);
-    mySerial1.print(",");
-    mySerial1.print(ps3::stick_rdeg);
-    mySerial1.print(",");
-    mySerial1.println(ps3::stick_rdis);
+    mySerial1.print(" line:");
+    mySerial1.print(line::angel);
+    mySerial1.print(" line deg:");
+    mySerial1.print(line::angel_deg);
+    mySerial1.print(" line dis:");
+    mySerial1.println(line::angel_dis);
   }
 
   // 10ms周期
@@ -142,6 +140,9 @@ void loop()
 
     // ui更新
     ui::TRANSMIT_DATA::gyro_deg = (int16_t)gyro.deg();
+    ui::TRANSMIT_DATA::line_angel = line::angel;
+    ui::TRANSMIT_DATA::ball_deg = line::angel_deg;
+    ui::TRANSMIT_DATA::ball_dis = line::angel_dis;
     ui::TRANSMIT_DATA::yellow_goal_deg = lidar::posi_x;
     ui::TRANSMIT_DATA::yellow_goal_dis = lidar::posi_y;
     ui::TRANSMIT_DATA::blue_goal_deg = lidar::posi_enemy_x;

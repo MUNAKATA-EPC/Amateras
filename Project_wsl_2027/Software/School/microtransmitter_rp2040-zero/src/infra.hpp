@@ -20,19 +20,22 @@
 #include "common/infra_packet.hpp"
 
 //// infra ////
-struct packet
+namespace infra
 {
-    uint8_t j = 0;            // 下位7ビットはID、最上位ビットは受信完了/送信の区別
-    uint8_t cycle = 0;        // 0～255を繰り返す周期カウント
-    uint32_t message_id = 0;  // 送信データと受信完了コードを対応づける番号
-    char text[50 + 1];        // 本文領域で最大51バイト
-} __attribute__((packed));
+    struct data
+    {
+        uint8_t j = 0;           // 下位7ビットはID、最上位ビットは受信完了/送信の区別
+        uint8_t cycle = 0;       // 0～255を繰り返す周期カウント
+        uint32_t message_id = 0; // 送信データと受信完了コードを対応づける番号
+        char text[50 + 1];       // 本文領域で最大51バイト
+    } __attribute__((packed));
 
-infra_packet<packet, packet> infra;
+    infra_packet<data, data> packet;
 
-// IDには0から127の値を設定する
-uint8_t my_id = 0;
-uint8_t friends_id = 0;
+    // IDには0から127の値を設定する
+    uint8_t my_id = 0;
+    uint8_t friends_id = 0;
 
-// packetの本文領域のサイズ（51バイト）
-const size_t text_size_max = sizeof(infra.tx.text);
+    // packetの本文領域のサイズ（51バイト）
+    const size_t text_size_max = sizeof(packet.tx.text);
+}
