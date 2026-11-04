@@ -40,11 +40,17 @@ namespace line
         // r_data代入
         if (received)
         {
-            angel = packet.rx.angel;
+            angel = packet.rx.angel & 0b11111111111111111111111110111111; // 32bitのみにする
 
             angel_count = 0;
+            angel_x = 0.0f;
+            angel_y = 0.0f;
+
             for (int i = 0; i < 32; i++)
             {
+                if (i == 6)
+                    continue;
+
                 if (angel & (1UL << i))
                 {
                     angel_count++;
@@ -57,13 +63,12 @@ namespace line
             {
                 angel_x /= angel_count;
                 angel_y /= angel_count;
+
                 angel_deg = degrees(atan2f(angel_y, angel_x));
                 angel_dis = sqrtf(angel_x * angel_x + angel_y * angel_y);
             }
             else
             {
-                angel_x = 0.0f;
-                angel_y = 0.0f;
                 angel_deg = UNDETECTED;
                 angel_dis = UNDETECTED;
             }

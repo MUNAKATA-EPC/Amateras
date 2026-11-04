@@ -47,3 +47,8 @@ float deg_wrap_float(float deg)
         wrapped += 360.0f;
     return wrapped;
 }
+
+float posi_to_deg(float x, float y)
+{
+    return deg_wrap_float(degrees(atan2f(x, y)));
+}

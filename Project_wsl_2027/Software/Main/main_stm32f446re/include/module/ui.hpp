@@ -107,23 +107,24 @@ namespace ui
         ACTION::run = (is_action_state(cur_state) && (toggle == true));
 
         // M5Stackのデータを受送信 // ACTION::run中はpacketの更新は行わない
+        bool received = false;
         static timer run_wait;
         if (ACTION::run)
         {
             if (!ACTION::last_run)
             {
-                packet.update();
+                received = packet.update();
 
                 run_wait.reset();
             }
             else if (run_wait.ever_reset() && run_wait.ms_time() < 100)
             {
-                packet.update();
+                received = packet.update();
             }
         }
         else
         {
-            packet.update();
+            received = packet.update();
         }
         ACTION::last_run = ACTION::run;
 
@@ -140,13 +141,16 @@ namespace ui
         packet.tx.blue_goal_deg = TRANSMIT_DATA::blue_goal_deg;
         packet.tx.blue_goal_dis = TRANSMIT_DATA::blue_goal_dis;
         // r_data代入
-        cur_state = packet.rx.cur_state;
-        ACTION::meter_type = packet.rx.action_meter_type;
-        TEST_KICKER::btn = packet.rx.testkicker_btn;
-        TEST_KICKER::front = packet.rx.testkicker_front;
-        TEST_DRIBBLER::toggle = packet.rx.testdribbler_toggle;
-        TEST_DRIBBLER::front = packet.rx.testdribbler_front;
-        TEST_MOTOR::toggle = packet.rx.testmotor_toggle;
-        TEST_MOTOR::meter_type = packet.rx.testmotor_meter_type;
+        if (received)
+        {
+            cur_state = packet.rx.cur_state;
+            ACTION::meter_type = packet.rx.action_meter_type;
+            TEST_KICKER::btn = packet.rx.testkicker_btn;
+            TEST_KICKER::front = packet.rx.testkicker_front;
+            TEST_DRIBBLER::toggle = packet.rx.testdribbler_toggle;
+            TEST_DRIBBLER::front = packet.rx.testdribbler_front;
+            TEST_MOTOR::toggle = packet.rx.testmotor_toggle;
+            TEST_MOTOR::meter_type = packet.rx.testmotor_meter_type;
+        }
     }
 }

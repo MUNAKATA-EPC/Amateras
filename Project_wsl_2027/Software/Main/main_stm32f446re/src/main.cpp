@@ -99,7 +99,7 @@ void setup()
   sub3_toggle.begin(PC4, INPUT_PULLDOWN);
 
   // motordriver // {right_front, right_back, left_back, left_front} // 全て正1000で右回転
-  motordriver::attach({PB6, PB7}, {PB3, PA7}, {PB8, PB9}, {PB0, PB1});
+  motordriver::attach({PB6, PB7}, {PB3, PA7}, {PB8, PA11}, {PB0, PB1});
   motordriver::move(0, 0, 0, 0);
 
   cyclic_timer_1ms.begin(TIM9, 1);     // 1ms周期
@@ -122,14 +122,14 @@ void loop()
     sub2_toggle.update();
     sub3_toggle.update();
 
-    mySerial1.print("gyro:");
-    mySerial1.print(gyro.deg());
-    mySerial1.print(" line:");
-    mySerial1.print(line::angel);
-    mySerial1.print(" line deg:");
-    mySerial1.print(line::angel_deg);
-    mySerial1.print(" line dis:");
-    mySerial1.println(line::angel_dis);
+    mySerial1.print("ps3_btns: ");
+    mySerial1.print(ps3::buttons_data_bit_mask, BIN);
+    mySerial1.print(", angel: ");
+    mySerial1.print(line::angel, BIN);
+    mySerial1.print(", left_side_val: ");
+    mySerial1.print(line::left_side_val);
+    mySerial1.print(", right_side_val: ");
+    mySerial1.println(line::right_side_val);
   }
 
   // 10ms周期

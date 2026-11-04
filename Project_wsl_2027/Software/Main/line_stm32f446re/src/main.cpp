@@ -92,7 +92,7 @@ void setup()
   digitalWrite(led_pin, HIGH);
 
   analogWriteResolution(12);
-  analogWrite(vref_pin, 3000);
+  analogWrite(vref_pin, 3333); // 値が大きいと厳しい条件
 
   pinMode(left_side_pin, INPUT);
   pinMode(right_side_pin, INPUT);
@@ -123,10 +123,10 @@ void loop()
   {
     _last_tx_time = millis();
     mySerial1.print("angel: ");
-    mySerial1.print(packet.tx.angel, BIN);
-    mySerial1.print(", left_side_val: ");
-    mySerial1.print(packet.tx.left_side_val);
-    mySerial1.print(", right_side_val: ");
-    mySerial1.println(packet.tx.right_side_val);
+    mySerial1.println(packet.tx.angel, BIN);
+    // mySerial1.print(", left_side_val: ");
+    // mySerial1.print(packet.tx.left_side_val);
+    // mySerial1.print(", right_side_val: ");
+    // mySerial1.println(packet.tx.right_side_val);
   }
 }

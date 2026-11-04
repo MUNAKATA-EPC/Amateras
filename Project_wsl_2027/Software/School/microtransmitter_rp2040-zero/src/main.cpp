@@ -5,6 +5,7 @@
 #include "common/timer.hpp"
 #include "device/button.hpp"
 #include "ui.hpp"
+#include "ui_asset.hpp"
 #include "infra.hpp"
 #include "record.hpp"
 
@@ -439,10 +440,10 @@ void setup1()
     infra::packet.begin(8, 26); // TX=GP8, RX=GP26
 
     // button
-    front_btn.begin(4, INPUT_PULLUP);
-    right_btn.begin(5, INPUT_PULLUP);
-    left_btn.begin(6, INPUT_PULLUP);
-    rear_btn.begin(7, INPUT_PULLUP);
+    front_btn.begin(4, INPUT_PULLDOWN);
+    right_btn.begin(5, INPUT_PULLDOWN);
+    left_btn.begin(6, INPUT_PULLDOWN);
+    rear_btn.begin(7, INPUT_PULLDOWN);
 
     // id確定
     String a;
@@ -550,6 +551,20 @@ void loop1()
     }
 
     keep_recv();
+
+    static uint32_t last_time = millis();
+    if (millis() - last_time > 100)
+    {
+        right_btn.update();
+        left_btn.update();
+        front_btn.update();
+        rear_btn.update();
+
+        last_time = millis();
+    }
+
+    bool confirm = right_btn.is_pushing() && left_btn.is_pushing();
+    small_alphabet_board.process(right_btn.is_pushing(), left_btn.is_pushing(), front_btn.is_pushing(), rear_btn.is_pushing(), confirm);
 
     ui::display.sendBuffer();
     ui::display.clearBuffer();

@@ -32,15 +32,18 @@ namespace lidar
     inline void process(int16_t gyro_deg) // RP2350との通信
     {
         // RP2350のデータを受送信
-        packet.update();
+        bool received = packet.update();
 
-        // t_data代入
-        packet.tx.gyro_deg = gyro_deg;
+        if (received)
+        {
+            // t_data代入
+            packet.tx.gyro_deg = gyro_deg;
 
-        // r_data代入
-        posi_x = packet.rx.x;
-        posi_y = packet.rx.y;
-        posi_enemy_x = packet.rx.enemy_x;
-        posi_enemy_y = packet.rx.enemy_y;
+            // r_data代入
+            posi_x = packet.rx.x;
+            posi_y = packet.rx.y;
+            posi_enemy_x = packet.rx.enemy_x;
+            posi_enemy_y = packet.rx.enemy_y;
+        }
     }
 }

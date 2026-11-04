@@ -18,6 +18,11 @@
 #include "module/motordriver.hpp"
 #include "module/ui.hpp"
 
+#define V1 // 従来のPD
+// #define V2 // 角速度による物理的根拠のあるPD
+
+#ifdef V1
+
 namespace motor
 {
     const int16_t pd_pow_limit = 500, move_pow_limit = 990;
@@ -163,28 +168,9 @@ namespace motor
 const motor::pd_data pd_gyro = {12.8f, 5.2f};
 const motor::pd_data pd_cam = {12.8f, 5.2f};
 
+#endif
+
 #ifdef V2
-
-#pragma once
-
-#include <Arduino.h>
-#include <math.h>
-// common
-#include "common/angle_asist.hpp"
-#include "common/bus_instance.hpp"
-#include "common/serial_packet.hpp"
-// device
-#include "device/bno.hpp"
-#include "device/button.hpp"
-#include "device/cyclic_timer.hpp"
-#include "device/led.hpp"
-#include "device/toggle.hpp"
-// module
-#include "module/camera.hpp"
-#include "module/lidar.hpp"
-#include "module/line.hpp"
-#include "module/motordriver.hpp"
-#include "module/ui.hpp"
 
 namespace motor
 {

@@ -26,14 +26,17 @@ public:
         _vector_y = length * sinf(rad);
     }
 
+    // 加算
     vector operator+(const vector &other) const
     {
         return vector(0.0f, 0.0f, _vector_x + other.x(), _vector_y + other.y());
     }
+    // 減算
     vector operator-(const vector &other) const
     {
         return vector(0.0f, 0.0f, _vector_x - other.x(), _vector_y - other.y());
     }
+    // 定数倍
     vector operator*(const float &scale) const
     {
         return vector(0.0f, 0.0f, _vector_x * scale, _vector_y * scale);
@@ -41,6 +44,11 @@ public:
     vector operator/(const float &scale) const
     {
         return vector(0.0f, 0.0f, _vector_x / scale, _vector_y / scale);
+    }
+    // 内積
+    float operator*(const vector &other) const
+    {
+        return _vector_x * other.x() + _vector_y * other.y();
     }
 
     bool is_empty() const { return (_vector_x == 0.0f && _vector_y == 0.0f); }
