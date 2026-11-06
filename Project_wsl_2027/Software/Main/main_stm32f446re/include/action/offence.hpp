@@ -59,7 +59,9 @@ void offence()
     {
         if (lidar::posi_x * lidar::posi_x + lidar::posi_y * lidar::posi_y > 100)
         {
-            motor::maximizemove(deg_wrap_float(posi_to_deg(-lidar::posi_x, -lidar::posi_y) - gyro.deg()), 600);
+            float r = sqrtf((float)lidar::posi_x * (float)lidar::posi_x + (float)lidar::posi_y * (float)lidar::posi_y);
+
+            motor::maximizemove(deg_wrap_float(posi_to_deg(-lidar::posi_x, -lidar::posi_y) - gyro.deg()), static_cast<int16_t>(r > 800 ? 800 : r));
         }
         else
         {
@@ -68,20 +70,22 @@ void offence()
     }
     else if (ps3::is_pushing(ps3::BUTTON::SQUARE))
     {
-        float rr = 0.0f;
+        static float r = 0.0f;
         if (!ps3::is_prev_pushing(ps3::BUTTON::SQUARE))
         {
-            rr = (float)lidar::posi_x * (float)lidar::posi_x + (float)lidar::posi_y * (float)lidar::posi_y;
+            r = sqrtf((float)lidar::posi_x * (float)lidar::posi_x + (float)lidar::posi_y * (float)lidar::posi_y);
         }
 
         vector o = vector(0.0f, 0.0f, static_cast<float>(-lidar::posi_x), static_cast<float>(-lidar::posi_y));
-        vector o_r = o * sqrtf(rr) / o.length();
+        vector o_r = o * r / o.length();
         vector t = o - o_r;
 
+        bool b1 = ps3::is_pushing(ps3::BUTTON::L1);
+        bool b2 = ps3::is_pushing(ps3::BUTTON::R1);
         vector m;
-        if (ps3::stick_ldis > 5)
+        if (b1 || b2)
         {
-            vector a = vector(ps3::stick_ldeg, ps3::stick_ldis * 600 / 128);
+            vector a = vector(0.0f, 0.0f, b1 ? -o.y() : o.y(), b1 ? o.x() : -o.x()) * 600.0f / o.length();
 
             m = a + t;                                              // 合力
             vector t_a = a * ((a * t) / (a.length() * a.length())); // tのa方向成分
@@ -95,7 +99,7 @@ void offence()
             m = t;
         }
 
-        motor::move(m.deg(), m.length());
+        motor::move(deg_wrap_float(m.deg() - gyro.deg()), m.length());
     }
     else
     {

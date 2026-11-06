@@ -50,34 +50,34 @@ public:
 
     void update()
     {
-        bool current_raw = false;
+        bool cur_raw = false;
         if (_pinmode == INPUT_PULLDOWN)
         {
-            current_raw = (digitalRead(_pin) == HIGH);
+            cur_raw = (digitalRead(_pin) == HIGH);
         }
         else if (_pinmode == INPUT_PULLUP)
         {
-            current_raw = (digitalRead(_pin) == LOW);
+            cur_raw = (digitalRead(_pin) == LOW);
         }
         else
         {
-            current_raw = (digitalRead(_pin) == HIGH);
+            cur_raw = (digitalRead(_pin) == HIGH);
         }
 
-        if (current_raw != _last_raw_state)
+        if (cur_raw != _last_raw_state)
         {
             _last_debounce_time = millis();
         }
 
         if ((millis() - _last_debounce_time) > _debounce_delay)
         {
-            if (current_raw != _pressed)
+            if (cur_raw != _pressed)
             {
-                _pressed = current_raw;
+                _pressed = cur_raw;
             }
         }
 
-        _last_raw_state = current_raw;
+        _last_raw_state = cur_raw;
         if (_pressed)
         {
             if (!_oldpressed)
@@ -94,14 +94,18 @@ public:
         _oldpressed = _pressed;
     }
 
-    bool isPushing() const { return _pressed; }
-    bool isReleased() const { return _released; }
+    bool is_pressed() const { return _pressed && !_oldpressed; }
+    bool is_pushing() const { return _pressed; }
+    bool is_released() const { return _released; }
 
-    unsigned long pushingTime() const { return _pushing_time; }
+    unsigned long pushing_time() const { return _pushing_time; }
 
-    void pushingTimeReset()
+    void pushing_time_reset()
     {
         _pushing_time = 0;
         _press_start_time = millis();
     }
 };
+
+inline button reset_btn;
+inline button sub_btn;

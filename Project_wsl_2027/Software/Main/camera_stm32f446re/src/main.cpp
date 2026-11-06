@@ -1,6 +1,14 @@
 #include <Arduino.h>
-#include "sensor/serial_packet.hpp"
-#include "sensor/bno.hpp"
+// common
+#include "common/serial_packet.hpp"
+#include "common/bus_instance.hpp"
+#include "common/const_number.hpp"
+// device
+#include "device/bno.hpp"
+#include "device/button.hpp"
+#include "device/cyclic_timer.hpp"
+#include "device/led.hpp"
+#include "device/toggle.hpp"
 
 extern "C" void SystemClock_Config(void)
 {
@@ -46,29 +54,73 @@ extern "C" void SystemClock_Config(void)
   }
 }
 
-HardwareSerial mySerial1(PA10, PA9); // ピンは外には出ていない // パソコンとの通信用
-HardwareSerial mySerial3(PC5, PB10); // 動作確認済み
-HardwareSerial mySerial5(PD2, PC12); // 動作確認済み
-HardwareSerial mySerial4(PA1, PA0);  // 動作確認済み
-HardwareSerial mySerial2(PA3, PA2);  // 動作確認済み // メインとの通信用
-HardwareSerial mySerial6(PC7, PC6);  // 動作確認済み
-
-TwoWire Wire1(PB9, PB8);
-TwoWire Wire3(PC9, PA8);
-
 struct t_data
 {
+  int16_t ball_deg = UNDETECTED;
+  int16_t ball_dis = UNDETECTED;
+  int16_t yellow_goal_deg = UNDETECTED;
+  int16_t yellow_goal_dis = UNDETECTED;
+  int16_t blue_goal_deg = UNDETECTED;
+  int16_t blue_goal_dis = UNDETECTED;
 } __attribute__((packed));
 struct r_data
 {
+} __attribute__((packed));
+serial_packet<t_data, r_data> packet;
+
+struct t_data_from_cam
+{
+} __attribute__((packed));
+struct r_data_from_cam
+{
   int16_t obj_x = 0, obj_y = 0;
 } __attribute__((packed));
-serial_packet<t_data, r_data> camera_packet[4]; // {front,right,back,left}
+serial_packet<t_data_from_cam, r_data_from_cam> camera_packet[4]; // {front,right,back,left}
 
 void setup()
 {
+  // pc
+  mySerial1.begin(115200);
+  // stm
+  mySerial6.begin(115200);
+  packet.begin(mySerial6);
+  // cam
+  mySerial4.begin(115200);
+  camera_packet[0].begin(mySerial4);
+
+  mySerial2.begin(115200);
+  camera_packet[1].begin(mySerial2);
+
+  mySerial5.begin(115200);
+  camera_packet[2].begin(mySerial5);
+
+  mySerial3.begin(115200);
+  camera_packet[3].begin(mySerial3);
+
+  // timer
+  cyclic_timer_1ms.begin(TIM9, 1);     // 1ms周期
+  cyclic_timer_10ms.begin(TIM6, 10);   // 10ms周期
+  cyclic_timer_200ms.begin(TIM7, 200); // 200ms周期
 }
 
 void loop()
 {
+  // 200ms周期
+  if (cyclic_timer_200ms.called())
+  {
+    mySerial1.print("ff");
+  }
+
+  // 10ms周期
+  if (cyclic_timer_10ms.called())
+  {
+    // cam更新
+    camera_packet[0].update();
+    camera_packet[1].update();
+    camera_packet[2].update();
+    camera_packet[3].update();
+
+    // stm更新
+    packet.update();
+  }
 }
